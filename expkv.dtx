@@ -1,0 +1,691 @@
+% \iffalse meta-comment
+%
+% File: expkv.dtx Copyright (C) 2020 Jonathan P. Spratte
+%
+% This work  may be  distributed and/or  modified under  the conditions  of the
+% LaTeX Project Public License (LPPL),  either version 1.3c  of this license or
+% (at your option) any later version.  The latest version of this license is in
+% the file:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+% ------------------------------------------------------------------------------
+%
+%<*driver>^^A>>=
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+\input l3docstrip.tex
+\askforoverwritefalse
+\preamble
+
+--------------------------------------------------------------
+expkv -- an expandable key=val implementation
+E-mail: jspratte@yahoo.de
+Released under the LaTeX Project Public License v1.3c or later
+See http://www.latex-project.org/lppl.txt
+--------------------------------------------------------------
+
+Copyright (C) 2020 Jonathan P. Spratte
+
+This  work may be  distributed and/or  modified under  the conditions  of the
+LaTeX Project Public License (LPPL),  either version 1.3c  of this license or
+(at your option) any later version.  The latest version of this license is in
+the file:
+
+  http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status) by
+  Jonathan P. Spratte.
+
+This work consists of the file  expkv.dtx
+and the derived files           expkv.pdf
+                                expkv.sty
+                                expkv.tex
+
+\endpreamble
+% stop docstrip adding \endinput
+\postamble
+\endpostamble
+\generate{\file{expkv.sty}{\from{expkv.dtx}{pkg}}}
+\generate{\file{expkv.tex}{\from{expkv.dtx}{tex}}}
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%
+\ProvidesFile{expkv.dtx}
+  [\csname expkv@date\endcsname\ an expandable key=val implementation]
+\PassOptionsToPackage{full}{textcomp}
+\documentclass{l3doc}
+\RequirePackage[oldstylenums]{kpfonts}
+\RequirePackage{listings}
+\lstset
+  {
+    ^^A,language=TeX
+    ,flexiblecolumns=false
+    ,basewidth=.52em
+    ,gobble=1
+    ,basicstyle=\itshape
+    ,morekeywords={\ekvdef,\ekvdefNoVal,\ekvset}
+  }
+\RequirePackage{randtext}
+\overfullrule5pt
+\IfFileExists{expkv.tex}{\input{expkv.tex}}{}
+\let\metaORIG\meta
+\protected\def\meta #1{\texttt{\metaORIG{#1}}}
+\renewcommand*\thefootnote{\fnsymbol{footnote}}
+\newcommand\kv{\meta{key}=\meta{value}}
+\newcommand\key{\meta{key}}
+\newcommand\val{\meta{value}}
+\makeatletter
+\renewcommand*\paragraph
+  {%
+    \@startsection
+      {paragraph}
+      {4}
+      {\z@}
+      {-3.25ex \@plus -1ex \@minus -.2ex}
+      {1ex \@plus .2ex}
+      {\normalfont\normalsize\bfseries}%
+  }
+\makeatother
+\begin{document}
+  \title{\pkg{expkv} -- an expandable \kv\ implementation}
+  \date{\csname ekv@date\endcsname\space v\csname ekv@version\endcsname}
+  \author{Jonathan P. Spratte\thanks{\protect\randomize{jspratte@yahoo.de}}}
+  \DocInput{expkv.dtx}
+\end{document}
+%</driver>^^A=<<
+% \fi
+%
+% \maketitle
+%
+% \begin{abstract}
+% \noindent\parfillskip=0pt
+% \pkg{expkv} provides a small interface for \kv\ parsing. The parsing macro is
+% fully expandable, the \meta{code} of your keys might not. \pkg{expkv} is
+% pretty fast, but not the fastest available \kv\ solution (\pkg{keyval} for
+% instance is twice as fast, but not expandable and it might strip braces it
+% shouldn't have stripped).
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \begin{documentation}^^A>>=
+%
+% \section{Documentation}
+%
+% \pkg{expkv} is usable as generic code or as a \LaTeX\ package. To use it, just
+% use:
+%\begin{lstlisting}
+%\usepackage{expkv} % LaTeX
+%\input expkv       % plainTeX
+%\end{lstlisting}
+% The \LaTeX\ package doesn't do more than \file{expkv.tex}, except calling
+% |\ProvidesPackage| and setting things up such that \file{expkv.tex} will use
+% |\ProvidesFile|.
+%
+% \subsection{Setting up Keys}\label{sec:define}
+%
+% Keys in \pkg{expkv} (as in almost all other \kv\ implementations) belong to a
+% \emph{set} such that different sets can contain keys of the same name. Unlike
+% many other implementations \pkg{expkv} doesn't provide means to set a default
+% value, instead we have keys that take values and keys that don't, but both
+% can have the same name (on the user level).
+%
+% The following macros are available to define new keys. Those macros containing
+% ``|def|'' in their name can be prefixed by anything allowed to prefix |\def|,
+% prefixes allowed for |\let| can prefix those with ``|let|'' in their name,
+% accordingly. Neither \meta{set} nor \key\ are allowed to be empty for new
+% keys.
+%
+% \begin{function}{\ekvdef}
+%   \begin{syntax}
+%     \cs{ekvdef}\marg{set}\marg{key}\marg{code}
+%   \end{syntax}
+%   Defines a \key\ taking a value in a \meta{set} to expand to \meta{code}. In
+%   \meta{code} you can use |#1| to refer to the given value.
+% \end{function}
+%
+% \begin{function}{\ekvdefNoVal}
+%   \begin{syntax}
+%     \cs{ekvdefNoVal}\marg{set}\marg{key}\marg{code}
+%   \end{syntax}
+%   Defines a \key\ not taking a value in a \meta{set} to expand to \meta{code}
+%   \meta{key}.
+% \end{function}
+%
+% \begin{function}{\ekvlet}
+%   \begin{syntax}
+%     \cs{ekvlet}\marg{set}\marg{key}\meta{cs}
+%   \end{syntax}
+%   Let the value taking \key\ in \meta{set} to \meta{cs}, it is not checked
+%   whether \meta{cs} exists or that it takes exactly one parameter.
+% \end{function}
+%
+% \begin{function}{\ekvletNoVal}
+%   \begin{syntax}
+%     \cs{ekvletNoVal}\marg{set}\marg{key}\meta{cs}
+%   \end{syntax}
+%   Let the no value taking \key\ in \meta{set} to \meta{cs}, it is not checked
+%   whether \meta{cs} exists or that it takes no parameter.
+% \end{function}
+%
+% \begin{function}{\ekvletkv}
+%   \begin{syntax}
+%     \cs{ekvletkv}\marg{set}\marg{key}\marg{set2}\marg{key2}
+%   \end{syntax}
+%   Let the \key\ in \meta{set} to \meta{key2} in \meta{set2}, it is not checked
+%   whether that second key exists.
+% \end{function}
+%
+% \begin{function}{\ekvletkvNoVal}
+%   \begin{syntax}
+%     \cs{ekvletkvNoVal}\marg{set}\marg{key}\marg{set2}\marg{key2}
+%   \end{syntax}
+%   Let the \key\ in \meta{set} to \meta{key2} in \meta{set2}, it is not checked
+%   whether that second key exists.
+% \end{function}
+%
+% \subsection{Parsing Keys}
+%
+% \begin{function}{\ekvset}
+%   \begin{syntax}
+%     \cs{ekvset}\marg{set}\{\kv,\kv,\ldots\}
+%   \end{syntax}
+%   Splits \kv\ pairs on commas. From both \key\ and \val\ up to one space is
+%   stripped from both ends, if then only a braced group remains the braces are
+%   stripped as well. So |\ekvset{foo}{bar=baz}| and
+%   |\ekvset{foo}{ {bar}= {baz} }| will both do
+%   \texttt{\cs{\meta{foobarkey}}\{baz\}}, so you can hide commas, equal signs
+%   and spaces at the end of either \key\ or \val\ by putting braces around
+%   them. If you omit the equal sign the code of the key created with the
+%   |NoVal| variants described in \autoref{sec:define} will be executed.
+% \end{function}
+%
+% \subsection{Example}
+%
+% Say we have a macro for which we want to create a \kv\ interface. The macro
+% has a parameter, which is stored in the dimension \cs{ourdim} having a default
+% value from its initialization. Now we want to be able to change that dimension
+% with the |width| key to some specified value. For that we'd do
+%\begin{lstlisting}
+%\newdimen\ourdim
+%\ourdim=150pt
+%\protected\ekvdef{our}{width}{\ourdim=#1\relax}
+%\end{lstlisting}
+% as you can see, we use the set |our| here. We want the key to behave different
+% if no value is specified. In that case the key should not use the its initial
+% value, but be smart and determine the available space from \cs{hsize}, so we
+% also define
+%\begin{lstlisting}
+%\protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}
+%\end{lstlisting}
+% Now we set up our macro to use this \kv\ interface
+%\begin{lstlisting}
+%\protected\def\ourmacro#1{\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
+%\end{lstlisting}
+% Finally we can use our macro like in the following\\
+% \begin{minipage}{6cm}
+%\begin{lstlisting}
+%\ourmacro{}\par
+%\ourmacro{width}\par
+%\ourmacro{width=5pt}\par
+%\end{lstlisting}
+% \end{minipage}^^A
+% \begin{minipage}{\dimexpr\linewidth-6cm\relax}
+%   \newdimen\ourdim\ourdim=150pt
+%   \protected\ekvdef{our}{width}{\ourdim=#1\relax}^^A
+%   \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}^^A
+%   \protected\def\ourmacro#1^^A
+%     {\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}^^A
+%   \ourmacro{}\par
+%   \ourmacro{width}\par
+%   \ourmacro{width=5pt}\par
+% \end{minipage}
+%
+% \subsection{Miscellaneous}
+%
+% You can either report bugs via mail (see the first page), or directly on
+% github if you own an account there:
+% \url{https://github.com/Skillmon/tex_expkv}
+%
+% \pkg{expkv} provides macros to check whether a key is defined or not:
+% \begin{function}{\ekvifdefined,\ekvifNoValdefined}
+%   \begin{syntax}
+%     \cs{ekvifdefined}\marg{set}\marg{key}\marg{true}\marg{false}
+%     \cs{ekvifNoValdefined}\marg{set}\marg{key}\marg{true}\marg{false}
+%   \end{syntax}
+%   These two macros test whether their is a \key\ in \meta{set}. It is false
+%   if there either doesn't exist an hash table entry for that key or its
+%   meaning is |\relax|.
+% \end{function}
+%
+% \bigskip
+% The names of the macros that correspond to a key in a set are build with the
+% macro
+%
+% \begin{function}{\ekv@name}
+%   \begin{syntax}
+%     \cs{ekv@name}\marg{set}\marg{key}
+%   \end{syntax}
+%   The default definition is
+%   \texttt{\csname ekv@name\endcsname{\meta{set}}{\key}}, for |NoVal| keys an
+%   additional |:n| gets appended, so their name is 
+%   \texttt{\csname ekv@name\endcsname{\meta{set}}{\key}:n}.
+% \end{function}
+%
+% \end{documentation}^^A=<<
+%
+% \begin{implementation}^^A>>=
+%
+% \clearpage
+%
+% \section{Implementation}^^A>>=
+%^^A the LaTeX package >>=
+% First we set up the \LaTeX\ package. That one doesn't really do much except
+% |\input|ting the generic code and identifying itself as a package.
+%    \begin{macrocode}
+%<*pkg>
+\def\ekv@stop
+  {%
+    \ProvidesFile{expkv.tex}%
+      [%
+        \ekv@date\space v\ekv@version\space
+        an expandable key=val implementation%
+      ]%
+  }
+\input{expkv.tex}
+\ProvidesPackage{expkv}%
+  [\ekv@date\space v\ekv@version\space an expandable key=val implementation]
+%</pkg>
+%    \end{macrocode}
+%^^A=<<
+%^^A main file >>=
+% The rest of this implementation will be the generic code.
+%    \begin{macrocode}
+%<*tex>
+%    \end{macrocode}
+%
+% Check whether \eTeX\ is available -- \pkg{expkv} requires \eTeX.
+%    \begin{macrocode}
+\begingroup\expandafter\expandafter\expandafter\endgroup
+\expandafter\ifx\csname numexpr\endcsname\relax
+  \errmessage{expkv requires e-TeX}
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+%
+% We make sure that it's only input once:
+%    \begin{macrocode}
+\expandafter\ifx\csname ekv@version\endcsname\relax
+\else
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+%
+% Change the category code of |@| and define the version and date:
+%    \begin{macrocode}
+\expandafter\chardef\csname ekv@waste\endcsname\catcode`\@
+\catcode`\@=11
+\def\ekv@version{0.1}
+\def\ekv@date{2020-01-08}
+%    \end{macrocode}
+% |\ekv@waste| might later be reused to gobble any prefixes which might be
+% provided to |\ekvdef| and similar in case the names are invalid, we just
+% temporarily use it here as means to store the current category code of |@| to
+% restore it at the end of the file, we never care for the actual definition of
+% it.
+%
+% If the \LaTeX\ format is loaded we want to be a good file and report back who
+% we are, for this the package will have defined |\ekv@stop| to use
+% |\ProvidesFile|, else this will expand to a |\relax| and do no harm. Later
+% |\ekv@stop| will be (re-)defined.
+%    \begin{macrocode}
+\csname ekv@stop\endcsname
+%    \end{macrocode}
+%
+% We'll need a few special tokens as delimiters here and there, but only
+% |\ekv@stop| needs to have a meaning, as it is used in an |\ifx| comparison.
+%    \begin{macrocode}
+\def\ekv@stop{\ekv@stop}
+%    \end{macrocode}
+%
+% Since branching tests are often more versatile than |\if...\else...\fi|
+% constructs, we define helpers that are branching pretty fast. Also here are
+% some other utility functions that just grab some tokens.
+%    \begin{macrocode}
+\long\def\ekv@gobble#1{}
+\long\def\ekv@gobbletostop#1\ekv@stop{}
+\long\def\ekv@firstofone#1{#1}
+\long\def\ekv@firstoftwo#1#2{#1}
+\long\def\ekv@secondoftwo#1#2{#2}
+\long\def\ekv@fi@gobble\fi\ekv@firstofone#1{\fi}
+\long\def\ekv@fi@secondoftwo\fi\ekv@firstoftwo#1#2{\fi#2}
+%    \end{macrocode}
+%
+% We can test for a lot of things building on an if-empty test, so lets define a
+% really fast one. Since some tests might have reversed logic (true if something
+% is not empty) we also set up macros for the reversed branches.
+%    \begin{macrocode}
+\long\def\ekv@ifempty#1%
+  {%
+    \ekv@ifempty@\ekv@ifempty@A#1\ekv@ifempty@B\ekv@ifempty@true
+      \ekv@ifempty@A\ekv@ifempty@B\ekv@secondoftwo
+  }
+\long\def\ekv@ifempty@#1\ekv@ifempty@A\ekv@ifempty@B{}
+\long\def\ekv@ifempty@true\ekv@ifempty@A\ekv@ifempty@B\ekv@secondoftwo#1#2%
+  {%
+    #1%
+  }
+\long\def\ekv@ifempty@false\ekv@ifempty@A\ekv@ifempty@B\ekv@firstoftwo#1#2%
+  {%
+    #2%
+  }
+%    \end{macrocode}
+%
+% The obvious test that can be based on an if-empty, is if-blank, meaning a test
+% checking whether the argument is empty or consists only of spaces. Our version
+% here will be tweaked a bit, as we want to check this, but with one leading
+% |\ekv@mark| token that is to be ignored.
+%    \begin{macrocode}
+\long\def\ekv@ifblank#1%
+  {%
+    \ekv@ifblank@#1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true
+      \ekv@ifempty@A\ekv@ifempty@B\ekv@secondoftwo
+  }
+\long\def\ekv@ifblank@\ekv@mark#1{\ekv@ifempty@\ekv@ifempty@A}
+%    \end{macrocode}
+%
+% We'll need to check whether something is defined quite frequently, so why not
+% define a macro that does this. The following test is expandable, slower than
+% the typical expandable test for undefined control sequences, but faster for
+% defined ones. Since we want to be as fast as possible for correct input, this
+% is to be preferred.
+%    \begin{macrocode}
+\def\ekv@ifdefined#1%
+  {%
+    \expandafter
+    \ifx\csname\ifcsname #1\endcsname #1\else relax\fi\endcsname\relax
+      \ekv@fi@secondoftwo
+    \fi
+    \ekv@firstoftwo
+  }
+%    \end{macrocode}
+%
+% The keys will all follow the same naming scheme, so we define it here.
+% \begin{macro}{\ekv@name}
+%    \begin{macrocode}
+\def\ekv@name#1#2{ekv(set #1)(key #2)}
+%    \end{macrocode}
+% \end{macro}
+% We place some restrictions on the allowed names, though, namely sets and
+% keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
+% or} key-names consisting of spaces).
+%    \begin{macrocode}
+\protected\long\def\ekv@checkvalid#1#2#3%
+  {%
+    \ekv@ifempty{#1}
+      {%
+        \def\ekv@waste{}%
+        \errmessage{expkv Error: empty set name not allowed.}%
+      }
+      {%
+        \ekv@ifempty{#2}
+          {%
+            \def\ekv@waste{}%
+            \errmessage{expkv Error: empty key name not allowed.}%
+          }
+          {#3}%
+      }%
+  }
+%    \end{macrocode}
+% And provide user-level macros to test whether a key is defined.
+% \begin{macro}{\ekvifdefined,\ekvifNoValdefined}
+%    \begin{macrocode}
+\def\ekvifdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}}}
+\def\ekvifNoValdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}:n}}
+%    \end{macrocode}
+% \end{macro}
+%
+% Set up |\ekvdef|, |\ekvdefNoVal|, |\ekvlet|, |\ekvletNoVal|, |\ekvletkv|, and
+% |\ekvletkvNoVal|. 
+% \begin{macro}{\ekvdef}
+%    \begin{macrocode}
+\protected\long\def\ekvdef#1#2#3%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {\expandafter\def\csname\ekv@name{#1}{#2}\endcsname##1{#3}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvdefNoVal}
+%    \begin{macrocode}
+\protected\long\def\ekvdefNoVal#1#2#3%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {\expandafter\def\csname\ekv@name{#1}{#2}:n\endcsname{#3}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvlet}
+%    \begin{macrocode}
+\protected\def\ekvlet#1#2%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {\expandafter\let\csname\ekv@name{#1}{#2}\endcsname}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvletNoVal}
+%    \begin{macrocode}
+\protected\def\ekvletNoVal#1#2%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {\expandafter\let\csname\ekv@name{#1}{#2}:n\endcsname}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvletkv}
+%    \begin{macrocode}
+\protected\def\ekvletkv#1#2#3#4%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {%
+        \expandafter\let\csname\ekv@name{#1}{#2}\expandafter\endcsname
+        \csname\ekv@name{#1}{#2}\endcsname
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvletkvNoVal}
+%    \begin{macrocode}
+\protected\def\ekvletkvNoVal#1#2#3#4%
+  {%
+    \ekv@checkvalid{#1}{#2}
+      {%
+        \expandafter\let\csname\ekv@name{#1}{#2}:n\expandafter\endcsname
+        \csname\ekv@name{#1}{#2}:n\endcsname
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% And set up |\ekvset|
+% \begin{macro}{\ekvset}
+%    \begin{macrocode}
+\long\def\ekvset#1#2%
+  {%
+    \ekv@parse{#1}\ekv@mark#2,\ekv@stop,%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% |\ekvset@parse| needs to split the second argument to |\ekvset| at the commas,
+% but since we don't want to accidentally strip braces around anything we put a
+% leading |\ekv@mark| at the begin of |#2|.
+%    \begin{macrocode}
+\long\def\ekv@parse#1#2,%
+  {%
+%    \end{macrocode}
+% First check whether we're done.
+%    \begin{macrocode}
+    \ekv@ifstop#2%
+      \ekv@fi@gobble
+    \fi
+    \ekv@firstofone
+    {%
+%    \end{macrocode}
+% Next check whether we got an empty list element and if not check whether we
+% got a \kv\ pair or just a \key.
+%    \begin{macrocode}
+      \ekv@ifblank{#2}{}
+        {%
+          \ekv@ifhaseq#2=\ekv@stop
+            {\ekv@parse@pair{#1}#2\ekv@stop}
+            {\ekv@strip{#2}\ekv@parse@key{#1}}%
+        }%
+%    \end{macrocode}
+% Finally grab the next key.
+%    \begin{macrocode}
+      \ekv@parse{#1}\ekv@mark
+    }%
+  }
+%    \end{macrocode}
+%
+% The |\ekv@ifstop| test needs to gobble one token (|\ekv@mark|) and after that
+% can input the test for |\ekv@stop|.
+%    \begin{macrocode}
+\def\ekv@ifstop\ekv@mark{\ifx\ekv@stop}
+%    \end{macrocode}
+%
+% The |\ekv@ifhaseq| test is one of the tests which can be reduced to an
+% if-empty test with reversed logic.
+%    \begin{macrocode}
+\long\def\ekv@ifhaseq#1=#2\ekv@stop
+  {%
+    \ekv@ifempty@\ekv@ifempty@A#2\ekv@ifempty@B\ekv@ifempty@false
+      \ekv@ifempty@A\ekv@ifempty@B\ekv@firstoftwo
+  }
+%    \end{macrocode}
+%
+% |\ekv@parse@pair| needs to split the argument at the |=| sign and check
+% whether the key is defined.
+%    \begin{macrocode}
+\long\def\ekv@parse@pair#1#2=%
+  {%
+    \ekv@strip{#2}\ekv@parse@pair@a{#1}%
+  }
+\long\def\ekv@parse@pair@a#1#2%
+  {%
+    \ekv@ifdefined{\ekv@name{#2}{#1}}
+      {\expandafter\ekv@parse@pair@b\csname\ekv@name{#2}{#1}\endcsname\ekv@mark}
+      {%
+        \ekv@ifdefined{\ekv@name{#2}{#1}:n}
+          \ekv@err@noarg
+          \ekv@err@unknown
+          {#2}{#1}%
+        \ekv@gobbletostop
+      }%
+  }
+\long\def\ekv@parse@pair@b#1#2\ekv@stop
+  {%
+    \ekv@strip{#2}#1%
+  }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\long\def\ekv@parse@key#1#2%
+  {%
+    \ekv@ifdefined{\ekv@name{#2}{#1}:n}
+      {\csname\ekv@name{#2}{#1}:n\endcsname}
+      {%
+        \ekv@ifdefined{\ekv@name{#2}{#1}}
+          \ekv@err@reqval
+          \ekv@err@unknown
+          {#2}{#1}%
+      }%
+  }
+%    \end{macrocode}
+%
+% Since |\ekvset| is fully expandable as long as the code of the keys is (which
+% is unlikely) we want to somehow throw expandable errors, in our case via
+% undefined control sequences.
+%    \begin{macrocode}
+\begingroup
+\edef\ekv@err
+  {%
+    \endgroup
+    \unexpanded{\long\def\ekv@err}##1%
+      {%
+        \unexpanded{\expandafter\ekv@err@\ekv@firstofone}%
+        {\expandafter\noexpand\csname ! expkv Error:\endcsname ##1.}%
+        \unexpanded{\ekv@stop}%
+      }%
+  }
+\ekv@err
+\def\ekv@err@{\expandafter\ekv@gobbletostop}
+%    \end{macrocode}
+% Now we can use |\ekv@err| to setup some error messages so that we can later
+% use those instead of the full strings.
+%    \begin{macrocode}
+\def\ekv@err@emptyset{\ekv@err{empty set name}}
+\def\ekv@err@emptykey  {\ekv@err{empty key name}}
+\long\def\ekv@err@unknown#1#2{\ekv@err{unknown key (`#2', set `#1')}}
+\long\def\ekv@err@noarg  #1#2{\ekv@err{value forbidden (`#2', set `#1')}}
+\long\def\ekv@err@reqval #1#2{\ekv@err{value required (`#2', set `#1')}}
+%    \end{macrocode}
+%
+% Finally we borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
+% from keys and values. This |\ekv@strip| also strips one level of outer braces
+% \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
+% stripping. It should be used with |#1| prefixed by |\ekv@mark|.
+%    \begin{macrocode}
+\def\ekv@strip#1%
+  {%
+    \long\def\ekv@strip##1%
+      {%
+        \ekv@strip@a
+          ##1%
+          \ekv@nil
+          \ekv@mark#1%
+          #1\ekv@nil{}%
+        \ekv@stop
+      }%
+    \long\def\ekv@strip@a##1\ekv@mark#1##2\ekv@nil##3%
+      {%
+        \ekv@strip@b##3##1##2\ekv@nil
+      }%
+    \long\def\ekv@strip@b##1#1\ekv@nil
+      {%
+        \ekv@strip@c##1\ekv@nil
+      }%
+    \long\def\ekv@strip@c\ekv@mark##1\ekv@nil##2\ekv@stop##3%
+      {%
+        ##3{##1}%
+      }%
+  }
+\ekv@strip{ }
+%    \end{macrocode}
+%
+% Now everything that's left is to reset the category code of |@|.
+%    \begin{macrocode}
+\catcode`\@\ekv@waste
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
+%</tex>
+%    \end{macrocode}
+%^^A=<<
+%
+%^^A=<<
+%
+% \end{implementation}^^A=<<
+%
+\endinput
+%
+^^A vim: ft=tex fdm=marker fmr=>>=,=<<
