@@ -83,22 +83,23 @@ and the derived files           expkv.pdf
 \colorlet{expkvred}{red!65!black}
 \colorlet{expkvgrey}{black!75}
 \makeatletter
-^^A unfortunately, the vertical offset doesn't work well in huge, so we need a
-^^A second version for the title
+^^A unfortunately, the vertical offset doesn't work well in huge bold, so we
+^^A need a second version for the title
 \newcommand*\expkv@logo[1]
   {^^A
     \texorpdfstring
       {^^A
         \begingroup
           \sbox2{k\kern-.23em}^^A
-          \textcolor{expkvgrey}{e\kern-.05em x\kern-.05em p\kern-.1em}^^A
-          \textcolor{expkvred}{\lower#1\hbox{k}\kern-.18em v}^^A
+          {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+          \lower#1\hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+          \kern-.18em{\color{expkvred}v}^^A
         \endgroup
       }
       {expkv}^^A
   }
-\newcommand*\expkv{\expkv@logo{.567ex}}
-\newcommand*\expkvtitle{\expkv@logo{.537ex}}
+\newcommand*\expkv{\expkv@logo{.521ex}}
+\newcommand*\expkvtitle{\expkv@logo{.493ex}}
 \newcommand\kv{\meta{key}=\meta{value}}
 \newcommand\key{\meta{key}}
 \newcommand\val{\meta{value}}
@@ -539,7 +540,7 @@ and the derived files           expkv.pdf
 \expandafter\chardef\csname ekv@waste\endcsname\catcode`\@
 \catcode`\@=11
 \def\ekv@version{0.1}
-\def\ekv@date{2020-01-08}
+\def\ekv@date{2020-01-11}
 %    \end{macrocode}
 % |\ekv@waste| might later be reused to gobble any prefixes which might be
 % provided to |\ekvdef| and similar in case the names are invalid, we just
