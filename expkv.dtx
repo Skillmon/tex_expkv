@@ -85,21 +85,19 @@ and the derived files           expkv.pdf
 \makeatletter
 ^^A unfortunately, the vertical offset doesn't work well in huge bold, so we
 ^^A need a second version for the title
-\newcommand*\expkv@logo[1]
+\newcommand*\expkv
   {^^A
     \texorpdfstring
       {^^A
         \begingroup
-          \sbox2{k\kern-.23em}^^A
-          {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
-          \lower#1\hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
-          \kern-.18em{\color{expkvred}v}^^A
+        \bfseries
+        {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+        \lower.493ex\hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+        \kern-.18em{\color{expkvred}v}^^A
         \endgroup
       }
       {expkv}^^A
   }
-\newcommand*\expkv{\expkv@logo{.521ex}}
-\newcommand*\expkvtitle{\expkv@logo{.493ex}}
 \newcommand\kv{\meta{key}=\meta{value}}
 \newcommand\key{\meta{key}}
 \newcommand\val{\meta{value}}
@@ -113,7 +111,7 @@ and the derived files           expkv.pdf
         {^^A
           \huge
           \href{https://github.com/Skillmon/tex_expkv}
-            {\textbf{\expkvtitle}}^^A
+            {\expkv}^^A
           \\[\medskipamount]
           \Large an expandable \kv\ implementation^^A
         }{expkv - an expandable <key>=<value> implementation}^^A
