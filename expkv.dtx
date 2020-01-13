@@ -62,7 +62,10 @@ and the derived files           expkv.pdf
 \documentclass{l3doc}
 \RequirePackage[oldstylenums]{kpfonts}
 \RequirePackage{listings}
+\RequirePackage{booktabs}
+\RequirePackage{siunitx}
 \RequirePackage{xcolor}
+\RequirePackage{caption}
 \RequirePackage{microtype}
 \lstset
   {
@@ -342,7 +345,8 @@ and the derived files           expkv.pdf
 % \href{https://ctan.org/topic/keyval}{CTAN}, however, one might notice that
 % some of those are missing from this list. That's because I didn't get the
 % others to work due to bugs, or because they just provide wrappers around other
-% packages in this list.
+% packages in this list. For the impatient, the essence of these comparisons
+% regarding speed and buggy behaviour is contained in \autoref{tab:comp}.
 %
 % \paragraph{\pkg{keyval}} is almost 2.5 times faster and has a comparable
 % feature set just a slightly different way how it handles keys without values.
@@ -394,9 +398,9 @@ and the derived files           expkv.pdf
 % different from 12. Else the features of the keys are equal to those of
 % \pkg{keyval}, the parser has more features, though.
 %
-% \paragraph{\pkg{options}} is almost as fast as \expkv\ (about 15\,\% slower)
-% and has a much bigger feature set. Unfortunately it also suffers from the
-% premature unbracing bug \pkg{keyval} has.
+% \paragraph{\pkg{options}} is almost as fast as \expkv\ (about
+% \SI{15}{\percent} slower) and has a much bigger feature set. Unfortunately it
+% also suffers from the premature unbracing bug \pkg{keyval} has.
 %
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
 % I don't understand the documentation) and from what I can see, there is no
@@ -419,6 +423,36 @@ and the derived files           expkv.pdf
 % \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
 % \setparameterlist{yax}{ height = 6 }                       % benchmarked
 % \end{lstlisting}
+%
+% \begin{table}
+%   \centering
+%   \newcommand*\yes{\textcolor{red!80!black}  {yes}}^^A
+%   \newcommand*\no {\textcolor{green!80!black}{no}}^^A
+%   \caption[Comparison of \kv\ packages]
+%     {^^A
+%       Comparison of \kv\ packages. Operations are the required operations to
+%       evaluate one key, measured with the \pkg{l3benchmark} package (and a
+%       target time of \SI{20}{\second}), which only returns the three most
+%       significant digits.^^A
+%       \label{tab:comp}^^A
+%     }
+%   \begin{tabular}{lS[table-format=4.1]cc}
+%     \toprule
+%     Package & {Operations} & Brace-Bug & Date \\
+%     \midrule
+%     \pkg{keyval}    &   15.2 & \yes    & 2014-10-28 \\
+%     \expkv          &   37.2 & \no     & 2020-01-12 \\
+%     \pkg{options}   &   41.9 & \yes    & 2015-03-01 \\
+%     \pkg{pgfkeys}   &   72.3 & \yes    & 2019-12-21 \\
+%     \pkg{kvsetkeys} &   99.2 & \no     & 2019-12-15 \\
+%     \pkg{l3keys}    &  143   & \no     & 2019-11-07 \\
+%     \pkg{simplekv}  &  185   & \yes    & 2017-08-08 \\
+%     \pkg{xkeyval}   &  446   & \yes    & 2014-12-03 \\
+%     \pkg{yax}       &  543   & \yes    & 2010-01-22 \\
+%     \pkg{ltxkeys}   & 9260   & \no     & 2012-11-17 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
 %
 % \subsection{Error Messages}
 %
@@ -738,10 +772,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % First check whether we're done.
 %    \begin{macrocode}
-    \ekv@ifstop#2%
-      \ekv@endparse
-    \fi
-    \@firstofone
+    \ekv@ifstop#2\ekv@endparse\ekv@mark\ekv@stop\@firstofone
     {%
 %    \end{macrocode}
 % Next check whether we got an empty list element and if not check whether we
@@ -761,16 +792,17 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 %
-% The |\ekv@ifstop| test needs to gobble one token (|\ekv@mark|) and after that
-% can input the test for |\ekv@stop|.
+% The |\ekv@ifstop| test works similar to our if-empty test, but instead of
+% using tokens which are used nowhere else (|\ekv@ifempty@A| and
+% |\ekv@ifempty@B|) we use |\ekv@mark| and |\ekv@stop|.
 %    \begin{macrocode}
-\def\ekv@ifstop\ekv@mark{\ifx\ekv@stop}
+\long\def\ekv@ifstop#1\ekv@mark\ekv@stop{}
 %    \end{macrocode}
 %
 % The |\ekv@endparse| macro will have to gobble some tokens to end |\ekvset|'s
 % effects.
 %    \begin{macrocode}
-\long\def\ekv@endparse\fi\@firstofone#1#2{\fi#2}
+\long\def\ekv@endparse\ekv@mark\ekv@stop\@firstofone#1#2{#2}
 %    \end{macrocode}
 %
 %
