@@ -591,7 +591,7 @@ and the derived files           expkv.pdf
 % We'll need a few special tokens as delimiters here and there, but only
 % |\ekv@stop| needs to have a meaning, as it is used in an |\ifx| comparison.
 %    \begin{macrocode}
-\def\ekv@stop{\ekv@stop}
+\def\ekv@stop{\ekv@err{expanded \ekv@stop}}
 %    \end{macrocode}
 %
 % Since branching tests are often more versatile than |\if...\else...\fi|
@@ -617,14 +617,9 @@ and the derived files           expkv.pdf
       \ekv@ifempty@A\ekv@ifempty@B\@secondoftwo
   }
 \long\def\ekv@ifempty@#1\ekv@ifempty@A\ekv@ifempty@B{}
-\long\def\ekv@ifempty@true\ekv@ifempty@A\ekv@ifempty@B\@secondoftwo#1#2%
-  {%
-    #1%
-  }
-\long\def\ekv@ifempty@false\ekv@ifempty@A\ekv@ifempty@B\@firstoftwo#1#2%
-  {%
-    #2%
-  }
+\long\def\ekv@ifempty@true\ekv@ifempty@A\ekv@ifempty@B\@secondoftwo#1#2{#1}
+\long\def\ekv@ifempty@false\ekv@ifempty@A\ekv@ifempty@B\@firstoftwo#1#2{#2}
+\long\def\ekv@ifempty@true@F\ekv@ifempty@A\ekv@ifempty@B\@firstofone#1{}
 %    \end{macrocode}
 %
 % The obvious test that can be based on an if-empty is if-blank, meaning a test
@@ -632,10 +627,10 @@ and the derived files           expkv.pdf
 % here will be tweaked a bit, as we want to check this, but with one leading
 % |\ekv@mark| token that is to be ignored.
 %    \begin{macrocode}
-\long\def\ekv@ifblank#1%
+\long\def\ekv@ifblankF#1%
   {%
-    \ekv@ifblank@#1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true
-      \ekv@ifempty@A\ekv@ifempty@B\@secondoftwo
+    \ekv@ifblank@#1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
+      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
   }
 \long\def\ekv@ifblank@\ekv@mark#1{\ekv@ifempty@\ekv@ifempty@A}
 %    \end{macrocode}
@@ -753,15 +748,76 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% And set up |\ekvset|
+% And set up |\ekvset|, which should not be affected by active commas and equal
+% signs. The equal signs are a bit harder to cope with and we'll do that later,
+% but replacing the active commas with commas of category other can be done
+% beforehand. That's why we define |\ekvset| here with a temporary meaning just
+% to set up the things with two different category codes. |#1| will be a
+% \texttt{,\textsubscript{13}} and |#2| will be a \texttt{=\textsubscript{13}}.
 % \begin{macro}{\ekvset}
 %    \begin{macrocode}
-\long\def\ekvset#1#2%
+\def\ekvset#1#2{%
+\endgroup
+\long\def\ekvset##1##2%
   {%
-    \ekv@parse{#1}\ekv@mark#2,\ekv@stop,{}%
+    \expanded
+      {%
+        \unexpanded{\ekv@parse{##1}}%
+        \ekv@splitcomma@active\ekv@mark##2#1\ekv@stop#1%
+      }%
+      \ekv@mark\ekv@stop,{}%
   }
 %    \end{macrocode}
 % \end{macro}
+% The macro |\ekv@splitcomma@active| will replace all the active commas with
+% others, place an |\ekv@mark| after each comma, and remove empty list elements.
+%    \begin{macrocode}
+\long\def\ekv@splitcomma@active##1#1%
+  {%
+    \ekv@ifstop##1\ekv@endsplit\ekv@mark\ekv@stop\@firstofone
+      {%
+        \ekv@splitcomma@other##1,\ekv@stop,%
+        \ekv@splitcomma@active\ekv@mark
+      }%
+  }
+\long\def\ekv@splitcomma@other##1,%
+  {%
+    \ekv@ifstop##1\ekv@endsplit\ekv@mark\ekv@stop\@firstofone
+      {\ekv@ifblankF{##1}{\unexpanded{##1},}\ekv@splitcomma@other\ekv@mark}%
+  }
+%    \end{macrocode}
+% Additionally we'll need a macro which can determine if the key-name includes
+% an active equal sign, meaning it was broken at the wrong equal sign, and
+% resplits the key-name pair.
+%    \begin{macrocode}
+\long\def\ekv@ifhaseq@active##1%
+  {%
+    \ekv@ifhaseq@active@##1#2\ekv@ifempty@B\ekv@ifempty@false
+    \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+  }
+\long\def\ekv@ifhaseq@active@##1#2{\ekv@ifempty@\ekv@ifempty@A}
+\long\def\ekv@spliteq@active##1##2#2%
+  {%
+    \ekv@strip{##2}\ekv@parse@pair@a{##1}%
+  }
+%    \end{macrocode}
+% Finally really setting things up with |\ekvset|'s temporary meaning:
+%    \begin{macrocode}
+}
+\begingroup
+\catcode`\,13
+\catcode`\=13
+\ekvset,=
+%    \end{macrocode}
+%
+% The first thing |\ekvset| has to do is normalize active commas and equals, so
+% that we're category code safe (e.g., in \LaTeX\ babel might make one of these
+% active depending on the language choice). For that we define |\ekv@normalize|.
+% In the following |#1| will be an active comma and |#2| will be an active equal
+% sign.
+%    \begin{macrocode}
+\long\def\ekv@endsplit\ekv@mark\ekv@stop\@firstofone#1{}
+%    \end{macrocode}
 %
 % |\ekvset@parse| needs to split the second argument to |\ekvset| at the commas,
 % but since we don't want to accidentally strip braces around anything we put a
@@ -770,25 +826,31 @@ and the derived files           expkv.pdf
 \long\def\ekv@parse#1#2,%
   {%
 %    \end{macrocode}
-% First check whether we're done.
+% First check whether we got an equal sign or an active equal sign.
 %    \begin{macrocode}
-    \ekv@ifstop#2\ekv@endparse\ekv@mark\ekv@stop\@firstofone
-    {%
+    \ekv@ifhaseq@other{#2}
+      {\ekv@parse@pair{#1}#2\ekv@stop}
+      {%
+        \ekv@ifhaseq@active{#2}%
+          {\ekv@spliteq@active{#1}#2\ekv@stop}%
+          {%
 %    \end{macrocode}
-% Next check whether we got an empty list element and if not check whether we
-% got a \kv\ pair or just a \key.
+% If we don't have both, check whether we're done.
 %    \begin{macrocode}
-      \ekv@ifblank{#2}{}
-        {%
-          \ekv@ifhaseq#2=\ekv@stop
-            {\ekv@parse@pair{#1}#2\ekv@stop}
-            {\ekv@strip{#2}\ekv@parse@key{#1}}%
-        }%
+            \ekv@ifstop#2\ekv@endparse\ekv@mark\ekv@stop\@firstofone
+              {%
+%    \end{macrocode}
+% If we don't have an equal sign and aren't done, then we have a |NoVal|
+% situation.
+%    \begin{macrocode}
+                \ekv@strip{#2}\ekv@parse@key{#1}%
 %    \end{macrocode}
 % Finally grab the next key.
 %    \begin{macrocode}
-      \ekv@parse{#1}\ekv@mark
-    }%
+              }%
+          }%
+      }%
+    \ekv@parse{#1}%
   }
 %    \end{macrocode}
 %
@@ -802,18 +864,19 @@ and the derived files           expkv.pdf
 % The |\ekv@endparse| macro will have to gobble some tokens to end |\ekvset|'s
 % effects.
 %    \begin{macrocode}
-\long\def\ekv@endparse\ekv@mark\ekv@stop\@firstofone#1#2{#2}
+\long\def\ekv@endparse\ekv@mark\ekv@stop\@firstofone#1\ekv@parse#2#3{#3}
 %    \end{macrocode}
 %
 %
-% The |\ekv@ifhaseq| test is one of the tests which can be reduced to an
+% The |\ekv@ifhaseq@other| test is one of the tests which can be reduced to an
 % if-empty test with reversed logic.
 %    \begin{macrocode}
-\long\def\ekv@ifhaseq#1=#2\ekv@stop
+\long\def\ekv@ifhaseq@other#1%
   {%
-    \ekv@ifempty@\ekv@ifempty@A#2\ekv@ifempty@B\ekv@ifempty@false
+    \ekv@ifhaseq@other@#1=\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
   }
+\long\def\ekv@ifhaseq@other@#1={\ekv@ifempty@\ekv@ifempty@A}
 %    \end{macrocode}
 %
 % |\ekv@parse@pair| needs to split the argument at the |=| sign and check
@@ -821,7 +884,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@pair#1#2=%
   {%
-    \ekv@strip{#2}\ekv@parse@pair@a{#1}%
+    \ekv@ifhaseq@active{#2}{\ekv@spliteq@active{#1}#2=}
+      {\ekv@strip{#2}\ekv@parse@pair@a{#1}}%
   }
 \long\def\ekv@parse@pair@a#1#2%
   {%
