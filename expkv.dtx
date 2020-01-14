@@ -76,14 +76,17 @@ and the derived files           expkv.pdf
     ,morekeywords={\ekvdef,\ekvdefNoVal,\ekvset}
     ,morecomment=[l]\%
     ,commentstyle=\color[gray]{0.4}
+    ,literate={\{}{{\CodeSymbol\{}}{1}
+              {\}}{{\CodeSymbol\}}}{1}
     ^^A,literate=*{<key>}{\key}{4}{<set>}{\set}{4}
   }
+\newcommand*\CodeSymbol[1]{\textbf{#1}}
 \RequirePackage{randtext}
 \IfFileExists{expkv.tex}{\input{expkv.tex}}{}
 \let\metaORIG\meta
 \protected\def\meta #1{\texttt{\metaORIG{#1}}}
 \renewcommand*\thefootnote{\fnsymbol{footnote}}
-\colorlet{expkvred}{red!65!black}
+\definecolor{expkvred}{HTML}{9F393D}
 \colorlet{expkvgrey}{black!75}
 \makeatletter
 \newcommand*\expkv
@@ -406,7 +409,7 @@ and the derived files           expkv.pdf
 % Else the features of the keys are equal to those of \pkg{keyval}, the parser
 % has more features, though.
 %
-% \paragraph{\pkg{options}} is a bit faster than \expkv\ (about
+% \paragraph{\pkg{options}} is a bit faster than \expkv\ (almost
 % \SI{20}{\percent}) and has a much bigger feature set. Unfortunately it also
 % suffers from the premature unbracing bug \pkg{keyval} has.
 %
@@ -415,7 +418,7 @@ and the derived files           expkv.pdf
 % direct way to define the equivalent test key. Nevertheless, I tested the
 % closest possible equivalent of my test key while siding for \pkg{simplekv}'s
 % design not forcing something into it it doesn't seem to be designed for. It is
-% almost four times slower and has hard to predict behaviour regarding brace and
+% about four times slower and has hard to predict behaviour regarding brace and
 % space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
@@ -423,10 +426,10 @@ and the derived files           expkv.pdf
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
-% \paragraph{\pkg{yax}} is twelve times slower. It has a pretty strange syntax,
-% imho, and again a direct equivalent is hard to define. It has the premature
-% unbracing bug, too. Also somehow loading \pkg{yax} broke \pkg{options} for me.
-% The tested definition was:
+% \paragraph{\pkg{yax}} is almost twelve times slower. It has a pretty strange
+% syntax, imho, and again a direct equivalent is hard to define. It has the
+% premature unbracing bug, too. Also somehow loading \pkg{yax} broke
+% \pkg{options} for me. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{yax}
 % \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
@@ -450,16 +453,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     Package & {Operations} & Brace-Bug & Category Fragile & Date \\
 %     \midrule
-%     \pkg{keyval}    &   15.2 & \yes    & \yes             & 2014-10-28 \\
-%     \pkg{options}   &   38.0 & \yes    & \yes             & 2015-03-01 \\
-%     \expkv          &   45.3 & \no     & \no              & 2020-01-14 \\
-%     \pkg{pgfkeys}   &   69.1 & \yes    & \yes             & 2019-12-21 \\
-%     \pkg{kvsetkeys} &   96.0 & \no     & \no              & 2019-12-15 \\
+%     \pkg{keyval}    &   15.5 & \yes    & \yes             & 2014-10-28 \\
+%     \pkg{options}   &   37.9 & \yes    & \yes             & 2015-03-01 \\
+%     \expkv          &   45.1 & \no     & \no              & 2020-01-14 \\
+%     \pkg{pgfkeys}   &   69.7 & \yes    & \yes             & 2019-12-21 \\
+%     \pkg{kvsetkeys} &   97.1 & \no     & \no              & 2019-12-15 \\
 %     \pkg{l3keys}    &  141   & \no     & \no              & 2019-11-07 \\
-%     \pkg{simplekv}  &  178   & \yes    & \yes             & 2017-08-08 \\
-%     \pkg{xkeyval}   &  443   & \yes    & \yes             & 2014-12-03 \\
-%     \pkg{yax}       &  547   & \yes    & \yes             & 2010-01-22 \\
-%     \pkg{ltxkeys}   & 9260   & \no     & \no              & 2012-11-17 \\
+%     \pkg{simplekv}  &  180   & \yes    & \yes             & 2017-08-08 \\
+%     \pkg{xkeyval}   &  447   & \yes    & \yes             & 2014-12-03 \\
+%     \pkg{yax}       &  534   & \yes    & \yes             & 2010-01-22 \\
+%     \pkg{ltxkeys}   & 9010   & \no     & \no              & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 % \end{table}
