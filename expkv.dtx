@@ -117,7 +117,7 @@ and the derived files           expkv.pdf
           \Large an expandable \kv\ implementation^^A
         }{expkv - an expandable <key>=<value> implementation}^^A
     }
-  \date{\csname ekv@date\endcsname\space v\csname ekv@version\endcsname}
+  \date{\csname ekvDate\endcsname\space v\csname ekvVersion\endcsname}
   \author{Jonathan P. Spratte\thanks{\protect\randomize{jspratte@yahoo.de}}}
   \DocInput{expkv.dtx}
 \end{document}
@@ -540,17 +540,17 @@ and the derived files           expkv.pdf
 % |\input|ting the generic code and identifying itself as a package.
 %    \begin{macrocode}
 %<*pkg>
-\def\ekv@stop
+\def\ekv@tmp
   {%
     \ProvidesFile{expkv.tex}%
       [%
-        \ekv@date\space v\ekv@version\space
+        \ekvDate\space v\ekvVersion\space
         an expandable key=val implementation%
       ]%
   }
 \input{expkv.tex}
 \ProvidesPackage{expkv}%
-  [\ekv@date\space v\ekv@version\space an expandable key=val implementation]
+  [\ekvDate\space v\ekvVersion\space an expandable key=val implementation]
 %</pkg>
 %    \end{macrocode}
 %^^A=<<
@@ -571,38 +571,35 @@ and the derived files           expkv.pdf
 %
 % We make sure that it's only input once:
 %    \begin{macrocode}
-\expandafter\ifx\csname ekv@version\endcsname\relax
+\expandafter\ifx\csname ekvVersion\endcsname\relax
 \else
   \expandafter\endinput
 \fi
 %    \end{macrocode}
-%
-% Change the category code of |@| and define the version and date:
+% We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\expandafter\chardef\csname ekv@waste\endcsname=\catcode`\@
-\catcode`\@=11
-\def\ekv@version{0.2}
-\def\ekv@date{2020-01-14}
+\def\ekvVersion{0.2}
+\def\ekvDate{2020-01-14}
 %    \end{macrocode}
-% |\ekv@waste| might later be reused to gobble any prefixes which might be
+%
+% If the \LaTeX\ format is loaded we want to be a good file and report back who
+% we are, for this the package will have defined |\ekv@tmp| to use
+% |\ProvidesFile|, else this will expand to a |\relax| and do no harm.
+%    \begin{macrocode}
+\csname ekv@tmp\endcsname
+%    \end{macrocode}
+%
+% Store the category code of |@| to later be able to reset it and change it to
+% 11.
+%    \begin{macrocode}
+\expandafter\chardef\csname ekv@tmp\endcsname=\catcode`\@
+\catcode`\@=11
+%    \end{macrocode}
+% |\ekv@tmp| might later be reused to gobble any prefixes which might be
 % provided to |\ekvdef| and similar in case the names are invalid, we just
 % temporarily use it here as means to store the current category code of |@| to
 % restore it at the end of the file, we never care for the actual definition of
 % it.
-%
-% If the \LaTeX\ format is loaded we want to be a good file and report back who
-% we are, for this the package will have defined |\ekv@stop| to use
-% |\ProvidesFile|, else this will expand to a |\relax| and do no harm. Later
-% |\ekv@stop| will be (re-)defined.
-%    \begin{macrocode}
-\csname ekv@stop\endcsname
-%    \end{macrocode}
-%
-% We'll need a few special tokens as delimiters here and there, but only
-% |\ekv@stop| needs to have a meaning, as it is used in an |\ifx| comparison.
-%    \begin{macrocode}
-\def\ekv@stop{\ekv@stop}
-%    \end{macrocode}
 %
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -616,6 +613,12 @@ and the derived files           expkv.pdf
 \long\def\ekv@fi@gobble\fi\@firstofone#1{\fi}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 %    \end{macrocode}
+% As you can see |\ekv@gobbletostop| uses a special marker |\ekv@stop|. The
+% package will use three such markers, the one you've seen already, |\ekv@mark|
+% and |\ekv@nil|. Contrarily to how for instance \pkg{expl3} does things, we
+% don't define them, as we don't need them to have an actual meaning. This has
+% the advantage that if they somehow get expanded -- which should never happen
+% if things work out -- they'll throw an error directly.
 %
 % We can test for a lot of things building on an if-empty test, so lets define a
 % really fast one. Since some tests might have reversed logic (true if something
@@ -707,17 +710,17 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\long\def\ekv@checkvalid#1#2#3%
   {%
-    \ekv@ifempty{#1}
+    \ekv@ifempty{#1}%
       {%
-        \def\ekv@waste{}%
+        \def\ekv@tmp{}%
         \errmessage{expkv Error: empty set name not allowed}%
-      }
+      }%
       {%
-        \ekv@ifempty{#2}
+        \ekv@ifempty{#2}%
           {%
-            \def\ekv@waste{}%
+            \def\ekv@tmp{}%
             \errmessage{expkv Error: empty key name not allowed}%
-          }
+          }%
           {#3}%
       }%
   }
@@ -735,7 +738,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\long\def\ekvdef#1#2#3%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {\expandafter\def\csname\ekv@name{#1}{#2}\endcsname##1{#3}}%
   }
 %    \end{macrocode}
@@ -744,7 +747,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\long\def\ekvdefNoVal#1#2#3%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {\expandafter\def\csname\ekv@name{#1}{#2}N\endcsname{#3}}%
   }
 %    \end{macrocode}
@@ -753,7 +756,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekvlet#1#2%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {\expandafter\let\csname\ekv@name{#1}{#2}\endcsname}%
   }
 %    \end{macrocode}
@@ -762,7 +765,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekvletNoVal#1#2%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {\expandafter\let\csname\ekv@name{#1}{#2}N\endcsname}%
   }
 %    \end{macrocode}
@@ -771,7 +774,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekvletkv#1#2#3#4%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}\expandafter\endcsname
         \csname\ekv@name{#1}{#2}\endcsname
@@ -783,7 +786,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekvletkvNoVal#1#2#3#4%
   {%
-    \ekv@checkvalid{#1}{#2}
+    \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}N\expandafter\endcsname
         \csname\ekv@name{#1}{#2}N\endcsname
@@ -1022,7 +1025,7 @@ and the derived files           expkv.pdf
 %
 % Now everything that's left is to reset the category code of |@|.
 %    \begin{macrocode}
-\catcode`\@=\ekv@waste
+\catcode`\@=\ekv@tmp
 %    \end{macrocode}
 %
 %
