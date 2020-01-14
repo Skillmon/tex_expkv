@@ -86,8 +86,6 @@ and the derived files           expkv.pdf
 \colorlet{expkvred}{red!65!black}
 \colorlet{expkvgrey}{black!75}
 \makeatletter
-^^A unfortunately, the vertical offset doesn't work well in huge bold, so we
-^^A need a second version for the title
 \newcommand*\expkv
   {^^A
     \texorpdfstring
@@ -188,16 +186,15 @@ and the derived files           expkv.pdf
 %   \begin{syntax}
 %     \cs{ekvdefNoVal}\marg{set}\marg{key}\marg{code}
 %   \end{syntax}
-%   Defines a \key\ not taking a value in a \set\ to expand to \meta{code}
-%   \key.
+%   Defines a no value taking \key\ in a \set\ to expand to \meta{code}.
 % \end{function}
 %
 % \begin{function}{\ekvlet}
 %   \begin{syntax}
 %     \cs{ekvlet}\marg{set}\marg{key}\meta{cs}
 %   \end{syntax}
-%   Let the value taking \key\ in \set\ to \meta{cs}, it is not checked whether
-%   \meta{cs} exists or that it takes exactly one parameter.
+%   Let the value taking \key\ in \set\ to \meta{cs}, there are no checks on
+%   \meta{cs} enforced.
 % \end{function}
 %
 % \begin{function}{\ekvletNoVal}
@@ -416,21 +413,20 @@ and the derived files           expkv.pdf
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
 % I don't understand the documentation) and from what I can see, there is no
 % direct way to define the equivalent test key. Nevertheless, I tested the
-% closest possible equivalent of my test key while siding for
-% \pkg{simplekv}'s design not forcing something into it it doesn't seem to be
-% designed for. It is roughly three and a half times slower and has hard to
-% predict behaviour regarding brace and space stripping, similar to
-% \pkg{keyval}. The tested definition was:
+% closest possible equivalent of my test key while siding for \pkg{simplekv}'s
+% design not forcing something into it it doesn't seem to be designed for. It is
+% almost four times slower and has hard to predict behaviour regarding brace and
+% space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
 % \setKVdefault[simplekv]{height={ abc}}                     % key setup 
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
-% \paragraph{\pkg{yax}} is eleven to twelve times slower. It has a pretty
-% strange syntax, imho, and again a direct equivalent is hard to define. It has
-% the premature unbracing bug, too. Also somehow loading \pkg{yax} broke
-% \pkg{options} for me. The tested definition was:
+% \paragraph{\pkg{yax}} is twelve times slower. It has a pretty strange syntax,
+% imho, and again a direct equivalent is hard to define. It has the premature
+% unbracing bug, too. Also somehow loading \pkg{yax} broke \pkg{options} for me.
+% The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{yax}
 % \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
@@ -454,15 +450,15 @@ and the derived files           expkv.pdf
 %     \toprule
 %     Package & {Operations} & Brace-Bug & Category Fragile & Date \\
 %     \midrule
-%     \pkg{keyval}    &   15.3 & \yes    & \yes             & 2014-10-28 \\
-%     \pkg{options}   &   37.6 & \yes    & \yes             & 2015-03-01 \\
-%     \expkv          &   47.6 & \no     & \no              & 2020-01-13 \\
-%     \pkg{pgfkeys}   &   68.8 & \yes    & \yes             & 2019-12-21 \\
-%     \pkg{kvsetkeys} &   95.7 & \no     & \no              & 2019-12-15 \\
+%     \pkg{keyval}    &   15.2 & \yes    & \yes             & 2014-10-28 \\
+%     \pkg{options}   &   38.0 & \yes    & \yes             & 2015-03-01 \\
+%     \expkv          &   45.3 & \no     & \no              & 2020-01-14 \\
+%     \pkg{pgfkeys}   &   69.1 & \yes    & \yes             & 2019-12-21 \\
+%     \pkg{kvsetkeys} &   96.0 & \no     & \no              & 2019-12-15 \\
 %     \pkg{l3keys}    &  141   & \no     & \no              & 2019-11-07 \\
-%     \pkg{simplekv}  &  177   & \yes    & \yes             & 2017-08-08 \\
-%     \pkg{xkeyval}   &  448   & \yes    & \yes             & 2014-12-03 \\
-%     \pkg{yax}       &  545   & \yes    & \yes             & 2010-01-22 \\
+%     \pkg{simplekv}  &  178   & \yes    & \yes             & 2017-08-08 \\
+%     \pkg{xkeyval}   &  443   & \yes    & \yes             & 2014-12-03 \\
+%     \pkg{yax}       &  547   & \yes    & \yes             & 2010-01-22 \\
 %     \pkg{ltxkeys}   & 9260   & \no     & \no              & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
@@ -585,8 +581,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \expandafter\chardef\csname ekv@waste\endcsname=\catcode`\@
 \catcode`\@=11
-\def\ekv@version{0.1}
-\def\ekv@date{2020-01-11}
+\def\ekv@version{0.2}
+\def\ekv@date{2020-01-14}
 %    \end{macrocode}
 % |\ekv@waste| might later be reused to gobble any prefixes which might be
 % provided to |\ekvdef| and similar in case the names are invalid, we just
@@ -605,7 +601,7 @@ and the derived files           expkv.pdf
 % We'll need a few special tokens as delimiters here and there, but only
 % |\ekv@stop| needs to have a meaning, as it is used in an |\ifx| comparison.
 %    \begin{macrocode}
-\def\ekv@stop{\ekv@err{expanded \ekv@stop}}
+\def\ekv@stop{\ekv@stop}
 %    \end{macrocode}
 %
 % Since branching tests are often more versatile than |\if...\else...\fi|
@@ -662,6 +658,40 @@ and the derived files           expkv.pdf
       \ekv@fi@secondoftwo
     \fi
     \@firstoftwo
+  }
+%    \end{macrocode}
+% Since we can save some time if we only have to create the control sequence
+% once when we know beforehand how we want to use it, we build some other macros
+% for those cases (which we'll have quite often, once per key usage).
+%    \begin{macrocode}
+\def\ekv@ifdefined@pair#1#2%
+  {%
+    \expandafter\ekv@ifdefined@pair@
+      \csname
+        \ifcsname\ekv@name{#1}{#2}\endcsname\ekv@name{#1}{#2}\else relax\fi
+      \endcsname
+  }
+\def\ekv@ifdefined@pair@#1%
+  {%
+    \ifx#1\relax
+      \ekv@fi@secondoftwo
+    \fi
+    \@firstoftwo
+    {\ekv@parse@pair@#1\ekv@mark}%
+  }
+\def\ekv@ifdefined@key#1#2%
+  {%
+    \expandafter\ekv@ifdefined@key@
+      \csname
+        \ifcsname \ekv@name{#1}{#2}N\endcsname \ekv@name{#1}{#2}N\else relax\fi
+      \endcsname
+  }
+\def\ekv@ifdefined@key@#1%
+  {%
+    \ifx#1\relax
+      \ekv@fi@secondoftwo
+    \fi
+    \@firstoftwo#1%
   }
 %    \end{macrocode}
 %
@@ -858,6 +888,20 @@ and the derived files           expkv.pdf
     \ekv@splitcomma@other##3\ekv@mark
   {}
 %    \end{macrocode}
+% One last thing we need to do with the changed category codes is to provide
+  % macros that just smuggle stuff after |\ekvset|'s effects.
+% \begin{macro}{\ekvsneak,\ekvsneakPre}
+%    \begin{macrocode}
+\long\def\ekvsneak##1##2\ekv@stop#1##3%
+  {%
+    ##2\ekv@stop#1{##3##1}%
+  }
+\long\def\ekvsneakPre##1##2\ekv@stop#1##3%
+  {%
+    ##2\ekv@stop#1{##1##3}%
+  }
+%    \end{macrocode}
+% \end{macro}
 %
 % Finally really setting things up with |\ekvset|'s temporary meaning:
 %    \begin{macrocode}
@@ -880,10 +924,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@pair#1#2%
   {%
-    \ekv@ifdefined{\ekv@name{#2}{#1}}
-      {\expandafter\ekv@parse@pair@\csname\ekv@name{#2}{#1}\endcsname\ekv@mark}
+    \ekv@ifdefined@pair{#2}{#1}%
       {%
-        \ekv@ifdefined{\ekv@name{#2}{#1}N}
+        \ekv@ifdefined{\ekv@name{#2}{#1}N}%
           \ekv@err@noarg
           \ekv@err@unknown
           {#2}{#1}%
@@ -899,10 +942,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@key#1#2%
   {%
-    \ekv@ifdefined{\ekv@name{#2}{#1}N}
-      {\csname\ekv@name{#2}{#1}N\endcsname}
+    \ekv@ifdefined@key{#2}{#1}%
       {%
-        \ekv@ifdefined{\ekv@name{#2}{#1}}
+        \ekv@ifdefined{\ekv@name{#2}{#1}}%
           \ekv@err@reqval
           \ekv@err@unknown
           {#2}{#1}%
@@ -917,19 +959,6 @@ and the derived files           expkv.pdf
 \long\def\ekvbreak#1#2\ekv@stop,#3{#1}
 \long\def\ekvbreakPreSneak #1#2\ekv@stop,#3{#1#3}
 \long\def\ekvbreakPostSneak#1#2\ekv@stop,#3{#3#1}
-%    \end{macrocode}
-% \end{macro}
-% And provide macros that just smuggle stuff after |\ekvset|'s effects.
-% \begin{macro}{\ekvsneak,\ekvsneakPre}
-%    \begin{macrocode}
-\long\def\ekvsneak#1#2\ekv@stop,#3%
-  {%
-    #2\ekv@stop,{#3#1}%
-  }
-\long\def\ekvsneakPre#1#2\ekv@stop,#3%
-  {%
-    #2\ekv@stop,{#1#3}%
-  }
 %    \end{macrocode}
 % \end{macro}
 %
