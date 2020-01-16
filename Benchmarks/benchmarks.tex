@@ -47,7 +47,7 @@
     height\bugtest_gen:N=6
     =
   }
-\cs_new:Npn \testcatcode #1 #2
+\cs_new:Npn \testcat #1 #2
   {
     \iftestcat
       \bugtest_do:Vnn \c_bugtest_argument_tl { #1 } { #2 }
@@ -79,62 +79,62 @@
 \usepackage{keyval}
 \define@key{000}{height}{\def\myheight{#1}}
 \testbug{keyval}{\setkeys{000}{height={ abc}}}
-\testcatcode{\setkeys{000}}{}
+\testcat{\setkeys{000}}{}
 \benchmark{keyval}{\setkeys{000}{#1}}
 
 \usepackage{xkeyval}
 \define@key{111}{height}{\def\myheight{#1}} % not necessary
 \testbug{xkeyval}{\setkeys{111}{height={ abc}}}
-\testcatcode{\setkeys{111}}{}
+\testcat{\setkeys{111}}{}
 \benchmark{xkeyval}{\setkeys{111}{#1}}
 
 \usepackage{expkv}
 \ekvdef{222}{height}{\def\myheight{#1}}
 \testbug{expkv}{\ekvset{222}{height={ abc}}}
-\testcatcode{\ekvset{222}}{}
+\testcat{\ekvset{222}}{}
 \benchmark{expkv}{\ekvset{222}{#1}}
 
 % l3keys
 \typeout{} % just to get a line between expkv and this in the log
 \testbug{l3keys}{\explset{333}{height={ abc}}}
-\testcatcode{\explset{333}}{}
+\testcat{\explset{333}}{}
 \benchmark{l3keys}{\explset{333}{#1}}
 
 \usepackage{pgfkeys}
 \pgfkeys{/444/.cd,height/.code={\def\myheight{#1}}}
 \testbug{pgfkeys}{\pgfkeys{/444/.cd,height={ abc}}}
-\testcatcode{\pgfkeys}{/444/.cd,}
+\testcat{\pgfkeys}{/444/.cd,}
 \benchmark{pgfkeys}{\pgfkeys{/444/.cd,#1}}
 
 \usepackage{kvsetkeys}
 \usepackage{kvdefinekeys}
 \kv@define@key{555}{height}{\def\myheight{#1}}
 \testbug{kvsetkeys}{\kvsetkeys{555}{height={ abc}}}
-\testcatcode{\kvsetkeys{555}}{}
+\testcat{\kvsetkeys{555}}{}
 \benchmark{kvsetkeys}{\kvsetkeys{555}{#1}}
 
 \usepackage{options}
 \options{/666/.new family,/666/height/.new cmd=\def\myheight{#1}}
 \testbug{options}{\options{/666,height={ abc}}}
-\testcatcode{\options}{/666,}
+\testcat{\options}{/666,}
 \benchmark{options}{\options{/666,#1}}
 
 \usepackage{simplekv}
 \setKVdefault[777]{height={ abc}}
 \testbug{simplekv}{\edef\myheight{\unexpanded\expandafter\expandafter\expandafter{\useKV[777]{height}}}}
-\testcatcode{\setKV[777]}{}
+\testcat{\setKV[777]}{}
 \benchmark{simplekv}{\setKV[777]{#1}}
 
 \usepackage{ltxkeys}
 \ltxkeys@ordkey{888}{height}{\def\myheight{#1}}
 \testbug{ltxkeys}{\ltxkeys@setkeys{888}{height={ abc}}}
-\testcatcode{\ltxkeys@setkeys{888}}{}
+\testcat{\ltxkeys@setkeys{888}}{}
 \benchmark{ltxkeys}{\ltxkeys@setkeys{888}{#1}}
 
 \usepackage{yax}
 \defactiveparameter 999 {\storevalue\myheight 999:height }
 \testbug{yax}{\setparameterlist{999}{height={ abc}}}
-\testcatcode{\setparameterlist{999}}{}
+\testcat{\setparameterlist{999}}{}
 \benchmark{yax}{\setparameterlist{999}{#1}}
 
 \makeatother
