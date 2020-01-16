@@ -4,6 +4,8 @@
 Released under the LaTeX Project Public License v1.3c or later
 See http://www.latex-project.org/lppl.txt
 
+Hosted at https://github.com/Skillmon/tex_expkv
+
 -------------------------------------------------------------------------------
 
 Copyright (C) 2020 Jonathan P. Spratte

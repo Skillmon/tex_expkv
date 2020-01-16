@@ -8,3 +8,6 @@
 *.sty
 *.tex
 *.toc
+*.gls                                                                 
+*.ilg                                                                 
+*.ind

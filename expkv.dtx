@@ -107,6 +107,16 @@ and the derived files           expkv.pdf
 \newcommand\val{\meta{value}}
 \newcommand\set{\meta{set}}
 \hypersetup{linkcolor=red!80!black,urlcolor=purple!80!black}
+\DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
+\DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
+\DoNotIndex{\noexpand,\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
+\DoNotIndex{\@,\unexpanded}
+\DoNotIndex{\ifcsname}
+\DoNotIndex{\ifx}
+\DoNotIndex{\else}
+\DoNotIndex{\fi}
+\@gobble\fi ^^A ignoring \ifx and \ifcsname, but only one \fi
+\@ifdefinable\gobbledocstriptag{\def\gobbledocstriptag#1>{}}
 \makeatother
 \begin{document}
   \title
@@ -234,21 +244,21 @@ and the derived files           expkv.pdf
 %   stripped from both ends, if then only a braced group remains the braces are
 %   stripped as well. So |\ekvset{foo}{bar=baz}| and
 %   |\ekvset{foo}{ {bar}= {baz} }| will both do
-%   \texttt{\cs{\meta{foobarcode}}\{baz\}}, so you can hide commas, equal signs
-%   and spaces at the ends of either \key\ or \val\ by putting braces around
-%   them. If you omit the equal sign the code of the key created with the
-%   |NoVal| variants described in \autoref{sec:define} will be executed. If \kv\
-%   contains more than a single unhidden equal sign, it will be split at the
-%   first one and the others are considered part of the value.
+%   \texttt{\cs[no-index]{\meta{foobarcode}}\{baz\}}, so you can hide commas,
+%   equal signs and spaces at the ends of either \key\ or \val\ by putting
+%   braces around them. If you omit the equal sign the code of the key created
+%   with the |NoVal| variants described in \autoref{sec:define} will be
+%   executed. If \kv\ contains more than a single unhidden equal sign, it will
+%   be split at the first one and the others are considered part of the value.
 %   |\ekvset| should be nestable.
 % \end{function}
 %
 % \subsection{Example}
 %
 % Say we have a macro for which we want to create a \kv\ interface. The macro
-% has a parameter, which is stored in the dimension \cs{ourdim} having a default
-% value from its initialization. Now we want to be able to change that dimension
-% with the |width| key to some specified value. For that we'd do
+% has a parameter, which is stored in the dimension \cs[no-index]{ourdim} having
+% a default value from its initialization. Now we want to be able to change that
+% dimension with the |width| key to some specified value. For that we'd do
 % \begin{lstlisting}
 % \newdimen\ourdim
 % \ourdim=150pt
@@ -256,8 +266,8 @@ and the derived files           expkv.pdf
 % \end{lstlisting}
 % as you can see, we use the set |our| here. We want the key to behave different
 % if no value is specified. In that case the key should not use the its initial
-% value, but be smart and determine the available space from \cs{hsize}, so we
-% also define
+% value, but be smart and determine the available space from
+% \cs[no-index]{hsize}, so we also define
 % \begin{lstlisting}
 % \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}
 % \end{lstlisting}
@@ -290,6 +300,9 @@ and the derived files           expkv.pdf
 %
 % \expkv\ provides some other macros which might be of interest.
 %
+% \begin{function}{\ekvVersion,\ekvDate}
+%   These two macros store the version and date of the package.
+% \end{function}
 % \begin{function}{\ekvifdefined,\ekvifNoValdefined}
 %   \begin{syntax}
 %     \cs{ekvifdefined}\marg{set}\marg{key}\marg{true}\marg{false}
@@ -325,15 +338,23 @@ and the derived files           expkv.pdf
 %
 % \bigskip
 %
-% \begin{function}{\ekv@name}
+% \begin{function}{\ekv@name,\ekv@name@set,\ekv@name@key}
 %   \begin{syntax}
-%     \cs{ekv@name}\marg{set}\marg{key}
+%     \cs{ekv@name}\marg{set}\marg{key}\\
+%     \cs{ekv@name@set}\marg{set}\\
+%     \cs{ekv@name@key}\marg{key}
 %   \end{syntax}
 %   The names of the macros that correspond to a key in a set are build with
-%   this macro. The default definition is
-%   \texttt{\csname ekv@name\endcsname{\set}{\key}}, for |NoVal| keys an
-%   additional |N| gets appended irrespective of this macro's definition, so
-%   their name is \texttt{\csname ekv@name\endcsname{\set}{\key}N}.
+%   these macros. The default definition of |\ekv@name@set| is
+%   ``\texttt{\csname ekv@name@set\endcsname{\set}}'' and the default of
+%   |\ekv@name@key| is ``\texttt{\csname ekv@name@key\endcsname{\key}}''.
+%   The complete name is build using |\ekv@name| which is equivalent to
+%   \texttt{\cs{ekv@name@set}\marg{set}\cs{ekv@name@key}\marg{key}}.
+%   For |NoVal| keys an additional |N| gets appended irrespective of these
+%   macros' definition, so their name is
+%   \cs[no-index]{\csname ekv@name\endcsname{\set}{\key}N}. You might redefine
+%   \cs{ekv@name@set} and \cs{ekv@name@key} locally but \emph{don't redefine
+%   \cs{ekv@name}}!
 % \end{function}
 %
 % \subsubsection{Bugs}
@@ -359,12 +380,12 @@ and the derived files           expkv.pdf
 % packages in this list. For the impatient, the essence of these comparisons
 % regarding speed and buggy behaviour is contained in \autoref{tab:comp}.
 %
-% \paragraph{\pkg{keyval}} is around three times faster and has a comparable
-% feature set just a slightly different way how it handles keys without values.
-% That might be considered a drawback, as it limits the versatility, but also as
-% an advantage, as it might reduce doubled code. Keep in mind that as soon as
-% someone loads \pkg{xkeyval} the performance of \pkg{keyval} gets replaced by
-% \pkg{xkeyval}'s.
+% \paragraph{\pkg{keyval}} is between two and three times faster and has a
+% comparable feature set just a slightly different way how it handles keys
+% without values. That might be considered a drawback, as it limits the
+% versatility, but also as an advantage, as it might reduce doubled code. Keep
+% in mind that as soon as someone loads \pkg{xkeyval} the performance of
+% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
 %
 % Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
 % without breaking backwards compatibility for \emph{many} documents, namely it
@@ -379,13 +400,13 @@ and the derived files           expkv.pdf
 % \setkeys{foo}{bar={{baz}}}
 % \end{lstlisting}
 %
-% \paragraph{\pkg{xkeyval}} is almost ten times slower, but it provides more
+% \paragraph{\pkg{xkeyval}} is more than ten times slower, but it provides more
 % functionality, e.g., it has choice keys, boolean keys, and so on. It contains
 % the same bug as \pkg{keyval} as it has to be compatible with it by design (it
 % replaces \pkg{keyval}'s frontend), but also adds even more cases in which
 % braces are stripped that shouldn't be stripped, worsening the situation.
 %
-% \paragraph{\pkg{ltxkeys}} is about 200 times slower -- which is funny, because
+% \paragraph{\pkg{ltxkeys}} is over 200 times slower -- which is funny, because
 % it aims to be ``[\ldots] faster than these earlier packages [referring to
 % \pkg{keyval} and \pkg{xkeyval}].'' Since it aims to have a bigger feature set
 % than \pkg{xkeyval}, it most definitely also has a bigger feature set than
@@ -395,10 +416,11 @@ and the derived files           expkv.pdf
 % \pkg{ltxkeys} loads \pkg{catoptions} which is known to introduce bugs (e.g.,
 % see \url{https://tex.stackexchange.com/questions/461783}).
 %
-% \paragraph{\pkg{l3keys}} is about three times slower, but has an, imho, great
-% interface to define keys. It strips \emph{all} outer spaces, even if somehow
-% multiple spaces ended up on either end. It offers more features, but is pretty
-% much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
+% \paragraph{\pkg{l3keys}} is at least three times slower, but has an, imho,
+% great interface to define keys. It strips \emph{all} outer spaces, even if
+% somehow multiple spaces ended up on either end. It offers more features, but
+% is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up to
+% you.
 %
 % \paragraph{\pkg{pgfkeys}} is about one and a half times slower, but has an
 % \emph{enormous} feature set. It has the same or a very similar bug
@@ -410,7 +432,7 @@ and the derived files           expkv.pdf
 % has more features, though.
 %
 % \paragraph{\pkg{options}} is a bit faster than \expkv\ (almost
-% \SI{20}{\percent}) and has a much bigger feature set. Unfortunately it also
+% \SI{10}{\percent}) and has a much bigger feature set. Unfortunately it also
 % suffers from the premature unbracing bug \pkg{keyval} has.
 %
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
@@ -418,15 +440,15 @@ and the derived files           expkv.pdf
 % direct way to define the equivalent test key. Nevertheless, I tested the
 % closest possible equivalent of my test key while siding for \pkg{simplekv}'s
 % design not forcing something into it it doesn't seem to be designed for. It is
-% about four times slower and has hard to predict behaviour regarding brace and
-% space stripping, similar to \pkg{keyval}. The tested definition was:
+% more than four times slower and has hard to predict behaviour regarding brace
+% and space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
 % \setKVdefault[simplekv]{height={ abc}}                     % key setup 
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
-% \paragraph{\pkg{yax}} is almost twelve times slower. It has a pretty strange
+% \paragraph{\pkg{yax}} is about 13 times slower. It has a pretty strange
 % syntax, imho, and again a direct equivalent is hard to define. It has the
 % premature unbracing bug, too. Also somehow loading \pkg{yax} broke
 % \pkg{options} for me. The tested definition was:
@@ -453,16 +475,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     Package & {Operations} & Brace-Bug & Category Fragile & Date \\
 %     \midrule
-%     \pkg{keyval}    &   15.5 & \yes    & \yes             & 2014-10-28 \\
-%     \pkg{options}   &   37.9 & \yes    & \yes             & 2015-03-01 \\
-%     \expkv          &   45.1 & \no     & \no              & 2020-01-14 \\
-%     \pkg{pgfkeys}   &   69.7 & \yes    & \yes             & 2019-12-21 \\
-%     \pkg{kvsetkeys} &   97.1 & \no     & \no              & 2019-12-15 \\
-%     \pkg{l3keys}    &  141   & \no     & \no              & 2019-11-07 \\
+%     \pkg{keyval}    &   15.3 & \yes    & \yes             & 2014-10-28 \\
+%     \pkg{options}   &   37.6 & \yes    & \yes             & 2015-03-01 \\
+%     \expkv          &   41.0 & \no     & \no              & 2020-01-14 \\
+%     \pkg{pgfkeys}   &   68.9 & \yes    & \yes             & 2019-12-21 \\
+%     \pkg{kvsetkeys} &   95.6 & \no     & \no              & 2019-12-15 \\
+%     \pkg{l3keys}    &  140   & \no     & \no              & 2019-11-07 \\
 %     \pkg{simplekv}  &  180   & \yes    & \yes             & 2017-08-08 \\
-%     \pkg{xkeyval}   &  447   & \yes    & \yes             & 2014-12-03 \\
-%     \pkg{yax}       &  534   & \yes    & \yes             & 2010-01-22 \\
-%     \pkg{ltxkeys}   & 9010   & \no     & \no              & 2012-11-17 \\
+%     \pkg{xkeyval}   &  444   & \yes    & \yes             & 2014-12-03 \\
+%     \pkg{yax}       &  545   & \yes    & \yes             & 2010-01-22 \\
+%     \pkg{ltxkeys}   & 9270   & \no     & \no              & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 % \end{table}
@@ -539,10 +561,12 @@ and the derived files           expkv.pdf
 %
 % \section{Implementation}^^A>>=
 %^^A the LaTeX package >>=
+% \subsection{The \LaTeX\ Package}
 % First we set up the \LaTeX\ package. That one doesn't really do much except
 % |\input|ting the generic code and identifying itself as a package.
-%    \begin{macrocode}
+% \gobbledocstriptag
 %<*pkg>
+%    \begin{macrocode}
 \def\ekv@tmp
   {%
     \ProvidesFile{expkv.tex}%
@@ -554,14 +578,15 @@ and the derived files           expkv.pdf
 \input{expkv.tex}
 \ProvidesPackage{expkv}%
   [\ekvDate\space v\ekvVersion\space an expandable key=val implementation]
-%</pkg>
 %    \end{macrocode}
+% \gobbledocstriptag
+%</pkg>
 %^^A=<<
 %^^A main file >>=
+% \subsection{The Generic Code}
 % The rest of this implementation will be the generic code.
-%    \begin{macrocode}
+% \gobbledocstriptag
 %<*tex>
-%    \end{macrocode}
 %
 % Check whether \eTeX\ is available -- \expkv\ requires \eTeX.
 %    \begin{macrocode}
@@ -579,11 +604,13 @@ and the derived files           expkv.pdf
   \expandafter\endinput
 \fi
 %    \end{macrocode}
+% \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
 \def\ekvVersion{0.2}
 \def\ekvDate{2020-01-14}
 %    \end{macrocode}
+% \end{macro}
 %
 % If the \LaTeX\ format is loaded we want to be a good file and report back who
 % we are, for this the package will have defined |\ekv@tmp| to use
@@ -604,18 +631,25 @@ and the derived files           expkv.pdf
 % restore it at the end of the file, we never care for the actual definition of
 % it.
 %
+% \begin{macro}
+%   {
+%     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
+%     \ekv@gobbletostop,\ekv@fi@gobble,\ekv@fi@secondoftwo
+%   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
 % some other utility functions that just grab some tokens. The ones that are
 % also contained in \LaTeX\ don't use the |ekv| prefix.
 %    \begin{macrocode}
-\long\def\ekv@gobbletostop#1\ekv@stop{}
+\long\def\@gobble#1{}
 \long\def\@firstofone#1{#1}
 \long\def\@firstoftwo#1#2{#1}
 \long\def\@secondoftwo#1#2{#2}
+\long\def\ekv@gobbletostop#1\ekv@stop{}
 \long\def\ekv@fi@gobble\fi\@firstofone#1{\fi}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 %    \end{macrocode}
+% \end{macro}
 % As you can see |\ekv@gobbletostop| uses a special marker |\ekv@stop|. The
 % package will use three such markers, the one you've seen already, |\ekv@mark|
 % and |\ekv@nil|. Contrarily to how for instance \pkg{expl3} does things, we
@@ -623,6 +657,11 @@ and the derived files           expkv.pdf
 % the advantage that if they somehow get expanded -- which should never happen
 % if things work out -- they'll throw an error directly.
 %
+% \begin{macro}
+%   {
+%     \ekv@ifempty,\ekv@ifempty@,\ekv@ifempty@true,\ekv@ifempty@false,
+%     \ekv@ifempty@true@F
+%   }
 % We can test for a lot of things building on an if-empty test, so lets define a
 % really fast one. Since some tests might have reversed logic (true if something
 % is not empty) we also set up macros for the reversed branches.
@@ -637,7 +676,9 @@ and the derived files           expkv.pdf
 \long\def\ekv@ifempty@false\ekv@ifempty@A\ekv@ifempty@B\@firstoftwo#1#2{#2}
 \long\def\ekv@ifempty@true@F\ekv@ifempty@A\ekv@ifempty@B\@firstofone#1{}
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@ifblankF,\ekv@ifblank@}
 % The obvious test that can be based on an if-empty is if-blank, meaning a test
 % checking whether the argument is empty or consists only of spaces. Our version
 % here will be tweaked a bit, as we want to check this, but with one leading
@@ -650,7 +691,9 @@ and the derived files           expkv.pdf
   }
 \long\def\ekv@ifblank@\ekv@mark#1{\ekv@ifempty@\ekv@ifempty@A}
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@ifdefined}
 % We'll need to check whether something is defined quite frequently, so why not
 % define a macro that does this. The following test is expandable, slower than
 % the typical expandable test for undefined control sequences, but faster for
@@ -666,6 +709,12 @@ and the derived files           expkv.pdf
     \@firstoftwo
   }
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}
+%   {
+%     \ekv@ifdefined@pair,\ekv@ifdefined@pair@,\ekv@ifdefined@key,
+%     \ekv@ifdefined@key@
+%   }
 % Since we can save some time if we only have to create the control sequence
 % once when we know beforehand how we want to use it, we build some other macros
 % for those cases (which we'll have quite often, once per key usage).
@@ -674,7 +723,11 @@ and the derived files           expkv.pdf
   {%
     \expandafter\ekv@ifdefined@pair@
       \csname
-        \ifcsname\ekv@name{#1}{#2}\endcsname\ekv@name{#1}{#2}\else relax\fi
+        \ifcsname #1{#2}\endcsname
+          #1{#2}%
+        \else
+          relax%
+        \fi
       \endcsname
   }
 \def\ekv@ifdefined@pair@#1%
@@ -689,7 +742,11 @@ and the derived files           expkv.pdf
   {%
     \expandafter\ekv@ifdefined@key@
       \csname
-        \ifcsname \ekv@name{#1}{#2}N\endcsname \ekv@name{#1}{#2}N\else relax\fi
+        \ifcsname #1{#2}N\endcsname
+          #1{#2}N%
+        \else
+          relax%
+        \fi
       \endcsname
   }
 \def\ekv@ifdefined@key@#1%
@@ -700,18 +757,22 @@ and the derived files           expkv.pdf
     \@firstoftwo#1%
   }
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
-% \begin{macro}{\ekv@name}
 %    \begin{macrocode}
-\def\ekv@name#1#2{ekv#1(#2)}
+\def\ekv@name#1#2{\ekv@name@set{#1}\ekv@name@key{#2}}
+\def\ekv@name@set#1{ekv#1(}
+\def\ekv@name@key#1{#1)}
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\ekv@checkvalid}
 % We place some restrictions on the allowed names, though, namely sets and
 % keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
 % or} key-names consisting of spaces).
 %    \begin{macrocode}
-\protected\long\def\ekv@checkvalid#1#2#3%
+\protected\def\ekv@checkvalid#1#2%
   {%
     \ekv@ifempty{#1}%
       {%
@@ -724,96 +785,99 @@ and the derived files           expkv.pdf
             \def\ekv@tmp{}%
             \errmessage{expkv Error: empty key name not allowed}%
           }%
-          {#3}%
+          \@secondoftwo
       }%
+    \@gobble
   }
 %    \end{macrocode}
-% And provide user-level macros to test whether a key is defined.
+% \end{macro}
 % \begin{macro}{\ekvifdefined,\ekvifNoValdefined}
+% And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
 \def\ekvifdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}}}
 \def\ekvifNoValdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal}
 % Set up the key defining macros |\ekvdef| etc.
-% \begin{macro}{\ekvdef}
 %    \begin{macrocode}
 \protected\long\def\ekvdef#1#2#3%
   {%
     \ekv@checkvalid{#1}{#2}%
-      {\expandafter\def\csname\ekv@name{#1}{#2}\endcsname##1{#3}}%
+      {%
+        \expandafter\def\csname\ekv@name{#1}{#2}\endcsname##1{#3}%
+        \ekv@defset{#1}%
+      }%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\ekvdefNoVal}
-%    \begin{macrocode}
 \protected\long\def\ekvdefNoVal#1#2#3%
   {%
     \ekv@checkvalid{#1}{#2}%
-      {\expandafter\def\csname\ekv@name{#1}{#2}N\endcsname{#3}}%
+      {%
+        \expandafter\def\csname\ekv@name{#1}{#2}N\endcsname{#3}%
+        \ekv@defset{#1}%
+      }%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\ekvlet}
-%    \begin{macrocode}
-\protected\def\ekvlet#1#2%
+\protected\def\ekvlet#1#2#3%
   {%
     \ekv@checkvalid{#1}{#2}%
-      {\expandafter\let\csname\ekv@name{#1}{#2}\endcsname}%
+      {%
+        \expandafter\let\csname\ekv@name{#1}{#2}\endcsname#3%
+        \ekv@defset{#1}%
+      }%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\ekvletNoVal}
-%    \begin{macrocode}
-\protected\def\ekvletNoVal#1#2%
+\protected\def\ekvletNoVal#1#2#3%
   {%
     \ekv@checkvalid{#1}{#2}%
-      {\expandafter\let\csname\ekv@name{#1}{#2}N\endcsname}%
+      {%
+        \expandafter\let\csname\ekv@name{#1}{#2}N\endcsname#3%
+        \ekv@defset{#1}%
+      }%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\ekvletkv}
-%    \begin{macrocode}
 \protected\def\ekvletkv#1#2#3#4%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}\expandafter\endcsname
         \csname\ekv@name{#1}{#2}\endcsname
+        \ekv@defset{#1}%
       }%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}{\ekvletkvNoVal}
-%    \begin{macrocode}
 \protected\def\ekvletkvNoVal#1#2#3#4%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}N\expandafter\endcsname
         \csname\ekv@name{#1}{#2}N\endcsname
+        \ekv@defset{#1}%
       }%
+  }
+\protected\def\ekv@defset#1%
+  {%
+    \expandafter\edef\csname\ekv@name@set{#1}\endcsname##1%
+      {\ekv@name@set{#1}\ekv@name@key{##1}}%
   }
 %    \end{macrocode}
 % \end{macro}
 %
-% And set up |\ekvset|, which should not be affected by active commas and equal
+% \begin{macro}{\ekvset}
+% Set up |\ekvset|, which should not be affected by active commas and equal
 % signs. The equal signs are a bit harder to cope with and we'll do that later,
 % but replacing the active commas with commas of category other can be done
 % beforehand. That's why we define |\ekvset| here with a temporary meaning just
 % to set up the things with two different category codes. |#1| will be a
 % \texttt{,\textsubscript{13}} and |#2| will be a \texttt{=\textsubscript{13}}.
-% \begin{macro}{\ekvset}
 %    \begin{macrocode}
 \def\ekvset#1#2{%
 \endgroup
 \long\def\ekvset##1##2%
   {%
-    \ekv@parse{##1}\ekv@mark##2#1\ekv@stop#1{}%
+    \expandafter\ekv@parse\csname\ekv@name@set{##1}\endcsname
+      \ekv@mark##2#1\ekv@stop#1{}%
   }
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\ekv@parse}
 % |\ekv@parse| will split the \kv\ list at active commas. Then it has to check
 % whether there were unprotected other commas and resplit there.
 %    \begin{macrocode}
@@ -826,13 +890,15 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % else go on with other commas,
 %    \begin{macrocode}
-    \ekv@splitcomma@other{##1}##2,\ekv@stop,%
+    \ekv@splitcomma@other##1##2,\ekv@stop,%
 %    \end{macrocode}
 % and get the next active comma delimited \kv\ pair.
 %    \begin{macrocode}
-    \ekv@parse{##1}\ekv@mark
+    \ekv@parse##1\ekv@mark
   }
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@endparse}
 % |\ekv@endparse| is a hungry little macro. It will eat everything that remains
 % of |\ekv@parse| and unbrace the sneaked stuff.
 %    \begin{macrocode}
@@ -841,6 +907,8 @@ and the derived files           expkv.pdf
     ##3%
   {##3}
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@splitcomma@other}
 % The macro |\ekv@splitcomma@other| is guaranteed to get only single \kv\ pairs.
 % So here we need to split at equal signs. If there is no equal sign, we need to
 % test whether we're done and if not this is a |NoVal| key.
@@ -852,20 +920,22 @@ and the derived files           expkv.pdf
       {%
         \ekv@ifhaseq@other##2=\ekv@ifempty@B\ekv@ifempty@false
           \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\ekv@spliteq@other{##1}##2\ekv@stop}%
+          {\ekv@spliteq@other##1##2\ekv@stop}%
           {%
             \ekv@ifhaseq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
               \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-              {\ekv@spliteq@active{##1}##2\ekv@stop}%
+              {\ekv@spliteq@active##1##2\ekv@stop}%
               {%
                 \ekv@ifstop##2\ekv@endsplitcomma\ekv@mark\ekv@stop
-                \ekv@strip{##2}\ekv@parse@key{##1}%
+                \ekv@strip{##2}\ekv@parse@key##1%
               }%
           }%
       }%
-    \ekv@splitcomma@other{##1}\ekv@mark%
+    \ekv@splitcomma@other##1\ekv@mark%
   }
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@spliteq@other}
 % |\ekv@spliteq@other| might not be the correct break point, there might be an
 % active equal sign in the currently parsed key-name. If so, we have to resplit.
 %    \begin{macrocode}
@@ -873,17 +943,21 @@ and the derived files           expkv.pdf
   {%
     \ekv@ifhaseq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@spliteq@active{##1}##2=}%
-      {\ekv@strip{##2}\ekv@parse@pair{##1}}%
+      {\ekv@spliteq@active##1##2=}%
+      {\ekv@strip{##2}\ekv@parse@pair##1}%
   }
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@spliteq@active}
 % We need to handle the active equal signs.
 %    \begin{macrocode}
 \long\def\ekv@spliteq@active##1##2#2%
   {%
-    \ekv@strip{##2}\ekv@parse@pair{##1}%
+    \ekv@strip{##2}\ekv@parse@pair##1%
   }
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@ifhaseq@other,\ekv@ifhaseq@active,\ekv@endsplitcomma}
 % And we have to set up the testing macros for our equal signs and
 % |\ekv@endsplitcomma|.
 %    \begin{macrocode}
@@ -894,9 +968,10 @@ and the derived files           expkv.pdf
     \ekv@splitcomma@other##3\ekv@mark
   {}
 %    \end{macrocode}
-% One last thing we need to do with the changed category codes is to provide
-  % macros that just smuggle stuff after |\ekvset|'s effects.
+% \end{macro}
 % \begin{macro}{\ekvsneak,\ekvsneakPre}
+% One last thing we want to do with the changed category codes is to provide
+% macros that just smuggle stuff after |\ekvset|'s effects.
 %    \begin{macrocode}
 \long\def\ekvsneak##1##2\ekv@stop#1##3%
   {%
@@ -918,24 +993,27 @@ and the derived files           expkv.pdf
 \ekvset,=
 %    \end{macrocode}
 %
+% \begin{macro}{\ekv@ifstop}
 % The |\ekv@ifstop| test works similar to our if-empty test, but instead of
 % using tokens which are used nowhere else (|\ekv@ifempty@A| and
 % |\ekv@ifempty@B|) we use |\ekv@mark| and |\ekv@stop|.
 %    \begin{macrocode}
 \long\def\ekv@ifstop#1\ekv@mark\ekv@stop{}
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@parse@pair,\ekv@parse@pair@}
 % |\ekv@parse@pair| needs to split the argument at the |=| sign and check
 % whether the key is defined.
 %    \begin{macrocode}
 \long\def\ekv@parse@pair#1#2%
   {%
-    \ekv@ifdefined@pair{#2}{#1}%
+    \ekv@ifdefined@pair#2{#1}%
       {%
-        \ekv@ifdefined{\ekv@name{#2}{#1}N}%
+        \ekv@ifdefined{#2{#1}N}%
           \ekv@err@noarg
           \ekv@err@unknown
-          {#2}{#1}%
+          #2{#1}%
         \ekv@gobbletostop
       }%
   }
@@ -944,19 +1022,22 @@ and the derived files           expkv.pdf
     \ekv@strip{#2}#1%
   }
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@parse@key}
 %    \begin{macrocode}
 \long\def\ekv@parse@key#1#2%
   {%
-    \ekv@ifdefined@key{#2}{#1}%
+    \ekv@ifdefined@key#2{#1}%
       {%
-        \ekv@ifdefined{\ekv@name{#2}{#1}}%
+        \ekv@ifdefined{#2{#1}}%
           \ekv@err@reqval
           \ekv@err@unknown
-          {#2}{#1}%
+          #2{#1}%
       }%
   }
 %    \end{macrocode}
+% \end{macro}
 %
 % Provide macros that can completely stop the parsing of |\ekvset|, who knows
 % what it'll be useful for.
@@ -968,6 +1049,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\ekv@err,\ekv@err@}
 % Since |\ekvset| is fully expandable as long as the code of the keys is (which
 % is unlikely) we want to somehow throw expandable errors, in our case via
 % undefined control sequences.
@@ -986,14 +1068,24 @@ and the derived files           expkv.pdf
 \ekv@err
 \def\ekv@err@{\expandafter\ekv@gobbletostop}
 %    \end{macrocode}
+% \end{macro}
+% \begin{macro}
+%   {
+%     \ekv@err@common,\ekv@err@common@,
+%     \ekv@err@unknown,\ekv@err@noarg,\ekv@err@reqval
+%   }
 % Now we can use |\ekv@err| to set up some error messages so that we can later
 % use those instead of the full strings.
 %    \begin{macrocode}
-\long\def\ekv@err@unknown#1#2{\ekv@err{unknown key (`#2', set `#1')}}
-\long\def\ekv@err@noarg  #1#2{\ekv@err{value forbidden (`#2', set `#1')}}
-\long\def\ekv@err@reqval #1#2{\ekv@err{value required (`#2', set `#1')}}
+\long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
+\long\def\ekv@err@common@#1#2#3#4#5(#6#7{\ekv@err{#6 (`#7', set `#5')}}
+\long\def\ekv@err@unknown#1#2{\ekv@err@common{unknown key}#1{#2}}
+\long\def\ekv@err@noarg  #1#2{\ekv@err@common{value forbidden}#1{#2}}
+\long\def\ekv@err@reqval #1#2{\ekv@err@common{value required}#1{#2}}
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ekv@strip,\ekv@strip@a,\ekv@strip@b,\ekv@strip@c}
 % Finally we borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
 % from keys and values. This |\ekv@strip| also strips one level of outer braces
 % \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
@@ -1025,21 +1117,23 @@ and the derived files           expkv.pdf
   }
 \ekv@strip{ }
 %    \end{macrocode}
+% \end{macro}
 %
 % Now everything that's left is to reset the category code of |@|.
 %    \begin{macrocode}
 \catcode`\@=\ekv@tmp
 %    \end{macrocode}
 %
-%
-%    \begin{macrocode}
+% \gobbledocstriptag
 %</tex>
-%    \end{macrocode}
 %^^A=<<
 %
 %^^A=<<
 %
 % \end{implementation}^^A=<<
+%
+% \clearpage
+% \PrintIndex
 %
 \endinput
 %
