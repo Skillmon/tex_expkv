@@ -422,9 +422,14 @@ and the derived files           expkv.pdf
 % is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up to
 % you.
 %
-% \paragraph{\pkg{pgfkeys}} is about one and a half times slower, but has an
-% \emph{enormous} feature set. It has the same or a very similar bug
-% \pkg{keyval} has.
+% \paragraph{\pkg{pgfkeys}} is about one and a half times slower for one key,
+% but has an \emph{enormous} feature set. However, since adding additional keys
+% doesn't add as much needed time for \pkg{pgfkeys} compared to \expkv, it gets
+% faster than \expkv\ at around eight \kv\ pairs.
+% It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
+% also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
+% was last updated in 2012 and it slows down |\pgfkeys| by factor~8. Also I
+% don't know whether this might introduce new bugs.
 %
 % \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about two times slower,
 % but it works even if commas and equals have category codes different from 12.
@@ -459,34 +464,52 @@ and the derived files           expkv.pdf
 % \end{lstlisting}
 %
 % \begin{table}
+%   \def\fnsym{\textcolor{red!80!black}{*}}
+%   \begingroup
 %   \centering
 %   \newcommand*\yes{\textcolor{red!80!black}  {yes}}^^A
 %   \newcommand*\no {\textcolor{green!80!black}{no}}^^A
 %   \caption[Comparison of \kv\ packages]
 %     {^^A
-%       Comparison of \kv\ packages. Operations are the required operations to
-%       evaluate one key, measured with the \pkg{l3benchmark} package (and a
-%       target time of \SI{30}{\second}), which only returns the three most
-%       significant digits. The column ``Category Fragile'' lists whether the
-%       parsing breaks with active commas or equal signs.^^A
+%       Comparison of \kv\ packages. The packages are ordered from
+%       fastest to slowest for one \kv\ pair. Benchmarking was done using
+%       \pkg{l3benchmark} and the scripts in the \file{Benchmarks} folder
+%       of the \href{https://github.com/Skillmon/tex_expkv}{git repository}.
+%       The columns $p_i$ are the polynomial coefficients of a linear fit to the
+%       run-time, $p_0$ can be interpreted as the overhead for initialisation
+%       and $p_1$ the cost per key. The column ``Category Fragile'' lists
+%       whether the parsing breaks with active commas or equal signs.^^A
 %       \label{tab:comp}^^A
 %     }
-%   \begin{tabular}{lS[table-format=4.1]ccc}
+%   \begin{tabular}{l*2{S[table-format=4.3]}ccc}
 %     \toprule
-%     Package & {Operations} & Brace-Bug & Category Fragile & Date \\
+%     Package & {$p_1$} & {$p_0$} & Brace-Bug & Category Fragile & Date \\
 %     \midrule
-%     \pkg{keyval}    &   15.3 & \yes    & \yes             & 2014-10-28 \\
-%     \pkg{options}   &   37.6 & \yes    & \yes             & 2015-03-01 \\
-%     \expkv          &   41.0 & \no     & \no              & 2020-01-14 \\
-%     \pkg{pgfkeys}   &   68.9 & \yes    & \yes             & 2019-12-21 \\
-%     \pkg{kvsetkeys} &   95.6 & \no     & \no              & 2019-12-15 \\
-%     \pkg{l3keys}    &  140   & \no     & \no              & 2019-11-07 \\
-%     \pkg{simplekv}  &  180   & \yes    & \yes             & 2017-08-08 \\
-%     \pkg{xkeyval}   &  444   & \yes    & \yes             & 2014-12-03 \\
-%     \pkg{yax}       &  545   & \yes    & \yes             & 2010-01-22 \\
-%     \pkg{ltxkeys}   & 9270   & \no     & \no              & 2012-11-17 \\
+%     \pkg{keyval}    &   13.415 &    2.229 & \yes & \yes & 2014-10-28 \\
+%     \pkg{options}   &   25.254 &   12.160 & \yes & \yes & 2015-03-01 \\
+%     \expkv          &   31.711 &    5.124 & \no  & \no  & 2020-01-15 \\
+%     \pkg{pgfkeys}   &   26.215 &   43.141 & \yes & \yes & 2020-01-08 \\
+%     \pkg{kvsetkeys} & {\fnsym} & {\fnsym} & \no  & \no  & 2019-12-15 \\
+%     \pkg{l3keys}    &  107.434 &   23.372 & \no  & \no  & 2020-01-12 \\
+%     \pkg{simplekv}  &  162.046 &    1.014 & \yes & \yes & 2017-08-08 \\
+%     \pkg{xkeyval}   &  258.505 &  168.761 & \yes & \yes & 2014-12-03 \\
+%     \pkg{yax}       &  510.662 &   37.961 & \yes & \yes & 2010-01-22 \\
+%     \pkg{ltxkeys}   & 3937.979 & 4512.835 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
+%   \par
+%   \endgroup
+%   \medskip
+%   \fnsym For \pkg{kvsetkeys} the linear model used for the other
+%   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
+%   quadratic run-time, the coefficients of the second degree polynomial fit are
+%   $p_2=\num{9.653}$, $p_1=\num{40.896}$, and $p_0=\num{67.268}$. Of course the
+%   other packages might not really have linear run-time, but at least from 1~to
+%   20~keys the fits don't seem too bad (the maximum ratio $p_2/p_1$
+%   for the other packages is \num{8.987e-3}). If one extrapolates the fits
+%   for 100 \kv\ pairs one finds that most of them match pretty well, the
+%   exception being \pkg{ltxkeys}, which behaves quadratic as well with
+%   $p_2=\num{29.773}$, $p_1=\num{3312.744}$, and $p_0=\num{6805.363}$.
 % \end{table}
 %
 % \subsection{Error Messages}
