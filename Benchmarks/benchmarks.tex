@@ -1,0 +1,135 @@
+\documentclass[]{article}
+
+\usepackage{l3benchmark}
+
+\ExplSyntaxOn
+%% defaults if called without script
+\cs_if_exist:NF \keyarg { \def \keyarg { ~ height ~ = ~ 6 ~ } }
+\cs_if_exist:NF \keyrep { \def \keyrep { 5 } }
+\cs_if_exist:NF \keytgt { \def \keytgt { 1 } }
+
+
+%% start a benchmark before the real benchmarks (get things heated up)
+\fp_gset:Nn \g_benchmark_duration_target_fp { 5 }
+\benchmark:n {\empty}
+\fp_gset:Nn \g_benchmark_duration_target_fp { \keytgt }
+
+\cs_new:Npn \benchmark #1 #2
+  {
+    \typeout{(Number ~ of ~ Keys: ~ \clist_count:V \keyarg)}
+    \typeout{=== ~ Benchmarking ~ \detokenize{#1} ~ ===}
+    \cs_set:Npn \__expkv_benchmark:n ##1 { \exp_not:n { #2 } }
+    \int_step_inline:nn { \keyrep }
+      { \exp_args:Nx \benchmark:n { \__expkv_benchmark:V \keyarg } }
+  }
+\cs_generate_variant:Nn \__expkv_benchmark:n { V }
+\cs_generate_variant:Nn \clist_count:n { V }
+
+\cs_new:Npn \bugtest_gen:N #1
+  {
+    \exp_args:No \exp_not:o { \char_generate:nn { `#1 } { 13 } }
+  }
+\tl_const:Nx \c_bugtest_argument_tl
+  { 
+    height=5,%
+    height\bugtest_gen:N=4\bugtest_gen:N,
+    height\bugtest_gen:N=6
+    =
+  }
+\cs_new:Npn \testcatcode #1 #2
+  {
+    \iftestcat
+      \bugtest_do:Vnn \c_bugtest_argument_tl { #1 } { #2 }
+    \fi
+  }
+\cs_new:Npn \bugtest_do:nnn #1 #2 #3 { #2 { #3 #1 } }
+\cs_generate_variant:Nn \bugtest_do:nnn { Vnn }
+
+%% define the test key for l3keys
+\keys_define:nn { 333 } { height .code:n = \def\myheight{#1} }
+\cs_new_eq:NN \explset \keys_set:nn
+\ExplSyntaxOff
+
+\makeatletter
+\newif\iftestbug
+\newif\iftestcat
+%\testbugtrue
+\newcommand*\testbug@correct{ abc}
+\newcommand\testbug[2]
+  {%
+    \iftestbug
+      \typeout{=== Bugtests #1 ===}%
+      #2%
+      \ifx\myheight\testbug@correct
+        \typeout{Braces test: Passed}%
+      \else
+        \typeout{Braces test: Failed (\meaning\myheight)}%
+      \fi
+    \fi
+  }
+
+\usepackage{keyval}
+\define@key{000}{height}{\def\myheight{#1}}
+\testbug{keyval}{\setkeys{000}{height={ abc}}}
+\testcatcode{\setkeys{000}}{}
+\benchmark{keyval}{\setkeys{000}{#1}}
+
+\usepackage{xkeyval}
+\define@key{111}{height}{\def\myheight{#1}} % not necessary
+\testbug{xkeyval}{\setkeys{111}{height={ abc}}}
+\testcatcode{\setkeys{111}}{}
+\benchmark{xkeyval}{\setkeys{111}{#1}}
+
+\usepackage{expkv}
+\ekvdef{222}{height}{\def\myheight{#1}}
+\testbug{expkv}{\ekvset{222}{height={ abc}}}
+\testcatcode{\ekvset{222}}{}
+\benchmark{expkv}{\ekvset{222}{#1}}
+
+% l3keys
+\typeout{} % just to get a line between expkv and this in the log
+\testbug{l3keys}{\explset{333}{height={ abc}}}
+\testcatcode{\explset{333}}{}
+\benchmark{l3keys}{\explset{333}{#1}}
+
+\usepackage{pgfkeys}
+\pgfkeys{/444/.cd,height/.code={\def\myheight{#1}}}
+\testbug{pgfkeys}{\pgfkeys{/444/.cd,height={ abc}}}
+\testcatcode{\pgfkeys}{/444/.cd,}
+\benchmark{pgfkeys}{\pgfkeys{/444/.cd,#1}}
+
+\usepackage{kvsetkeys}
+\usepackage{kvdefinekeys}
+\kv@define@key{555}{height}{\def\myheight{#1}}
+\testbug{kvsetkeys}{\kvsetkeys{555}{height={ abc}}}
+\testcatcode{\kvsetkeys{555}}{}
+\benchmark{kvsetkeys}{\kvsetkeys{555}{#1}}
+
+\usepackage{options}
+\options{/666/.new family,/666/height/.new cmd=\def\myheight{#1}}
+\testbug{options}{\options{/666,height={ abc}}}
+\testcatcode{\options}{/666,}
+\benchmark{options}{\options{/666,#1}}
+
+\usepackage{simplekv}
+\setKVdefault[777]{height={ abc}}
+\testbug{simplekv}{\edef\myheight{\unexpanded\expandafter\expandafter\expandafter{\useKV[777]{height}}}}
+\testcatcode{\setKV[777]}{}
+\benchmark{simplekv}{\setKV[777]{#1}}
+
+\usepackage{ltxkeys}
+\ltxkeys@ordkey{888}{height}{\def\myheight{#1}}
+\testbug{ltxkeys}{\ltxkeys@setkeys{888}{height={ abc}}}
+\testcatcode{\ltxkeys@setkeys{888}}{}
+\benchmark{ltxkeys}{\ltxkeys@setkeys{888}{#1}}
+
+\usepackage{yax}
+\defactiveparameter 999 {\storevalue\myheight 999:height }
+\testbug{yax}{\setparameterlist{999}{height={ abc}}}
+\testcatcode{\setparameterlist{999}}{}
+\benchmark{yax}{\setparameterlist{999}{#1}}
+
+\makeatother
+
+\begin{document}
+\end{document}

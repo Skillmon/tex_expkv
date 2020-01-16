@@ -6,8 +6,9 @@
 *.out
 *.pdf
 *.sty
-*.tex
 *.toc
 *.gls                                                                 
 *.ilg                                                                 
 *.ind
+expkv.tex
+Benchmarks/*.txt
