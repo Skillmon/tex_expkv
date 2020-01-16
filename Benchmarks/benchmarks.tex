@@ -7,6 +7,7 @@
 \cs_if_exist:NF \keyarg { \def \keyarg { ~ height ~ = ~ 6 ~ } }
 \cs_if_exist:NF \keyrep { \def \keyrep { 5 } }
 \cs_if_exist:NF \keytgt { \def \keytgt { 1 } }
+\cs_if_exist:NF \keypre { \def \keypre { 5 } }
 \cs_if_exist:NF \ifbenchmark { \newif \ifbenchmark \benchmarktrue }
 \cs_if_exist:NF \iftestcat { \newif \iftestcat }
 \cs_if_exist:NF \iftestbug { \newif \iftestbug }
@@ -18,7 +19,7 @@
 
 %% start a benchmark before the real benchmarks (get things heated up)
 \ifbenchmark
-  \fp_gset:Nn \g_benchmark_duration_target_fp { 5 }
+  \fp_gset:Nn \g_benchmark_duration_target_fp { \keypre }
   \benchmark:n {\empty}
 \fi
 \fp_gset:Nn \g_benchmark_duration_target_fp { \keytgt }

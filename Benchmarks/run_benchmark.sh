@@ -4,25 +4,35 @@
 local results="benchmark_results.txt"
 local tmp="benchmark_tmp"
 local versions="benchmark_filelist.txt"
+# step from $keys_start to $keys_end for number of keys
+local keys_start=0
+local keys_end=20
+# space separated list of additional numbers of keys
+local keys_additional=(100)
 
 ## settings for benchmarks.tex
 # target time of a single \benchmark:n
-local target=1
+local target="1"
 # number of \benchmark:n calls per package
 local repetitions=30
+# target time for the \benchmark:n call that only serves to get the CPU hot
+local preheat="5"
 
-local predefs="\\def\\keytgt{$target}\\def\\keyrep{$repetitions}"
+local predefs="\\def\\keypre{$preheat}"
+      predefs+="\\def\\keytgt{$target}"
+      predefs+="\\def\\keyrep{$repetitions}"
 local benchtrue="\\newif\\ifbenchmark\\benchmarktrue"
 local benchfalse="\\newif\\ifbenchmark"
 
-function backup () {
-}
-
 function run_single () {
-    local keyarg=" height = 6 "
-    for (( j=2; j<=$1; j++ )); do
-        keyarg+=", height = 6 "
-    done
+    if [[ $1 == 0 ]]; then
+        local keyarg=""
+    else
+        local keyarg=" height = 6 "
+        for (( j=2; j<=$1; j++ )); do
+            keyarg+=", height = 6 "
+        done
+    fi
     pdflatex -jobname=$tmp \
         "$predefs$benchtrue\\def\\keyarg{$keyarg}\\input{benchmarks.tex}"
     echo "Number of Keys: $1" >> $results
@@ -36,7 +46,10 @@ cp ../expkv.dtx .
 pdftex expkv.dtx
 rm expkv.dtx
 
-for (( i=1; i<=20; i++ )); do
+for (( i=$keys_start; i<=$keys_end; i++ )); do
+    run_single $i
+done
+for i in $keys_additional; do
     run_single $i
 done
 

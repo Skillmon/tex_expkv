@@ -12,3 +12,4 @@
 *.ind
 expkv.tex
 Benchmarks/*.txt
+Benchmarks/*.png
