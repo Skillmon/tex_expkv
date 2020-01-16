@@ -54,6 +54,12 @@ def read_results(name, block_size=None):
         return num, ops
     return None, None
 
+def print_polycoeffs(num, ops):
+    print("  degree=1", np.polyfit(num, ops, 1))
+    p2 = np.polyfit(num, ops, 2)
+    print("  degree=2", p2)
+    print("  p2/p1   ", p2[0]/p2[1])
+
 if __name__ == "__main__":
     if len(argv) != 2:
         print("Usage:", argv[0], "<filename>")
@@ -65,10 +71,8 @@ if __name__ == "__main__":
     if type(num) == type(None):
         for i in ops:
             print(i)
-            print("  degree=1", np.polyfit(ops[i][0], ops[i][1], 1))
-            print("  degree=2", np.polyfit(ops[i][0], ops[i][1], 2))
+            print_polycoeffs(ops[i][0], ops[i][1])
     else:
         for i in ops:
             print(i)
-            print("  degree=1", np.polyfit(num, ops[i], 1))
-            print("  degree=2", np.polyfit(num, ops[i], 2))
+            print_polycoeffs(num, ops[i])
