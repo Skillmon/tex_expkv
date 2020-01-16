@@ -1,8 +1,5 @@
 \documentclass[]{article}
 
-%% user settings
-\benchmarktrue
-
 \usepackage{l3benchmark}
 
 \ExplSyntaxOn
@@ -20,8 +17,10 @@
 %\testbugtrue
 
 %% start a benchmark before the real benchmarks (get things heated up)
-\fp_gset:Nn \g_benchmark_duration_target_fp { 5 }
-\benchmark:n {\empty}
+\ifbenchmark
+  \fp_gset:Nn \g_benchmark_duration_target_fp { 5 }
+  \benchmark:n {\empty}
+\fi
 \fp_gset:Nn \g_benchmark_duration_target_fp { \keytgt }
 
 \cs_new:Npn \benchmark #1 #2
