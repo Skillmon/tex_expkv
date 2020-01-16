@@ -11,6 +11,7 @@ local target=1
 local repetitions=30
 
 local predefs="\\def\\keytgt{$target}\\def\\keyrep{$repetitions}"
+predefs+="\\newif\\ifbenchmark\\benchmarktrue"
 
 function backup () {
 }

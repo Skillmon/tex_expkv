@@ -49,10 +49,10 @@ if __name__ == "__main__":
     if num == None:
         for i in ops:
             print(i)
-            print("  grad=1", np.polyfit(ops[i][0], ops[i][1], 1))
-            print("  grad=2", np.polyfit(ops[i][0], ops[i][1], 2))
+            print("  degree=1", np.polyfit(ops[i][0], ops[i][1], 1))
+            print("  degree=2", np.polyfit(ops[i][0], ops[i][1], 2))
     else:
         for i in ops:
             print(i)
-            print("  grad=1", np.polyfit(num, ops[i], 1))
-            print("  grad=2", np.polyfit(num, ops[i], 2))
+            print("  degree=1", np.polyfit(num, ops[i], 1))
+            print("  degree=2", np.polyfit(num, ops[i], 2))
