@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from sys import argv
 import numpy as np
 import re
