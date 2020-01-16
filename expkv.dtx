@@ -56,8 +56,9 @@ and the derived files           expkv.pdf
   \expandafter\endgroup
 \fi
 %
+\IfFileExists{expkv.tex}{\input{expkv.tex}}{}
 \ProvidesFile{expkv.dtx}
-  [\csname expkv@date\endcsname\ an expandable key=val implementation]
+  [\csname ekvDate\endcsname\ an expandable key=val implementation]
 \PassOptionsToPackage{full}{textcomp}
 \documentclass{l3doc}
 \RequirePackage[oldstylenums]{kpfonts}
@@ -82,7 +83,6 @@ and the derived files           expkv.pdf
   }
 \newcommand*\CodeSymbol[1]{\textbf{#1}}
 \RequirePackage{randtext}
-\IfFileExists{expkv.tex}{\input{expkv.tex}}{}
 \let\metaORIG\meta
 \protected\def\meta #1{\texttt{\metaORIG{#1}}}
 \renewcommand*\thefootnote{\fnsymbol{footnote}}
@@ -93,6 +93,7 @@ and the derived files           expkv.pdf
   {^^A
     \texorpdfstring
       {^^A
+        \leavevmode
         \begingroup
         \bfseries
         {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
@@ -130,7 +131,7 @@ and the derived files           expkv.pdf
           \Large an expandable \kv\ implementation^^A
         }{expkv - an expandable <key>=<value> implementation}^^A
     }
-  \date{\csname ekvDate\endcsname\space v\csname ekvVersion\endcsname}
+  \date{\ekvDate\space v\ekvVersion}
   \author{Jonathan P. Spratte\thanks{\protect\randomize{jspratte@yahoo.de}}}
   \DocInput{expkv.dtx}
 \end{document}
@@ -593,10 +594,7 @@ and the derived files           expkv.pdf
 \def\ekv@tmp
   {%
     \ProvidesFile{expkv.tex}%
-      [%
-        \ekvDate\space v\ekvVersion\space
-        an expandable key=val implementation%
-      ]%
+      [\ekvDate\space v\ekvVersion\space an expandable key=val implementation]%
   }
 \input{expkv.tex}
 \ProvidesPackage{expkv}%
@@ -631,7 +629,7 @@ and the derived files           expkv.pdf
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
 \def\ekvVersion{0.2}
-\def\ekvDate{2020-01-14}
+\def\ekvDate{2020-01-16}
 %    \end{macrocode}
 % \end{macro}
 %
