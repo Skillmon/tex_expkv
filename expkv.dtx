@@ -62,19 +62,21 @@ and the derived files           expkv.pdf
 \PassOptionsToPackage{full}{textcomp}
 \documentclass{l3doc}
 \RequirePackage[oldstylenums]{kpfonts}
+\renewcommand\ttdefault{jkptt}
 \RequirePackage{listings}
 \RequirePackage{booktabs}
 \RequirePackage{siunitx}
 \RequirePackage{xcolor}
 \RequirePackage{caption}
 \RequirePackage{microtype}
+\RequirePackage{accsupp}
 \lstset
   {
     ,flexiblecolumns=false
     ,basewidth=.52em
     ,gobble=2
-    ,basicstyle=\itshape
-    ,morekeywords={\ekvdef,\ekvdefNoVal,\ekvset}
+    ,basicstyle=\fontfamily{jkp}\itshape
+    ,morekeywords={\ekvdef,\ekvdefNoVal,\ekvset,\ekvparse}
     ,morecomment=[l]\%
     ,commentstyle=\color[gray]{0.4}
     ,literate={\{}{{\CodeSymbol\{}}{1}
@@ -93,13 +95,16 @@ and the derived files           expkv.pdf
   {^^A
     \texorpdfstring
       {^^A
-        \leavevmode
-        \begingroup
-        \bfseries
-        {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
-        \lower.493ex\hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
-        \kern-.18em{\color{expkvred}v}^^A
-        \endgroup
+        \mbox
+          {^^A
+            \BeginAccSupp{ActualText=expkv}^^A
+            \bfseries
+            {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+            \lower.493ex
+              \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+            \kern-.18em{\color{expkvred}v}^^A
+            \EndAccSupp{}^^A
+          }^^A
       }
       {expkv}^^A
   }
@@ -111,7 +116,7 @@ and the derived files           expkv.pdf
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
 \DoNotIndex{\noexpand,\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
-\DoNotIndex{\@,\unexpanded}
+\DoNotIndex{\@,\unexpanded,\string,\expanded}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
 \DoNotIndex{\else}
@@ -239,7 +244,7 @@ and the derived files           expkv.pdf
 %
 % \begin{function}{\ekvset}
 %   \begin{syntax}
-%     \cs{ekvset}\marg{set}\{\kv,\kv,\ldots\}
+%     \cs{ekvset}\marg{set}\{\kv,\ldots\}
 %   \end{syntax}
 %   Splits \kv\ pairs on commas. From both \key\ and \val\ up to one space is
 %   stripped from both ends, if then only a braced group remains the braces are
@@ -252,6 +257,30 @@ and the derived files           expkv.pdf
 %   executed. If \kv\ contains more than a single unhidden equal sign, it will
 %   be split at the first one and the others are considered part of the value.
 %   |\ekvset| should be nestable.
+% \end{function}
+%
+% \begin{function}{\ekvparse}
+%   \begin{syntax}
+%     \cs{ekvparse}\meta{cs1}\meta{cs2}\{\kv,\ldots\}
+%   \end{syntax}
+%   This macro parses the \kv\ pairs and provides those list elements which are
+%   only keys as the argument to \meta{cs1}, and those which are a \kv\ pair to
+%   \meta{cs2} as two arguments. It expands in exactly two steps of expansion.
+%   |\ekvbreak| and |\ekvsneak| and their relatives don't work in |\ekvparse|.
+%   It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|.
+%
+%   As a small example:
+% \begin{lstlisting}
+% \ekvparse\handlekey\handlekeyval{foo = bar, key, baz={zzz}}
+% \end{lstlisting}
+%   would expand in exactly two steps to
+% \begin{lstlisting}
+% \handlekeyval{foo}{bar}\handlekey{key}\handlekeyval{baz}{zzz}
+% \end{lstlisting}
+%   and afterwards |\handlekey| and |\handlekeyval| would have to further handle
+%   the \key. There are no macros like these two contained in \expkv, you have
+%   to set them up yourself if you want to use |\ekvparse| (of course the names
+%   might differ).
 % \end{function}
 %
 % \subsection{Example}
@@ -361,7 +390,7 @@ and the derived files           expkv.pdf
 % \subsubsection{Bugs}
 %
 % You can either report bugs via mail (see the first page), or directly on
-% github if you own an account there:
+% github if you have an account there:
 % \url{https://github.com/Skillmon/tex_expkv}
 %
 % \subsubsection{Comparisons}
@@ -380,6 +409,12 @@ and the derived files           expkv.pdf
 % others to work due to bugs, or because they just provide wrappers around other
 % packages in this list. For the impatient, the essence of these comparisons
 % regarding speed and buggy behaviour is contained in \autoref{tab:comp}.
+% 
+% Here is no benchmark of |\ekvparse| and |\keyval_parse:NNn| contained, as most
+% other packages don't provide equivalent features to my knowledge. |\ekvparse|
+% is slightly faster than |\ekvset|, but keep in mind that it does less. The
+% same is true for |\keyval_parse:NNn| compared to |\keys_set:nn| of \pkg{expl3}
+% (where the difference is much bigger).
 %
 % \paragraph{\pkg{keyval}} is between two and three times faster and has a
 % comparable feature set just a slightly different way how it handles keys
@@ -429,7 +464,7 @@ and the derived files           expkv.pdf
 % faster than \expkv\ at around eight \kv\ pairs.
 % It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
 % also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
-% was last updated in 2012 and it slows down |\pgfkeys| by factor~8. Also I
+% was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
 % don't know whether this might introduce new bugs.
 %
 % \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about two times slower,
@@ -628,8 +663,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{0.2}
-\def\ekvDate{2020-01-16}
+\def\ekvVersion{0.3}
+\def\ekvDate{2020-01-19}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -699,17 +734,12 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@ifblankF,\ekv@ifblank@}
+% \begin{macro}{\ekv@ifblank@}
 % The obvious test that can be based on an if-empty is if-blank, meaning a test
 % checking whether the argument is empty or consists only of spaces. Our version
 % here will be tweaked a bit, as we want to check this, but with one leading
 % |\ekv@mark| token that is to be ignored.
 %    \begin{macrocode}
-\long\def\ekv@ifblankF#1%
-  {%
-    \ekv@ifblank@#1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
-  }
 \long\def\ekv@ifblank@\ekv@mark#1{\ekv@ifempty@\ekv@ifempty@A}
 %    \end{macrocode}
 % \end{macro}
@@ -757,7 +787,7 @@ and the derived files           expkv.pdf
       \ekv@fi@secondoftwo
     \fi
     \@firstoftwo
-    {\ekv@parse@pair@#1\ekv@mark}%
+    {\ekv@set@pair@#1\ekv@mark}%
   }
 \def\ekv@ifdefined@key#1#2%
   {%
@@ -820,7 +850,11 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal}
+% \begin{macro}
+%   {
+%     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
+%     \ekv@defset
+%   }
 % Set up the key defining macros |\ekvdef| etc.
 %    \begin{macrocode}
 \protected\long\def\ekvdef#1#2#3%
@@ -893,100 +927,100 @@ and the derived files           expkv.pdf
 \endgroup
 \long\def\ekvset##1##2%
   {%
-    \expandafter\ekv@parse\csname\ekv@name@set{##1}\endcsname
+    \expandafter\ekv@set\csname\ekv@name@set{##1}\endcsname
       \ekv@mark##2#1\ekv@stop#1{}%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse}
-% |\ekv@parse| will split the \kv\ list at active commas. Then it has to check
+% \begin{macro}{\ekv@set}
+% |\ekv@set| will split the \kv\ list at active commas. Then it has to check
 % whether there were unprotected other commas and resplit there.
 %    \begin{macrocode}
-\long\def\ekv@parse##1##2#1%
+\long\def\ekv@set##1##2#1%
   {%
 %    \end{macrocode}
-% Test whether we're at the end, if so invoke |\ekv@endparse|,
+% Test whether we're at the end, if so invoke |\ekv@endset|,
 %    \begin{macrocode}
-    \ekv@ifstop##2\ekv@endparse\ekv@mark\ekv@stop
+    \ekv@ifstop##2\ekv@endset\ekv@mark\ekv@stop
 %    \end{macrocode}
 % else go on with other commas,
 %    \begin{macrocode}
-    \ekv@splitcomma@other##1##2,\ekv@stop,%
+    \ekv@set@other##1##2,\ekv@stop,%
 %    \end{macrocode}
 % and get the next active comma delimited \kv\ pair.
 %    \begin{macrocode}
-    \ekv@parse##1\ekv@mark
+    \ekv@set##1\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@endparse}
-% |\ekv@endparse| is a hungry little macro. It will eat everything that remains
-% of |\ekv@parse| and unbrace the sneaked stuff.
+% \begin{macro}{\ekv@endset}
+% |\ekv@endset| is a hungry little macro. It will eat everything that remains
+% of |\ekv@set| and unbrace the sneaked stuff.
 %    \begin{macrocode}
-\long\def\ekv@endparse
-    \ekv@mark\ekv@stop\ekv@splitcomma@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
+\long\def\ekv@endset
+    \ekv@mark\ekv@stop\ekv@set@other##1,\ekv@stop,\ekv@set##2\ekv@mark
     ##3%
   {##3}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@splitcomma@other}
-% The macro |\ekv@splitcomma@other| is guaranteed to get only single \kv\ pairs.
+% \begin{macro}{\ekv@set@other}
+% The macro |\ekv@set@other| is guaranteed to get only single \kv\ pairs.
 % So here we need to split at equal signs. If there is no equal sign, we need to
 % test whether we're done and if not this is a |NoVal| key.
 %    \begin{macrocode}
-\long\def\ekv@splitcomma@other##1##2,%
+\long\def\ekv@set@other##1##2,%
   {%
     \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
       \ekv@ifempty@A\ekv@ifempty@B\@firstofone
       {%
-        \ekv@ifhaseq@other##2=\ekv@ifempty@B\ekv@ifempty@false
+        \ekv@ifhas@eq@other##2=\ekv@ifempty@B\ekv@ifempty@false
           \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\ekv@spliteq@other##1##2\ekv@stop}%
+          {\ekv@set@eq@other##1##2\ekv@stop}%
           {%
-            \ekv@ifhaseq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
+            \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
               \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-              {\ekv@spliteq@active##1##2\ekv@stop}%
+              {\ekv@set@eq@active##1##2\ekv@stop}%
               {%
-                \ekv@ifstop##2\ekv@endsplitcomma\ekv@mark\ekv@stop
-                \ekv@strip{##2}\ekv@parse@key##1%
+                \ekv@ifstop##2\ekv@endset@other\ekv@mark\ekv@stop
+                \ekv@strip{##2}\ekv@set@key##1%
               }%
           }%
       }%
-    \ekv@splitcomma@other##1\ekv@mark%
+    \ekv@set@other##1\ekv@mark%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@spliteq@other}
-% |\ekv@spliteq@other| might not be the correct break point, there might be an
+% \begin{macro}{\ekv@set@eq@other}
+% |\ekv@set@eq@other| might not be the correct break point, there might be an
 % active equal sign in the currently parsed key-name. If so, we have to resplit.
 %    \begin{macrocode}
-\long\def\ekv@spliteq@other##1##2=%
+\long\def\ekv@set@eq@other##1##2=%
   {%
-    \ekv@ifhaseq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
+    \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@spliteq@active##1##2=}%
-      {\ekv@strip{##2}\ekv@parse@pair##1}%
+      {\ekv@set@eq@active##1##2=}%
+      {\ekv@strip{##2}\ekv@set@pair##1}%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@spliteq@active}
+% \begin{macro}{\ekv@set@eq@active}
 % We need to handle the active equal signs.
 %    \begin{macrocode}
-\long\def\ekv@spliteq@active##1##2#2%
+\long\def\ekv@set@eq@active##1##2#2%
   {%
-    \ekv@strip{##2}\ekv@parse@pair##1%
+    \ekv@strip{##2}\ekv@set@pair##1%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@ifhaseq@other,\ekv@ifhaseq@active,\ekv@endsplitcomma}
+% \begin{macro}{\ekv@ifhas@eq@other,\ekv@ifhas@eq@active,\ekv@endset@other}
 % And we have to set up the testing macros for our equal signs and
-% |\ekv@endsplitcomma|.
+% |\ekv@endset@other|.
 %    \begin{macrocode}
-\long\def\ekv@ifhaseq@other\ekv@mark##1={\ekv@ifempty@\ekv@ifempty@A}
-\long\def\ekv@ifhaseq@active\ekv@mark##1#2{\ekv@ifempty@\ekv@ifempty@A}
-\long\def\ekv@endsplitcomma
-    \ekv@mark\ekv@stop\ekv@strip##1\ekv@parse@key##2%
-    \ekv@splitcomma@other##3\ekv@mark
+\long\def\ekv@ifhas@eq@other\ekv@mark##1={\ekv@ifempty@\ekv@ifempty@A}
+\long\def\ekv@ifhas@eq@active\ekv@mark##1#2{\ekv@ifempty@\ekv@ifempty@A}
+\long\def\ekv@endset@other
+    \ekv@mark\ekv@stop\ekv@strip##1\ekv@set@key##2%
+    \ekv@set@other##3\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
@@ -1001,6 +1035,96 @@ and the derived files           expkv.pdf
 \long\def\ekvsneakPre##1##2\ekv@stop#1##3%
   {%
     ##2\ekv@stop#1{##1##3}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ekvparse}
+% Additionally to the |\ekvset| macro we also want to provide an |\ekvparse|
+% macro, that has the same scope as |\keyval_parse:NNn| from \pkg{expl3}.
+% This is pretty analogue to the |\ekvset| implementation, we just put an
+% |\unexpanded| here and there instead of other macros to stop the |\expanded|
+% on our output.
+%    \begin{macrocode}
+\long\def\ekvparse##1##2##3%
+  {%
+    \expanded{\ekv@parse##1##2\ekv@mark##3#1\ekv@stop#1}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@parse}
+%    \begin{macrocode}
+\long\def\ekv@parse##1##2##3#1%
+  {%
+    \ekv@ifstop##3\ekv@endparse\ekv@mark\ekv@stop
+    \ekv@parse@other##1##2##3,\ekv@stop,%
+    \ekv@parse##1##2\ekv@mark
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@endparse}
+%    \begin{macrocode}
+\long\def\ekv@endparse
+    \ekv@mark\ekv@stop\ekv@parse@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
+  {}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@parse@other}
+%    \begin{macrocode}
+\long\def\ekv@parse@other##1##2##3,%
+  {%
+    \ekv@ifblank@##3\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
+      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+      {%
+        \ekv@ifhas@eq@other##3=\ekv@ifempty@B\ekv@ifempty@false
+          \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+          {\unexpanded{##2}\ekv@parse@eq@other##3\ekv@stop}%
+          {%
+            \ekv@ifhas@eq@active##3#2\ekv@ifempty@B\ekv@ifempty@false
+              \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+              {\unexpanded{##2}\ekv@parse@eq@active##3\ekv@stop}%
+              {%
+                \ekv@ifstop##3\ekv@endparse@other\ekv@mark\ekv@stop
+                \unexpanded{##1}{\ekv@strip{##3}\unexpanded}%
+              }%
+          }%
+      }%
+    \ekv@parse@other##1##2\ekv@mark
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@parse@eq@other}
+%    \begin{macrocode}
+\long\def\ekv@parse@eq@other##1=%
+  {%
+    \ekv@ifhas@eq@active##1#2\ekv@ifempty@B\ekv@ifempty@false
+      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+      {\ekv@parse@eq@active##1=}%
+      {{\ekv@strip{##1}\unexpanded}\ekv@parse@pair\ekv@mark}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@parse@eq@active}
+%    \begin{macrocode}
+\long\def\ekv@parse@eq@active##1#2%
+  {%
+    {\ekv@strip{##1}\unexpanded}\ekv@parse@pair\ekv@mark
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@endparse@other}
+%    \begin{macrocode}
+\long\def\ekv@endparse@other
+    \ekv@mark\ekv@stop\unexpanded##1%
+    \ekv@parse@other##2\ekv@mark
+  {}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekv@parse@pair}
+%    \begin{macrocode}
+\long\def\ekv@parse@pair##1\ekv@stop
+  {%
+    {\ekv@strip{##1}\unexpanded}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1023,11 +1147,11 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@parse@pair,\ekv@parse@pair@}
-% |\ekv@parse@pair| needs to split the argument at the |=| sign and check
+% \begin{macro}{\ekv@set@pair,\ekv@set@pair@}
+% |\ekv@set@pair| needs to split the argument at the |=| sign and check
 % whether the key is defined.
 %    \begin{macrocode}
-\long\def\ekv@parse@pair#1#2%
+\long\def\ekv@set@pair#1#2%
   {%
     \ekv@ifdefined@pair#2{#1}%
       {%
@@ -1038,16 +1162,16 @@ and the derived files           expkv.pdf
         \ekv@gobbletostop
       }%
   }
-\long\def\ekv@parse@pair@#1#2\ekv@stop
+\long\def\ekv@set@pair@#1#2\ekv@stop
   {%
     \ekv@strip{#2}#1%
   }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@parse@key}
+% \begin{macro}{\ekv@set@key}
 %    \begin{macrocode}
-\long\def\ekv@parse@key#1#2%
+\long\def\ekv@set@key#1#2%
   {%
     \ekv@ifdefined@key#2{#1}%
       {%
