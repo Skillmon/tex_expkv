@@ -1,0 +1,61 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+
+\TEST{bracebug}
+  {%
+    \OMIT
+    \ekvdefNoVal{bracebug}{ key}{\TRUE}
+    \ekvdefNoVal{bracebug}{key}{\FALSE}
+    \ekvdefNoVal{bracebug}{key=}{\TRUE}
+    \TIMO
+    \ekvset{bracebug}{{ key},{key=}}
+    \OMIT
+    \protected\ekvdef{bracebug}{key}
+      {\def\test{#1}\ifx\test\result\TRUE\else\FALSE\fi}
+    \def\result{ abc }
+    \TIMO
+    \ekvset{bracebug}{key={ abc }}
+    \OMIT
+    \def\result{{abc}}
+    \TIMO
+    \ekvset{bracebug}{key={{abc}}}
+    \OMIT
+    \def\result{{{abc}}}
+    \TIMO
+    \ekvset{bracebug}{key={{{abc}}}}
+  }
+
+\OMIT
+\begingroup
+\catcode`\,=13
+\catcode`\==13
+\csname @firstofone\endcsname
+  {%
+    \endgroup
+    \def\catset#1#2{\ekvset{catcode}{#1=,key=#2}}%
+  }
+\ekvdef{catcode}{key}{\detokenize{#1}\NEWLINE}
+\TIMO
+\TESTEXP{catcodes}
+  {%
+    \catset{key=first}{second=arg,key=third}%
+  }
+
+\OMIT
+\ekvdef{expandable}{key}{Arg: #1\NEWLINE}
+\ekvletkv{expandable}{key2}{expandable}{key}
+\ekvdefNoVal{expandable}{key}{No Argument.\NEWLINE}
+\ekvletkvNoVal{expandable}{key2}{expandable}{key}
+\def\onlykey#1{k:#1;}
+\def\keyandvalue#1#2{k:#1,v:#2;}
+\TIMO
+\TESTEXP{expandable}
+  {%
+    \ekvset{expandable}{key,key=hihi, key2 ,key2 = haha}%
+    \ekvparse\onlykey\keyandvalue{key,key=hihi, key2 ,key2 = haha}%
+  }
+
+\END

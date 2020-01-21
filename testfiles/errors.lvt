@@ -1,0 +1,20 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+
+\ekvdef{errors}{key}{arg '#1'}
+\ekvdefNoVal{errors}{key2}{no arg}
+\TESTEXP{error-detection}
+  {%
+    \ekvset{errors}{key2=foo,key,key3=foo,key3}
+  }
+\TEST{error-detection2}
+  {%
+    \ekvdef{}{key}{}
+    \ekvdef{set}{}{}
+    \ekvdef{}{}{}
+  }
+
+\END

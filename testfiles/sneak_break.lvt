@@ -1,0 +1,58 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+\OMIT
+\ekvdef{test}{now}{now: \space\space'#1'\NEWLINE}
+\ekvdef{test}{sneakP}{\ekvsneakPre{pre: \space\space'#1'\NEWLINE}}
+\ekvdef{test}{sneak}{\ekvsneak{post: \space'#1'\NEWLINE}}
+\ekvdef{test}{break}{\ekvbreak{BREAK: '#1'\NEWLINE}}
+\ekvdef{test}{breakPre}{\ekvbreakPreSneak{PRE: \space\space'#1'\NEWLINE}}
+\ekvdef{test}{breakPost}{\ekvbreakPostSneak{POST: \space'#1'\NEWLINE}}
+\ekvdefNoVal{test}{error}{\ERROR}
+\TIMO
+
+\TESTEXP{sneak and breakPre}
+  {%
+    \ekvset{test}
+      {%
+        ,sneak    = 1
+        ,sneakP   = 2
+        ,sneak    = 3
+        ,sneakP   = 4
+        ,now      = 5
+        ,breakPre = 6
+        ,error
+      }%
+  }
+
+\TESTEXP{sneak and breakPost}
+  {%
+    \ekvset{test}
+      {%
+        ,sneak     = 1
+        ,sneakP    = 2
+        ,sneak     = 3
+        ,sneakP    = 4
+        ,now       = 5
+        ,breakPost = 6
+        ,error
+      }%
+  }
+
+\TESTEXP{sneak and break}
+  {%
+    \ekvset{test}
+      {%
+        ,sneak  = 1
+        ,sneakP = 2
+        ,sneak  = 3
+        ,sneakP = 4
+        ,now    = 5
+        ,break  = 6
+        ,error
+      }%
+  }
+
+\END

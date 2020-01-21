@@ -1,0 +1,24 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+\OMIT
+\ekvdef{test}{key}{}
+\ekvdefNoVal{test}{noval}{}
+\TIMO
+
+\TESTEXP{ifdefined}
+  {%
+    \ekvifdefined{test}{key}{\TRUE}{\ERROR}\NEWLINE
+    \ekvifdefined{test}{noval}{\ERROR}{\FALSE}\NEWLINE
+    \ekvifdefined{test}{nonsense}{\ERROR}{\FALSE}%
+  }
+\TESTEXP{ifNoValdefined}
+  {%
+    \ekvifNoValdefined{test}{key}{\ERROR}{\FALSE}\NEWLINE
+    \ekvifNoValdefined{test}{noval}{\TRUE}{\ERROR}\NEWLINE
+    \ekvifNoValdefined{test}{nonsense}{\ERROR}{\FALSE}%
+  }
+
+\END

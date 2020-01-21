@@ -25,6 +25,9 @@ function update_tag(file, content, tagname, tagdate)
   return content
 end
 
+checkengines={"pdftex"}
+checkformat="latex"
+
 -- which files to build
 sourcefiles={"expkv.dtx"}
 unpackfiles=sourcefiles
