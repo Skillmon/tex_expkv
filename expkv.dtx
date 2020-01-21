@@ -80,7 +80,7 @@ and the derived files           expkv.pdf
       {^^A
         \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,^^A
         \ekvset,\ekvparse,\ekvVersion,\ekvDate,\ekvifdefined,^^A
-        \ekvifNoValdefined,\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak,^^A
+        \ekvifdefinedNoVal,\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak,^^A
         \ekvsneak,\ekvsneakPre
       }
     ,morecomment=[l]\%
@@ -307,10 +307,10 @@ and the derived files           expkv.pdf
 % \begin{function}{\ekvVersion,\ekvDate}
 %   These two macros store the version and date of the package.
 % \end{function}
-% \begin{function}{\ekvifdefined,\ekvifNoValdefined}
+% \begin{function}{\ekvifdefined,\ekvifdefinedNoVal}
 %   \begin{syntax}
 %     \cs{ekvifdefined}\marg{set}\marg{key}\marg{true}\marg{false}
-%     \cs{ekvifNoValdefined}\marg{set}\marg{key}\marg{true}\marg{false}
+%     \cs{ekvifdefinedNoVal}\marg{set}\marg{key}\marg{true}\marg{false}
 %   \end{syntax}
 %   These two macros test whether there is a \key\ in \set. It is false if
 %   either a hash table entry doesn't exist for that key or its meaning is
@@ -975,11 +975,11 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekvifdefined,\ekvifNoValdefined}
+% \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
 \def\ekvifdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}}}
-\def\ekvifNoValdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}N}}
+\def\ekvifdefinedNoVal#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1157,9 +1157,18 @@ and the derived files           expkv.pdf
   {}
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}{\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak}
+% Provide macros that can completely stop the parsing of |\ekvset|, who knows
+% what it'll be useful for.
+%    \begin{macrocode}
+\long\def\ekvbreak##1##2\ekv@stop#1##3{##1}
+\long\def\ekvbreakPreSneak ##1##2\ekv@stop#1##3{##1##3}
+\long\def\ekvbreakPostSneak##1##2\ekv@stop#1##3{##3##1}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}{\ekvsneak,\ekvsneakPre}
-% One last thing we want to do with the changed category codes is to provide
-% macros that just smuggle stuff after |\ekvset|'s effects.
+% One last thing we want to do for |\ekvset| is to provide macros that just
+% smuggle stuff after |\ekvset|'s effects.
 %    \begin{macrocode}
 \long\def\ekvsneak##1##2\ekv@stop#1##3%
   {%
@@ -1259,16 +1268,6 @@ and the derived files           expkv.pdf
   {%
     {\ekv@strip{##1}\unexpanded}%
   }
-%    \end{macrocode}
-% \end{macro}
-%
-% Provide macros that can completely stop the parsing of |\ekvset|, who knows
-% what it'll be useful for.
-% \begin{macro}{\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak}
-%    \begin{macrocode}
-\long\def\ekvbreak##1##2\ekv@stop#1##3{##1}
-\long\def\ekvbreakPreSneak ##1##2\ekv@stop#1##3{##1##3}
-\long\def\ekvbreakPostSneak##1##2\ekv@stop#1##3{##3##1}
 %    \end{macrocode}
 % \end{macro}
 %

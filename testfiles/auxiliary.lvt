@@ -16,9 +16,9 @@
   }
 \TESTEXP{ifNoValdefined}
   {%
-    \ekvifNoValdefined{test}{key}{\ERROR}{\FALSE}\NEWLINE
-    \ekvifNoValdefined{test}{noval}{\TRUE}{\ERROR}\NEWLINE
-    \ekvifNoValdefined{test}{nonsense}{\ERROR}{\FALSE}%
+    \ekvifdefinedNoVal{test}{key}{\ERROR}{\FALSE}\NEWLINE
+    \ekvifdefinedNoVal{test}{noval}{\TRUE}{\ERROR}\NEWLINE
+    \ekvifdefinedNoVal{test}{nonsense}{\ERROR}{\FALSE}%
   }
 
 \END
