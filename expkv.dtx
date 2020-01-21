@@ -63,6 +63,7 @@ and the derived files           expkv.pdf
 \documentclass{l3doc}
 \RequirePackage[oldstylenums]{kpfonts}
 \renewcommand\ttdefault{jkptt}
+\RequirePackage{xfp} ^^A required for an example
 \RequirePackage{listings}
 \RequirePackage{booktabs}
 \RequirePackage{siunitx}
@@ -282,47 +283,6 @@ and the derived files           expkv.pdf
 %   to set them up yourself if you want to use |\ekvparse| (of course the names
 %   might differ).
 % \end{function}
-%
-% \subsection{Example}
-%
-% Say we have a macro for which we want to create a \kv\ interface. The macro
-% has a parameter, which is stored in the dimension \cs[no-index]{ourdim} having
-% a default value from its initialization. Now we want to be able to change that
-% dimension with the |width| key to some specified value. For that we'd do
-% \begin{lstlisting}
-% \newdimen\ourdim
-% \ourdim=150pt
-% \protected\ekvdef{our}{width}{\ourdim=#1\relax}
-% \end{lstlisting}
-% as you can see, we use the set |our| here. We want the key to behave different
-% if no value is specified. In that case the key should not use the its initial
-% value, but be smart and determine the available space from
-% \cs[no-index]{hsize}, so we also define
-% \begin{lstlisting}
-% \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}
-% \end{lstlisting}
-% Now we set up our macro to use this \kv\ interface
-% \begin{lstlisting}
-% \protected\def\ourmacro#1{\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
-% \end{lstlisting}
-% Finally we can use our macro like in the following\\
-% \begin{minipage}{6cm}
-% \begin{lstlisting}
-% \ourmacro{}\par
-% \ourmacro{width}\par
-% \ourmacro{width=5pt}\par
-% \end{lstlisting}
-% \end{minipage}^^A
-% \begin{minipage}{\dimexpr\linewidth-6cm\relax}
-%   \newdimen\ourdim\ourdim=150pt
-%   \protected\ekvdef{our}{width}{\ourdim=#1\relax}^^A
-%   \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}^^A
-%   \protected\def\ourmacro#1^^A
-%     {\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}^^A
-%   \ourmacro{}\par
-%   \ourmacro{width}\par
-%   \ourmacro{width=5pt}\par
-% \end{minipage}
 %
 % \subsection{Miscellaneous}
 %
@@ -548,6 +508,166 @@ and the derived files           expkv.pdf
 %   $p_2=\num{29.773}$, $p_1=\num{3312.744}$, and $p_0=\num{6805.363}$.
 % \end{table}
 %
+% \subsection{Examples}
+%
+% \subsubsection{Standard Use-Case}
+%
+% Say we have a macro for which we want to create a \kv\ interface. The macro
+% has a parameter, which is stored in the dimension \cs[no-index]{ourdim} having
+% a default value from its initialization. Now we want to be able to change that
+% dimension with the |width| key to some specified value. For that we'd do
+% \begin{lstlisting}
+% \newdimen\ourdim
+% \ourdim=150pt
+% \protected\ekvdef{our}{width}{\ourdim=#1\relax}
+% \end{lstlisting}
+% as you can see, we use the set |our| here. We want the key to behave different
+% if no value is specified. In that case the key should not use the its initial
+% value, but be smart and determine the available space from
+% \cs[no-index]{hsize}, so we also define
+% \begin{lstlisting}
+% \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}
+% \end{lstlisting}
+% Now we set up our macro to use this \kv\ interface
+% \begin{lstlisting}
+% \protected\def\ourmacro#1{\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
+% \end{lstlisting}
+% Finally we can use our macro like in the following\\
+% \begin{minipage}{6cm}
+% \begin{lstlisting}
+% \ourmacro{}\par
+% \ourmacro{width}\par
+% \ourmacro{width=5pt}\par
+% \end{lstlisting}
+% \end{minipage}^^A
+% \begin{minipage}{\dimexpr\linewidth-6cm\relax}
+%   \newdimen\ourdim\ourdim=150pt
+%   \protected\ekvdef{our}{width}{\ourdim=#1\relax}^^A
+%   \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}^^A
+%   \protected\def\ourmacro#1^^A
+%     {\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}^^A
+%   \ourmacro{}\par
+%   \ourmacro{width}\par
+%   \ourmacro{width=5pt}\par
+% \end{minipage}
+%
+% \subsubsection{An Expandable \kv\ Macro Using \cs[no-index]{ekvsneak}}
+%
+% Let's set up an expandable macro, that uses a \kv\ interface. The problems
+% we'll face for this are:
+% \begin{enumerate}
+%   \item ignoring duplicate keys
+%   \item default values for keys which weren't used
+%   \item ordering the keys or providing the values as the correct argument to a
+%     macro
+% \end{enumerate}
+%
+% First we need to decide which \kv\ parsing macro we want to do this with,
+% \cs{ekvset} or \cs{ekvparse}. For this example we also want to show the
+% usage of \cs{ekvsneak}, hence we'll choose \cs{ekvset}. And we'll have to use
+% \cs{ekvset} such that it builds a parsable list for our macro internals. To
+% gain back control after \cs{ekvset} is done we have to put an internal of our
+% macro at the start of that list, so we use an internal key that uses
+% \cs{ekvsneakPre} after any user input.
+%
+% To ignore duplicates will be easy if the value of the key used last will be
+% put first in the list, so the following will use \cs{ekvsneakPre} for the
+% user-level keys. If we wanted some key for which the first usage should be the 
+% the binding one we would use \cs{ekvsneak} instead for that key.
+%
+% Providing default values can be done in different ways, we'll use a simple
+% approach in which we'll just put the outcome of our keys if they were used
+% with default values before the parsing list terminator.
+%
+% Ordering the keys can be done simply by searching for a specific token for
+% each argument which acts like a flag, so our sneaked out tokens will include
+% specific tokens acting as markers.
+%
+% Now that we have answers for our technical problems, we have to decide what
+% our example macro should do. How about we define a macro that calculates the
+% sine of a number and rounds that to a specified precision? As a small extra
+% this macro should understand input in radian and degree and the used
+% trigonometric function should be selectable as well. For the hard part of this
+% task (expandably evaluating trigonometric functions) we'll use the \pkg{xfp}
+% package.
+%
+% First we set up our keys according to our earlier considerations and set up
+% the user facing macro |\sine|. The end marker of the parsing list will be a
+% |\sine@stop| token, which we don't need to define and we put our defaults
+% right before it.
+%
+% \begin{lstlisting}
+% \RequirePackage{xfp}
+% \makeatletter
+% \ekvdef{expex}{f}{\ekvsneakPre{\f{#1}}}
+% \ekvdef{expex}{round}{\ekvsneakPre{\rnd{#1}}}
+% \ekvdefNoVal{expex}{degree}{\ekvsneakPre{\deg{d}}}
+% \ekvdefNoVal{expex}{radian}{\ekvsneakPre{\deg{}}}
+% \ekvdefNoVal{expex}{internal}{\ekvsneakPre{\sine@rnd}}
+% \newcommand*\sine[2]
+%   {\ekvset{expex}{#1,internal}\rnd{3}\deg{d}\f{sin}\sine@stop{#2}}
+% \end{lstlisting}
+% For the sake of simplicity we defined the macro |\sine| with two mandatory
+% arguments, the first being the \kv\ list, the second the argument to the
+% trigonometric function. We could've used \pkg{xparse}'s facilities here to
+% define an expandable macro which takes an optional argument instead.
+%
+% Now we need to define some internal macros to extract the value of each key's
+% last usage (remember that this will be the group after the first special
+% flag-token). For that we use one delimited macro per key.
+% \begin{lstlisting}
+% \def\sine@rnd#1\rnd#2#3\sine@stop{\sine@deg#1#3\sine@stop{#2}}
+% \def\sine@deg#1\deg#2#3\sine@stop{\sine@f#1#3\sine@stop{#2}}
+% \def\sine@f#1\f#2#3\sine@stop{\sine@final{#2}}
+% \end{lstlisting}
+% After the macros |\sine@rnd|, |\sine@deg|, and |\sine@f| the macro
+% |\sine@final| will see
+% \texttt
+%   {^^A
+%     \cs[no-index]{sine@final}^^A
+%     \marg{f}\marg{degree/radian}\marg{round}\marg{num}^^A
+%   }.
+% Now |\sine@final| has to expandably deal with those arguments such that the
+% |\fpeval| macro of \pkg{xfp} gets the correct input. Luckily this is pretty
+% straight forward in this example. In |\fpeval| the trigonometric functions
+% have names such as |sin| or |cos| and the degree taking variants |sind| or
+% |cosd|. And since the |degree| key puts a |d| in |#2| and the |radian| key
+% leaves |#2| empty all we have to do to get the correct function name is stick
+% the two together.
+% \begin{lstlisting}
+% \newcommand*\sine@final[4]{\fpeval{round(#1#2(#4),#3)}}
+% \makeatother
+% \end{lstlisting}
+% Let's test our macro:\\
+% \begin{minipage}{.7\linewidth}
+%   \begin{lstlisting}[gobble=4]
+%   \sine{}{60}\par
+%   \sine{round=10}{60}\par
+%   \sine{f=cos,radian}{pi}\par
+%   \edef\myval{\sine{f=tan}{0}}\texttt{\meaning\myval}
+%   \end{lstlisting}
+% \end{minipage}\hfill
+% \begin{minipage}{.2\linewidth}
+%   \makeatletter
+%   \ekvdef{expex}{f}{\ekvsneakPre{\f{#1}}}^^A
+%   \ekvdef{expex}{round}{\ekvsneakPre{\rnd{#1}}}^^A
+%   \ekvdefNoVal{expex}{degree}{\ekvsneakPre{\deg{d}}}^^A
+%   \ekvdefNoVal{expex}{radian}{\ekvsneakPre{\deg{}}}^^A
+%   \ekvdefNoVal{expex}{internal}{\ekvsneakPre{\sine@rnd}}^^A
+%   \newcommand*\sine[2]
+%     {\ekvset{expex}{#1,internal}\rnd{3}\deg{d}\f{sin}\sine@stop{#2}}^^A
+%   \def\sine@rnd#1\rnd#2#3\sine@stop{\sine@deg#1#3\sine@stop{#2}}^^A
+%   \def\sine@deg#1\deg#2#3\sine@stop{\sine@f#1#3\sine@stop{#2}}^^A
+%   \def\sine@f#1\f#2#3\sine@stop{\sine@final{#2}}^^A
+%   \newcommand*\sine@final[4]{\fpeval{round(#1#2(#4),#3)}}^^A
+%   \makeatother
+%   \sine{}{60}\par
+%   \sine{round=10}{60}\par
+%   \sine{f=cos,radian}{pi}\par
+%   \edef\myval{\sine{f=tan}{0}}\texttt{\meaning\myval}
+% \end{minipage}
+%
+%
 % \subsection{Error Messages}
 %
 % \expkv\ should only send messages in case of errors, there are no warnings and
@@ -664,7 +784,7 @@ and the derived files           expkv.pdf
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
 \def\ekvVersion{0.3}
-\def\ekvDate{2020-01-19}
+\def\ekvDate{2020-01-21}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -894,7 +1014,7 @@ and the derived files           expkv.pdf
     \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}\expandafter\endcsname
-        \csname\ekv@name{#1}{#2}\endcsname
+        \csname\ekv@name{#3}{#4}\endcsname
         \ekv@defset{#1}%
       }%
   }
@@ -903,7 +1023,7 @@ and the derived files           expkv.pdf
     \ekv@checkvalid{#1}{#2}%
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}N\expandafter\endcsname
-        \csname\ekv@name{#1}{#2}N\endcsname
+        \csname\ekv@name{#3}{#4}N\endcsname
         \ekv@defset{#1}%
       }%
   }
