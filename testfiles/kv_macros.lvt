@@ -35,7 +35,7 @@
 \csname @firstofone\endcsname
   {%
     \endgroup
-    \def\catset#1#2{\ekvset{catcode}{#1=,key=#2}}%
+    \def\catset#1#2{\ekvset{catcode}{#1=,key=#2,,}}%
   }
 \ekvdef{catcode}{key}{\detokenize{#1}\NEWLINE}
 \TIMO
