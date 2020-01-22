@@ -73,7 +73,7 @@ and the derived files           expkv.pdf
 \lstset
   {
     ,flexiblecolumns=false
-    ,basewidth=.52em
+    ,basewidth=.53em
     ,gobble=2
     ,basicstyle=\fontfamily{jkp}\itshape
     ,morekeywords=^^A
@@ -205,7 +205,7 @@ and the derived files           expkv.pdf
 % ``|def|'' in their name can be prefixed by anything allowed to prefix |\def|,
 % prefixes allowed for |\let| can prefix those with ``|let|'' in their name,
 % accordingly. Neither \set\ nor \key\ are allowed to be empty for new keys and
-% must not contain a |\par| or tokens that expand to it. They must be legal
+% must not contain a |\par| or tokens that expand to it -- they must be legal
 % inside of |\csname ...\endcsname|.
 %
 % \begin{function}{\ekvdef}
@@ -364,8 +364,9 @@ and the derived files           expkv.pdf
 %
 % \subsubsection{Bugs}
 %
-% You can either report \pmso{bugs}hidden features\footnote{Thanks, David!} via
-% mail (see the first page), or directly on GitHub if you have an account there:
+% Just like \pkg{keyval}, \expkv\ is bug free. But if you find \pmso{bugs}hidden
+% features\footnote{Thanks, David!} you can tell me about them either via mail
+% (see the first page) or directly on GitHub if you have an account there:
 % \url{https://github.com/Skillmon/tex_expkv}
 %
 % \subsubsection{Comparisons}
@@ -376,20 +377,21 @@ and the derived files           expkv.pdf
 % \protected\ekvdef{test}{height}{\def\myheight{#1}}
 % \ekvset{test}{ height = 6 }
 % \end{lstlisting}
-% and only the usage of the key, not its definition, is benchmarked. As far as I
-% know \expkv\ is the only fully expandable \kv\ parser. I tried to compare
-% \expkv\ to every \kv\ package listed on
+% and only the usage of the key, not its definition, is benchmarked.
+%
+% As far as I know \expkv\ is the only fully expandable \kv\ parser. I tried to
+% compare \expkv\ to every \kv\ package listed on
 % \href{https://ctan.org/topic/keyval}{CTAN}, however, one might notice that
 % some of those are missing from this list. That's because I didn't get the
 % others to work due to bugs, or because they just provide wrappers around other
 % packages in this list. For the impatient, the essence of these comparisons
 % regarding speed and buggy behaviour is contained in \autoref{tab:comp}.
-% 
-% Here is no benchmark of |\ekvparse| and |\keyval_parse:NNn| contained, as most
-% other packages don't provide equivalent features to my knowledge. |\ekvparse|
-% is slightly faster than |\ekvset|, but keep in mind that it does less. The
-% same is true for |\keyval_parse:NNn| compared to |\keys_set:nn| of \pkg{expl3}
-% (where the difference is much bigger).
+%
+% In this subsubsection is no benchmark of |\ekvparse| and |\keyval_parse:NNn|
+% contained, as most other packages don't provide equivalent features to my
+% knowledge. |\ekvparse| is slightly faster than |\ekvset|, but keep in mind
+% that it does less. The same is true for |\keyval_parse:NNn| compared to
+% |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger).
 %
 % \paragraph{\pkg{keyval}} is between two and three times faster and has a
 % comparable feature set just a slightly different way how it handles keys
@@ -460,7 +462,7 @@ and the derived files           expkv.pdf
 % and space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
-% \setKVdefault[simplekv]{height={ abc}}                     % key setup 
+% \setKVdefault[simplekv]{height={ abc}}                     % key setup
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
@@ -574,7 +576,7 @@ and the derived files           expkv.pdf
 % \begin{enumerate}
 %   \item ignoring duplicate keys
 %   \item default values for keys which weren't used
-%   \item providing the values as the correct argument to a macro
+%   \item providing the values as the correct argument to a macro (ordered)
 % \end{enumerate}
 %
 % First we need to decide which \kv\ parsing macro we want to do this with,
@@ -587,7 +589,7 @@ and the derived files           expkv.pdf
 %
 % To ignore duplicates will be easy if the value of the key used last will be
 % put first in the list, so the following will use |\ekvsneakPre| for the
-% user-level keys. If we wanted some key for which the first usage should be the 
+% user-level keys. If we wanted some key for which the first usage should be the
 % the binding one we would use |\ekvsneak| instead for that key.
 %
 % Providing default values can be done in different ways, we'll use a simple
@@ -595,7 +597,7 @@ and the derived files           expkv.pdf
 % with default values before the parsing list terminator.
 %
 % Ordering the keys can be done simply by searching for a specific token for
-% each argument which acts like a flag, so our sneaked out tokens will include
+% each argument which acts like a flag, so our sneaked out values will include
 % specific tokens acting as markers.
 %
 % Now that we have answers for our technical problems, we have to decide what
@@ -747,6 +749,34 @@ and the derived files           expkv.pdf
 %                            value forbidden (`<key>', set `<set>').
 % \end{lstlisting}
 %
+% If you're using a set for which you never executed one of the defining macros
+% from \autoref{sec:define} you'll get a low level \TeX\ error, as that isn't
+% actively tested by the parser (and hence will lead to undefined behaviour and
+% not be gracefully ignored). The error will look like
+% \begin{lstlisting}
+% ! Missing \endcsname inserted.
+% <to be read again>
+%                    \ekv<set>(
+% \end{lstlisting}
+%
+% \subsection{License}
+%
+% Copyright \textcopyright\ 2020\unless\ifnum\year=2020--\the\year\fi\
+% Jonathan P. Spratte
+%
+% \medskip\noindent
+% This work may be distributed and/or modified under the conditions of the
+% \LaTeX\ Project Public License (LPPL), either version 1.3c of this license or
+% (at your option) any later version. The latest version of this license is in
+% the file:
+%
+% \url{http://www.latex-project.org/lppl.txt}
+%
+% \noindent
+% This work is ``maintained'' (as per LPPL maintenance status) by
+%
+% \mbox{Jonathan P. Spratte}.
+%
 % \end{documentation}^^A=<<
 %
 % \begin{implementation}^^A>>=
@@ -799,7 +829,7 @@ and the derived files           expkv.pdf
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
 \def\ekvVersion{0.3}
-\def\ekvDate{2020-01-21}
+\def\ekvDate{2020-01-22}
 %    \end{macrocode}
 % \end{macro}
 %

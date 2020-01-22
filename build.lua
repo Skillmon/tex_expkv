@@ -1,16 +1,16 @@
 -- Build script for expkv
-module="expkv"
-pkgversion="0.3"
-pkgdate="2020-01-21"
+module     = "expkv"
+pkgversion = "0.3"
+pkgdate    = "2020-01-22"
 
 -- update package date and version
-tagfiles={"expkv.dtx","README.md"}
+tagfiles = {"expkv.dtx", "README.md", "CTAN.md"}
 function update_tag(file, content, tagname, tagdate)
   if tagname == nil then
-    tagname=pkgversion
-    tagdate=pkgdate
+    tagname = pkgversion
+    tagdate = pkgdate
   end
-  if string.match(file, "README.md") then
+  if string.match(file, "%.md") then
     return string.gsub(content,
       "%d%d%d%d%-%d%d%-%d%d v%d%.%d%w?",
       tagdate .. " v" .. tagname)
@@ -25,25 +25,52 @@ function update_tag(file, content, tagname, tagdate)
   return content
 end
 
-checkengines={"pdftex"}
-checkformat="latex"
+-- test with pdfTeX and the LaTeX format
+checkengines = {"pdftex"}
+checkformat  = "latex"
 
--- which files to build
-sourcefiles={"expkv.dtx"}
-unpackfiles=sourcefiles
+-- from which files to build
+sourcefiles = {"expkv.dtx"}
+unpackfiles = sourcefiles
 
 -- which files to put in the tds
-installfiles={"expkv.sty", "expkv.tex"}
-textfiles   ={"README.md"}
-docfiles    ={"expkv.pdf"}
+installfiles = {"expkv.sty", "expkv.tex"}
+textfiles    = {"README.md", "CTAN.md"}
+docfiles     = {"expkv.pdf"}
 
 -- how the documentation is build
-typesetfiles={"*.dtx"}
-typesetruns = 3
-
-packtdszip  = true
+typesetfiles = {"expkv.dtx"}
+typesetruns  = 3
 
 -- make sure that expkv.tex ends up in the generic path
-tdslocations={
+packtdszip   = true
+tdslocations = {
   "tex/generic/expkv/expkv.tex",
+}
+
+-- CTAN upload
+ctanreadme    = "CTAN.md"
+uploadconfig  = {
+  pkg         = module,
+  author      = "Jonathan P. Spratte",
+  version     = pkgversion .. " " .. pkgdate,
+  license     = "lppl1.3c",
+  summary     = "An expandable key=val implementation",
+  topic       = "keyval",
+  ctanPath    = "/macros/generic/expkv",
+  repository  = "https://github.com/Skillmon/tex_expkv",
+  bugtracker  = "https://github.com/Skillmon/tex_expkv/issues",
+  update      = false,
+  description = [[
+`expkv` is a minimalistic but fast and expandable key=val implementation.
+It provides two parsing macros:
+
+* `\ekvset{<set>}{<key=val list>}` which is comparable to `keyval`'s `\setkeys`
+
+* `\ekvparse<cs1><cs2>{<key=val list>}` which expands in two steps to
+`<cs1>{key}` and `<cs2>{key}{val}` for the entries in the `<key=val list>`.
+
+`expkv` has predictable brace-stripping behaviour and handles commas and equal
+signs with category codes 12 and 13 correctly.
+  ]]
 }
