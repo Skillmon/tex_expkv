@@ -854,7 +854,7 @@ and the derived files           expkv.pdf
 % restore it at the end of the file, we never care for the actual definition of
 % it.
 %
-% \begin{macro}
+% \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
 %     \ekv@gobbletostop,\ekv@fi@gobble,\ekv@fi@secondoftwo
@@ -880,7 +880,7 @@ and the derived files           expkv.pdf
 % the advantage that if they somehow get expanded -- which should never happen
 % if things work out -- they'll throw an error directly.
 %
-% \begin{macro}
+% \begin{macro}[internal]
 %   {
 %     \ekv@ifempty,\ekv@ifempty@,\ekv@ifempty@true,\ekv@ifempty@false,
 %     \ekv@ifempty@true@F
@@ -901,7 +901,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@ifblank@}
+% \begin{macro}[internal]{\ekv@ifblank@}
 % The obvious test that can be based on an if-empty is if-blank, meaning a test
 % checking whether the argument is empty or consists only of spaces. Our version
 % here will be tweaked a bit, as we want to check this, but with one leading
@@ -911,7 +911,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@ifdefined}
+% \begin{macro}[internal]{\ekv@ifdefined}
 % We'll need to check whether something is defined quite frequently, so why not
 % define a macro that does this. The following test is expandable, slower than
 % the typical expandable test for undefined control sequences, but faster for
@@ -928,7 +928,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}
+  % \begin{macro}[internal]
 %   {
 %     \ekv@ifdefined@pair,\ekv@ifdefined@pair@,\ekv@ifdefined@key,
 %     \ekv@ifdefined@key@
@@ -985,7 +985,7 @@ and the derived files           expkv.pdf
 \def\ekv@name@key#1{#1)}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@checkvalid}
+% \begin{macro}[internal]{\ekv@checkvalid}
 % We place some restrictions on the allowed names, though, namely sets and
 % keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
 % or} key-names consisting of spaces).
@@ -1018,10 +1018,7 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}
-%   {
-%     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
-%     \ekv@defset
-%   }
+%   {\ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal}
 % Set up the key defining macros |\ekvdef| etc.
 %    \begin{macrocode}
 \protected\long\def\ekvdef#1#2#3%
@@ -1074,6 +1071,13 @@ and the derived files           expkv.pdf
         \ekv@defset{#1}%
       }%
   }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}[internal]{\ekv@defset}
+%   In order to enhance the speed the set name given to |\ekvset| will be turned
+%   into a control sequence pretty early, so we have to define that control
+%   sequence.
+%    \begin{macrocode}
 \protected\def\ekv@defset#1%
   {%
     \expandafter\edef\csname\ekv@name@set{#1}\endcsname##1%
@@ -1099,7 +1103,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@set}
+% \begin{macro}[internal]{\ekv@set}
 % |\ekv@set| will split the \kv\ list at active commas. Then it has to check
 % whether there were unprotected other commas and resplit there.
 %    \begin{macrocode}
@@ -1120,7 +1124,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@endset}
+% \begin{macro}[internal]{\ekv@endset}
 % |\ekv@endset| is a hungry little macro. It will eat everything that remains
 % of |\ekv@set| and unbrace the sneaked stuff.
 %    \begin{macrocode}
@@ -1130,7 +1134,7 @@ and the derived files           expkv.pdf
   {##3}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@set@other}
+% \begin{macro}[internal]{\ekv@set@other}
 % The macro |\ekv@set@other| is guaranteed to get only single \kv\ pairs.
 % So here we need to split at equal signs. If there is no equal sign, we need to
 % test whether we're done and if not this is a |NoVal| key.
@@ -1157,7 +1161,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@set@eq@other}
+% \begin{macro}[internal]{\ekv@set@eq@other}
 % |\ekv@set@eq@other| might not be the correct break point, there might be an
 % active equal sign in the currently parsed key-name. If so, we have to resplit.
 %    \begin{macrocode}
@@ -1170,7 +1174,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@set@eq@active}
+% \begin{macro}[internal]{\ekv@set@eq@active}
 % We need to handle the active equal signs.
 %    \begin{macrocode}
 \long\def\ekv@set@eq@active##1##2#2%
@@ -1179,7 +1183,8 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@ifhas@eq@other,\ekv@ifhas@eq@active,\ekv@endset@other}
+% \begin{macro}[internal]
+%   {\ekv@ifhas@eq@other,\ekv@ifhas@eq@active,\ekv@endset@other}
 % And we have to set up the testing macros for our equal signs and
 % |\ekv@endset@other|.
 %    \begin{macrocode}
@@ -1228,7 +1233,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse}
+% \begin{macro}[internal]{\ekv@parse}
 %    \begin{macrocode}
 \long\def\ekv@parse##1##2##3#1%
   {%
@@ -1238,14 +1243,14 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@endparse}
+% \begin{macro}[internal]{\ekv@endparse}
 %    \begin{macrocode}
 \long\def\ekv@endparse
     \ekv@mark\ekv@stop\ekv@parse@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse@other}
+% \begin{macro}[internal]{\ekv@parse@other}
 %    \begin{macrocode}
 \long\def\ekv@parse@other##1##2##3,%
   {%
@@ -1269,7 +1274,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse@eq@other}
+% \begin{macro}[internal]{\ekv@parse@eq@other}
 %    \begin{macrocode}
 \long\def\ekv@parse@eq@other##1=%
   {%
@@ -1280,7 +1285,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse@eq@active}
+% \begin{macro}[internal]{\ekv@parse@eq@active}
 %    \begin{macrocode}
 \long\def\ekv@parse@eq@active##1#2%
   {%
@@ -1288,7 +1293,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@endparse@other}
+% \begin{macro}[internal]{\ekv@endparse@other}
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
     \ekv@mark\ekv@stop\unexpanded##1%
@@ -1296,7 +1301,7 @@ and the derived files           expkv.pdf
   {}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}{\ekv@parse@pair}
+% \begin{macro}[internal]{\ekv@parse@pair}
 %    \begin{macrocode}
 \long\def\ekv@parse@pair##1\ekv@stop
   {%
@@ -1314,7 +1319,7 @@ and the derived files           expkv.pdf
 \ekvset,=
 %    \end{macrocode}
 %
-% \begin{macro}{\ekv@ifstop}
+% \begin{macro}[internal]{\ekv@ifstop}
 % The |\ekv@ifstop| test works similar to our if-empty test, but instead of
 % using tokens which are used nowhere else (|\ekv@ifempty@A| and
 % |\ekv@ifempty@B|) we use |\ekv@mark| and |\ekv@stop|.
@@ -1323,7 +1328,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@set@pair,\ekv@set@pair@}
+% \begin{macro}[internal]{\ekv@set@pair,\ekv@set@pair@}
 % |\ekv@set@pair| needs to split the argument at the |=| sign and check
 % whether the key is defined.
 %    \begin{macrocode}
@@ -1345,7 +1350,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@set@key}
+% \begin{macro}[internal]{\ekv@set@key}
 %    \begin{macrocode}
 \long\def\ekv@set@key#1#2%
   {%
@@ -1360,7 +1365,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@err,\ekv@err@}
+% \begin{macro}[internal]{\ekv@err,\ekv@err@}
 % Since |\ekvset| is fully expandable as long as the code of the keys is (which
 % is unlikely) we want to somehow throw expandable errors, in our case via
 % undefined control sequences.
@@ -1380,7 +1385,7 @@ and the derived files           expkv.pdf
 \def\ekv@err@{\expandafter\ekv@gobbletostop}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}
+% \begin{macro}[internal]
 %   {
 %     \ekv@err@common,\ekv@err@common@,
 %     \ekv@err@unknown,\ekv@err@noarg,\ekv@err@reqval
@@ -1396,7 +1401,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ekv@strip,\ekv@strip@a,\ekv@strip@b,\ekv@strip@c}
+% \begin{macro}[internal]{\ekv@strip,\ekv@strip@a,\ekv@strip@b,\ekv@strip@c}
 % Finally we borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
 % from keys and values. This |\ekv@strip| also strips one level of outer braces
 % \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
