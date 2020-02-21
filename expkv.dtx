@@ -67,6 +67,8 @@ and the derived files           expkv.pdf
 \RequirePackage{xfp} ^^A required for an example
 \RequirePackage{listings}
 \RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{collcell}
 \RequirePackage{siunitx}
 \RequirePackage{xcolor}
 \RequirePackage{caption}
@@ -106,6 +108,7 @@ and the derived files           expkv.pdf
         \mbox
           {^^A
             \BeginAccSupp{ActualText=expkv}^^A
+            \rmfamily
             \bfseries
             {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
             \lower.493ex
@@ -161,6 +164,7 @@ and the derived files           expkv.pdf
 % \fi
 %
 % \maketitle
+% \renewcommand*\thefootnote{\arabic{footnote}}
 %
 % \begin{abstract}
 % \noindent\parfillskip=0pt
@@ -282,23 +286,48 @@ and the derived files           expkv.pdf
 %   \end{syntax}
 %   This macro parses the \kv\ pairs and provides those list elements which are
 %   only keys as the argument to \meta{cs1}, and those which are a \kv\ pair to
-%   \meta{cs2} as two arguments. It expands in exactly two steps of expansion.
+%   \meta{cs2} as two arguments. It is fully expandable as well and returns the
+%   parsed list in |\unexpanded|, which has no effect outside of an |\expanded|
+%   or |\edef| context\footnotemark.
+%   If you need control over the necessary steps of expansion you
+%   can use |\expanded| around it.
+%
 %   |\ekvbreak| and |\ekvsneak| and their relatives don't work in |\ekvparse|.
-%   It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|.
+%   It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|, but not with the same
+%   parsing rules -- |\keyval_parse:NNn| throws an error on multiple equal
+%   signs per \kv\ pair and on empty \key\ names in a \kv\ pair, both of which
+%   |\ekvparse| doesn't deal with.
 %
 %   As a small example:
 % \begin{lstlisting}
 % \ekvparse\handlekey\handlekeyval{foo = bar, key, baz={zzz}}
 % \end{lstlisting}
-%   would expand in exactly two steps to
+%   would expand to
 % \begin{lstlisting}
 % \handlekeyval{foo}{bar}\handlekey{key}\handlekeyval{baz}{zzz}
 % \end{lstlisting}
 %   and afterwards |\handlekey| and |\handlekeyval| would have to further handle
 %   the \key. There are no macros like these two contained in \expkv, you have
 %   to set them up yourself if you want to use |\ekvparse| (of course the names
-%   might differ).
+%   might differ). If you need the results of |\ekvparse| as the argument for
+%   another macro, you should use |\expanded| as only then the input stream will
+%   contain the output above:
+% \begin{lstlisting}
+% \expandafter\handle\expanded{\ekvparse\k\kv{foo = bar, key, baz={zzz}}}
+% \end{lstlisting}
+%   would expand to
+% \begin{lstlisting}
+% \handle\kv{foo}{bar}\k{key}\kv{baz}{zzz}
+% \end{lstlisting}
 % \end{function}
+% \footnotetext 
+%   {^^A
+%     This is a change in behaviour, previously (v0.3 and before) \cs{ekvparse}
+%     would expand in exactly two steps. This isn't always necessary, but makes
+%     the parsing considerably slower. If this is necessary for your application
+%     you can put an \cs[no-index]{expanded} around it and will still be faster
+%     since you need only a single \cs[no-index]{expandafter} this way.^^A
+%   }.
 %
 % \subsection{Miscellaneous}
 %
@@ -379,15 +408,16 @@ and the derived files           expkv.pdf
 % \protected\ekvdef{test}{height}{\def\myheight{#1}}
 % \ekvset{test}{ height = 6 }
 % \end{lstlisting}
-% and only the usage of the key, not its definition, is benchmarked.
+% and only the usage of the key, not its definition, is benchmarked. For the
+% impatient, the essence of these comparisons regarding speed and buggy
+% behaviour is contained in \autoref{tab:comp}.
 %
 % As far as I know \expkv\ is the only fully expandable \kv\ parser. I tried to
 % compare \expkv\ to every \kv\ package listed on
 % \href{https://ctan.org/topic/keyval}{CTAN}, however, one might notice that
 % some of those are missing from this list. That's because I didn't get the
 % others to work due to bugs, or because they just provide wrappers around other
-% packages in this list. For the impatient, the essence of these comparisons
-% regarding speed and buggy behaviour is contained in \autoref{tab:comp}.
+% packages in this list.
 %
 % In this subsubsection is no benchmark of |\ekvparse| and |\keyval_parse:NNn|
 % contained, as most other packages don't provide equivalent features to my
@@ -395,12 +425,12 @@ and the derived files           expkv.pdf
 % that it does less. The same is true for |\keyval_parse:NNn| compared to
 % |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger).
 %
-% \paragraph{\pkg{keyval}} is between two and three times faster and has a
-% comparable feature set just a slightly different way how it handles keys
-% without values. That might be considered a drawback, as it limits the
-% versatility, but also as an advantage, as it might reduce doubled code. Keep
-% in mind that as soon as someone loads \pkg{xkeyval} the performance of
-% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
+% \paragraph{\pkg{keyval}} is about two times faster and has a comparable
+% feature set just a slightly different way how it handles keys without values.
+% That might be considered a drawback, as it limits the versatility, but also as
+% an advantage, as it might reduce doubled code. Keep in mind that as soon as
+% someone loads \pkg{xkeyval} the performance of \pkg{keyval} gets replaced by
+% \pkg{xkeyval}'s.
 %
 % Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
 % without breaking backwards compatibility for \emph{many} documents, namely it
@@ -415,13 +445,13 @@ and the derived files           expkv.pdf
 % \setkeys{foo}{bar={{baz}}}
 % \end{lstlisting}
 %
-% \paragraph{\pkg{xkeyval}} is more than ten times slower, but it provides more
-% functionality, e.g., it has choice keys, boolean keys, and so on. It contains
-% the same bug as \pkg{keyval} as it has to be compatible with it by design (it
-% replaces \pkg{keyval}'s frontend), but also adds even more cases in which
-% braces are stripped that shouldn't be stripped, worsening the situation.
+% \paragraph{\pkg{xkeyval}} is roughly fourteen times slower, but it provides
+% more functionality, e.g., it has choice keys, boolean keys, and so on. It
+% contains the same bug as \pkg{keyval} as it has to be compatible with it by
+% design (it replaces \pkg{keyval}'s frontend), but also adds even more cases in
+% which braces are stripped that shouldn't be stripped, worsening the situation.
 %
-% \paragraph{\pkg{ltxkeys}} is over 200 times slower -- which is funny, because
+% \paragraph{\pkg{ltxkeys}} is over 300 times slower -- which is funny, because
 % it aims to be ``[\ldots] faster than these earlier packages [referring to
 % \pkg{keyval} and \pkg{xkeyval}].'' Since it aims to have a bigger feature set
 % than \pkg{xkeyval}, it most definitely also has a bigger feature set than
@@ -431,13 +461,12 @@ and the derived files           expkv.pdf
 % \pkg{ltxkeys} loads \pkg{catoptions} which is known to introduce bugs (e.g.,
 % see \url{https://tex.stackexchange.com/questions/461783}).
 %
-% \paragraph{\pkg{l3keys}} is at least three times slower, but has an, imho,
-% great interface to define keys. It strips \emph{all} outer spaces, even if
-% somehow multiple spaces ended up on either end. It offers more features, but
-% is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up to
-% you.
+% \paragraph{\pkg{l3keys}} is almost five times slower, but has an, imho, great
+% interface to define keys. It strips \emph{all} outer spaces, even if somehow
+% multiple spaces ended up on either end. It offers more features, but is pretty
+% much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
 %
-% \paragraph{\pkg{pgfkeys}} is about one and a half times slower for one key,
+% \paragraph{\pkg{pgfkeys}} is a bit more than two times slower for one key,
 % but has an \emph{enormous} feature set. However, since adding additional keys
 % doesn't add as much needed time for \pkg{pgfkeys} compared to \expkv, it gets
 % faster than \expkv\ at around eight \kv\ pairs.
@@ -446,21 +475,22 @@ and the derived files           expkv.pdf
 % was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
 % don't know whether this might introduce new bugs.
 %
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about two times slower,
-% but it works even if commas and equals have category codes different from 12.
-% Else the features of the keys are equal to those of \pkg{keyval}, the parser
-% has more features, though.
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about three times
+% slower, but it works even if commas and equals have category codes different
+% from 12 (just as some other packages in this list). Else the features of the
+% keys are equal to those of \pkg{keyval}, the parser has more features, though.
 %
-% \paragraph{\pkg{options}} is a bit faster than \expkv\ (almost
-% \SI{10}{\percent}) and has a much bigger feature set. Unfortunately it also
-% suffers from the premature unbracing bug \pkg{keyval} has.
+% \paragraph{\pkg{options}} is a bit slower for only a single value, but gets a
+% tad faster than \expkv\ at around 10 \kv\ pairs. It has a much bigger feature
+% set. Unfortunately it also suffers from the premature unbracing bug
+% \pkg{keyval} has.
 %
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
 % I don't understand the documentation) and from what I can see, there is no
 % direct way to define the equivalent test key. Nevertheless, I tested the
 % closest possible equivalent of my test key while siding for \pkg{simplekv}'s
 % design not forcing something into it it doesn't seem to be designed for. It is
-% more than four times slower and has hard to predict behaviour regarding brace
+% more than five times slower and has hard to predict behaviour regarding brace
 % and space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
@@ -468,7 +498,7 @@ and the derived files           expkv.pdf
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
-% \paragraph{\pkg{yax}} is about 13 times slower. It has a pretty strange
+% \paragraph{\pkg{yax}} is over eighteen times slower. It has a pretty strange
 % syntax, imho, and again a direct equivalent is hard to define. It has the
 % premature unbracing bug, too. Also somehow loading \pkg{yax} broke
 % \pkg{options} for me. The tested definition was:
@@ -479,7 +509,8 @@ and the derived files           expkv.pdf
 % \end{lstlisting}
 %
 % \begin{table}
-%   \def\fnsym{\textcolor{red!80!black}{*}}
+%   \def\fnsym{\textcolor{red!80!black}{*}}%
+%   \sisetup{round-precision=1, round-mode=places}%
 %   \begingroup
 %   \centering
 %   \newcommand*\yes{\textcolor{red!80!black}  {yes}}^^A
@@ -492,24 +523,29 @@ and the derived files           expkv.pdf
 %       of the \href{https://github.com/Skillmon/tex_expkv}{git repository}.
 %       The columns $p_i$ are the polynomial coefficients of a linear fit to the
 %       run-time, $p_0$ can be interpreted as the overhead for initialisation
-%       and $p_1$ the cost per key. The column ``Category Fragile'' lists
-%       whether the parsing breaks with active commas or equal signs.^^A
+%       and $p_1$ the cost per key. The $T_0$ column is the actual mean ops
+%       needed for an empty list argument, as the linear fit doesn't match that
+%       point well in general. The column ``BB'' lists whether the
+%       parsing is affected by some sort of brace bug, ``CF'' stands for
+%       category code fragile and lists whether the parsing breaks with active
+%       commas or equal signs.^^A
 %       \label{tab:comp}^^A
 %     }
-%   \begin{tabular}{l*2{S[table-format=4.3]}ccc}
+%   \begin{tabular}
+%       {>{\collectcell\pkg}l<{\endcollectcell}*3{S[table-format=4.1]}ccc}
 %     \toprule
-%     Package & {$p_1$} & {$p_0$} & Brace-Bug & Category Fragile & Date \\
+%     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     \pkg{keyval}    &   13.415 &    2.229 & \yes & \yes & 2014-10-28 \\
-%     \pkg{options}   &   25.254 &   12.160 & \yes & \yes & 2015-03-01 \\
-%     \expkv          &   31.711 &    5.124 & \no  & \no  & 2020-01-15 \\
-%     \pkg{pgfkeys}   &   26.215 &   43.141 & \yes & \yes & 2020-01-08 \\
-%     \pkg{kvsetkeys} & {\fnsym} & {\fnsym} & \no  & \no  & 2019-12-15 \\
-%     \pkg{l3keys}    &  107.434 &   23.372 & \no  & \no  & 2020-01-12 \\
-%     \pkg{simplekv}  &  162.046 &    1.014 & \yes & \yes & 2017-08-08 \\
-%     \pkg{xkeyval}   &  258.505 &  168.761 & \yes & \yes & 2014-12-03 \\
-%     \pkg{yax}       &  510.662 &   37.961 & \yes & \yes & 2010-01-22 \\
-%     \pkg{ltxkeys}   & 3937.979 & 4512.835 & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.539 &    1.844 &    6.969 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   26.411 &    2.391 &   12.610 & \no  & \no  & 2020-02-22 \\
+%     options   &   25.532 &   10.518 &   21.393 & \yes & \yes & 2015-03-01 \\
+%     pgfkeys   &   26.444 &   40.939 &   55.790 & \yes & \yes & 2020-01-08 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   41.620 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &  114.456 &   35.357 &   52.667 & \no  & \no  & 2020-02-14 \\
+%     simplekv  &  160.523 &   10.809 &    8.698 & \yes & \yes & 2017-08-08 \\
+%     xkeyval   &  260.872 &  180.435 &  164.167 & \yes & \yes & 2014-12-03 \\
+%     yax       &  507.643 &   62.863 &  123.533 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3932.759 & 4737.818 & 5883.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -518,13 +554,13 @@ and the derived files           expkv.pdf
 %   \fnsym For \pkg{kvsetkeys} the linear model used for the other
 %   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
 %   quadratic run-time, the coefficients of the second degree polynomial fit are
-%   $p_2=\num{9.653}$, $p_1=\num{40.896}$, and $p_0=\num{67.268}$. Of course the
+%   $p_2=\num{9.911}$, $p_1=\num{40.523}$, and $p_0=\num{61.500}$. Of course the
 %   other packages might not really have linear run-time, but at least from 1~to
 %   20~keys the fits don't seem too bad (the maximum ratio $p_2/p_1$
-%   for the other packages is \num{8.987e-3}). If one extrapolates the fits
+%   for the other packages is \num{9.697e-3}). If one extrapolates the fits
 %   for 100 \kv\ pairs one finds that most of them match pretty well, the
 %   exception being \pkg{ltxkeys}, which behaves quadratic as well with
-%   $p_2=\num{29.773}$, $p_1=\num{3312.744}$, and $p_0=\num{6805.363}$.
+%   $p_2=\num{31.685}$, $p_1=\num{3267.368}$, and $p_0=\num{7177.582}$.
 % \end{table}
 %
 % \subsection{Examples}
@@ -541,7 +577,7 @@ and the derived files           expkv.pdf
 % \protected\ekvdef{our}{width}{\ourdim=#1\relax}
 % \end{lstlisting}
 % as you can see, we use the set |our| here. We want the key to behave different
-% if no value is specified. In that case the key should not use the its initial
+% if no value is specified. In that case the key should not use its initial
 % value, but be smart and determine the available space from
 % \cs[no-index]{hsize}, so we also define
 % \begin{lstlisting}
@@ -830,8 +866,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{0.3}
-\def\ekvDate{2020-01-22}
+\def\ekvVersion{0.4}
+\def\ekvDate{2020-02-22}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -843,7 +879,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 %
 % Store the category code of |@| to later be able to reset it and change it to
-% 11.
+% 11 for now.
 %    \begin{macrocode}
 \expandafter\chardef\csname ekv@tmp\endcsname=\catcode`\@
 \catcode`\@=11
@@ -1136,25 +1172,25 @@ and the derived files           expkv.pdf
 % \end{macro}
 % \begin{macro}[internal]{\ekv@set@other}
 % The macro |\ekv@set@other| is guaranteed to get only single \kv\ pairs.
-% So here we need to split at equal signs. If there is no equal sign, we need to
-% test whether we're done and if not this is a |NoVal| key.
+% First we test whether we're done, if not split at equal signs. It is faster to
+% first split at category 12 equal signs and only after that on actives.
+% If there is no equal sign, we need to test whether we got a blank argument and
+% if not this is a |NoVal| key.
 %    \begin{macrocode}
 \long\def\ekv@set@other##1##2,%
   {%
-    \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+    \ekv@ifstop##2\ekv@endset@other\ekv@mark\ekv@stop
+    \ekv@ifhas@eq@other##2=\ekv@ifempty@B\ekv@ifempty@false
+      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+      {\ekv@set@eq@other##1##2\ekv@stop}%
       {%
-        \ekv@ifhas@eq@other##2=\ekv@ifempty@B\ekv@ifempty@false
+        \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
           \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\ekv@set@eq@other##1##2\ekv@stop}%
+          {\ekv@set@eq@active##1##2\ekv@stop}%
           {%
-            \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
-              \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-              {\ekv@set@eq@active##1##2\ekv@stop}%
-              {%
-                \ekv@ifstop##2\ekv@endset@other\ekv@mark\ekv@stop
-                \ekv@strip{##2}\ekv@set@key##1%
-              }%
+            \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
+              \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+              {\ekv@strip{##2}\ekv@set@key##1}%
           }%
       }%
     \ekv@set@other##1\ekv@mark%
@@ -1164,6 +1200,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]{\ekv@set@eq@other}
 % |\ekv@set@eq@other| might not be the correct break point, there might be an
 % active equal sign in the currently parsed key-name. If so, we have to resplit.
+% If the split is correct strip the key-name of outer spaces and braces and feed
+% it to |\ekv@set@pair|.
 %    \begin{macrocode}
 \long\def\ekv@set@eq@other##1##2=%
   {%
@@ -1191,7 +1229,10 @@ and the derived files           expkv.pdf
 \long\def\ekv@ifhas@eq@other\ekv@mark##1={\ekv@ifempty@\ekv@ifempty@A}
 \long\def\ekv@ifhas@eq@active\ekv@mark##1#2{\ekv@ifempty@\ekv@ifempty@A}
 \long\def\ekv@endset@other
-    \ekv@mark\ekv@stop\ekv@strip##1\ekv@set@key##2%
+    \ekv@mark\ekv@stop
+    \ekv@ifhas@eq@other##1=\ekv@ifempty@B\ekv@ifempty@false
+    \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+    ##2%
     \ekv@set@other##3\ekv@mark
   {}
 %    \end{macrocode}
@@ -1229,7 +1270,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekvparse##1##2##3%
   {%
-    \expanded{\ekv@parse##1##2\ekv@mark##3#1\ekv@stop#1}%
+    \ekv@parse##1##2\ekv@mark##3#1\ekv@stop#1%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1254,20 +1295,18 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@other##1##2##3,%
   {%
-    \ekv@ifblank@##3\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+    \ekv@ifstop##3\ekv@endparse@other\ekv@mark\ekv@stop
+    \ekv@ifhas@eq@other##3=\ekv@ifempty@B\ekv@ifempty@false
+      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+      {\ekv@parse@eq@other##3\ekv@stop##2}%
       {%
-        \ekv@ifhas@eq@other##3=\ekv@ifempty@B\ekv@ifempty@false
+        \ekv@ifhas@eq@active##3#2\ekv@ifempty@B\ekv@ifempty@false
           \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\unexpanded{##2}\ekv@parse@eq@other##3\ekv@stop}%
+          {\ekv@parse@eq@active##3\ekv@stop##2}%
           {%
-            \ekv@ifhas@eq@active##3#2\ekv@ifempty@B\ekv@ifempty@false
-              \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-              {\unexpanded{##2}\ekv@parse@eq@active##3\ekv@stop}%
-              {%
-                \ekv@ifstop##3\ekv@endparse@other\ekv@mark\ekv@stop
-                \unexpanded{##1}{\ekv@strip{##3}\unexpanded}%
-              }%
+            \ekv@ifblank@##3\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
+              \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+              {\ekv@strip{##3}\ekv@parse@key##1}%
           }%
       }%
     \ekv@parse@other##1##2\ekv@mark
@@ -1281,7 +1320,7 @@ and the derived files           expkv.pdf
     \ekv@ifhas@eq@active##1#2\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
       {\ekv@parse@eq@active##1=}%
-      {{\ekv@strip{##1}\unexpanded}\ekv@parse@pair\ekv@mark}%
+      {\ekv@strip{##1}\ekv@parse@pair\ekv@mark}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1289,23 +1328,38 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@eq@active##1#2%
   {%
-    {\ekv@strip{##1}\unexpanded}\ekv@parse@pair\ekv@mark
+    \ekv@strip{##1}\ekv@parse@pair\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}[internal]{\ekv@endparse@other}
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
-    \ekv@mark\ekv@stop\unexpanded##1%
-    \ekv@parse@other##2\ekv@mark
+    \ekv@mark\ekv@stop
+    \ekv@ifhas@eq@other##1=\ekv@ifempty@B\ekv@ifempty@false
+    \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
+    ##2%
+    \ekv@parse@other##3\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}[internal]{\ekv@parse@pair}
+% \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\long\def\ekv@parse@pair##1\ekv@stop
+\long\def\ekv@parse@pair##1##2\ekv@stop
   {%
-    {\ekv@strip{##1}\unexpanded}%
+    \ekv@strip{##2}\ekv@parse@pair@{##1}%
+  }
+\long\def\ekv@parse@pair@##1##2##3%
+  {%
+    \unexpanded{##3{##2}{##1}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}[internal]{\ekv@parse@key}
+%    \begin{macrocode}
+\long\def\ekv@parse@key##1##2%
+  {%
+    \unexpanded{##2{##1}}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1329,13 +1383,19 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@set@pair,\ekv@set@pair@}
-% |\ekv@set@pair| needs to split the argument at the |=| sign and check
-% whether the key is defined.
+% |\ekv@set@pair| gets invoked with the space and brace stripped key-name as its
+% first argument, the set-macro as the second argument, and following that is
+% the key-value right delimited by an |\ekv@stop|.
 %    \begin{macrocode}
 \long\def\ekv@set@pair#1#2%
   {%
     \ekv@ifdefined@pair#2{#1}%
       {%
+%    \end{macrocode}
+% This branch will be executed if the key is not defined as an argument grabbing
+% one. If so test whether there is a |NoVal| key of the same name or whether the
+% key is unknown. Throw a meaningful error message and gobble the value.
+%    \begin{macrocode}
         \ekv@ifdefined{#2{#1}N}%
           \ekv@err@noarg
           \ekv@err@unknown
@@ -1343,6 +1403,12 @@ and the derived files           expkv.pdf
         \ekv@gobbletostop
       }%
   }
+%    \end{macrocode}
+% |\ekv@ifdefined@pair| will call |\ekv@set@pair@| if the key is correctly
+% defined. This will then grab the value, strip outer spaces and braces from it
+% and feed it to the key-macro. Afterwards |\ekv@set@other| will take control
+% again.
+%    \begin{macrocode}
 \long\def\ekv@set@pair@#1#2\ekv@stop
   {%
     \ekv@strip{#2}#1%
@@ -1351,6 +1417,10 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@set@key}
+% Analogous to |\ekv@set@pair|, |\ekv@set@key| lets |\ekv@ifdefined@key| test
+% whether a |NoVal| key is defined, else it'll throw a meaningful error message.
+% Since we don't have to grab any value |\ekv@ifdefined@key| will invoke the
+% key-macro and we're done here, |\ekv@set@other| will take over again.
 %    \begin{macrocode}
 \long\def\ekv@set@key#1#2%
   {%
@@ -1405,7 +1475,8 @@ and the derived files           expkv.pdf
 % Finally we borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
 % from keys and values. This |\ekv@strip| also strips one level of outer braces
 % \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
-% stripping. It should be used with |#1| prefixed by |\ekv@mark|.
+% stripping. It should be used with |#1| prefixed by |\ekv@mark|. Also this
+% implementation at most strips \emph{one} space from both sides.
 %    \begin{macrocode}
 \def\ekv@strip#1%
   {%
