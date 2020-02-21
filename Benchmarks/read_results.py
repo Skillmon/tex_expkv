@@ -61,18 +61,29 @@ def print_polycoeffs(num, ops):
     print("  p2/p1   ", p2[0]/p2[1])
 
 if __name__ == "__main__":
-    if len(argv) != 2:
-        print("Usage:", argv[0], "<filename>")
+    if len(argv) != 2 and len(argv) != 4:
+        print("Synopsis:", argv[0], "<filename> [<ops_min> <ops_max>]")
         quit(1)
+    if len(argv) == 4:
+        num_min = int(argv[2])
+        num_max = int(argv[3])
     num, ops = read_results(argv[1])
     if type(ops) == type(None):
         print("Something bad happened")
         quit(2)
     if type(num) == type(None):
-        for i in ops:
+        for i, o in enumerate(ops):
             print(i)
-            print_polycoeffs(ops[i][0], ops[i][1])
+            if len(argv) == 4:
+                idx = np.logical_and(o[0] >= num_min, o[0] <= num_max)
+                o[0] = o[0][idx]
+                o[1] = o[1][idx]
+            print_polycoeffs(o[0], o[1])
     else:
+        if len(argv) == 4:
+            idx = np.logical_and(num >= num_min, num <= num_max)
+            ops = {k: v[idx] for k, v in ops.items()}
+            num = num[idx]
         for i in ops:
             print(i)
             print_polycoeffs(num, ops[i])
