@@ -40,7 +40,7 @@ docfiles     = {"expkv.pdf"}
 
 -- how the documentation is build
 typesetfiles = {"expkv.dtx"}
-typesetruns  = 3
+typesetruns  = 4
 
 -- make sure that expkv.tex ends up in the generic path
 packtdszip   = true
