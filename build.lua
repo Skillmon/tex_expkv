@@ -60,15 +60,16 @@ uploadconfig  = {
   ctanPath    = "/macros/generic/expkv",
   repository  = "https://github.com/Skillmon/tex_expkv",
   bugtracker  = "https://github.com/Skillmon/tex_expkv/issues",
-  update      = false,
+  update      = true,
   description = [[
 `expkv` is a minimalistic but fast and expandable key=val implementation.
 It provides two parsing macros:
 
 * `\ekvset{<set>}{<key=val list>}` which is comparable to `keyval`'s `\setkeys`
 
-* `\ekvparse<cs1><cs2>{<key=val list>}` which expands in two steps to
-`<cs1>{key}` and `<cs2>{key}{val}` for the entries in the `<key=val list>`.
+* `\ekvparse<cs1><cs2>{<key=val list>}` which can be used inside `\expanded` and
+expands to `<cs1>{key}` and `<cs2>{key}{val}` for the entries in the
+`<key=val list>`.
 
 `expkv` has predictable brace-stripping behaviour and handles commas and equal
 signs with category codes 12 and 13 correctly.
