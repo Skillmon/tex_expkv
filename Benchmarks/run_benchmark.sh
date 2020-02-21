@@ -5,10 +5,17 @@ local results="benchmark_results.txt"
 local tmp="benchmark_tmp"
 local versions="benchmark_filelist.txt"
 # step from $keys_start to $keys_end for number of keys
-local keys_start=0
+local keys_start=1
 local keys_end=20
 # space separated list of additional numbers of keys
-local keys_additional=(100)
+local keys_additional=(0 100)
+
+## settings for the python script, leave blank to not use the feature. You have
+## to set both if you want to use it.
+# interpolate only on values with a bigger key-val pair count 
+local num_min=1
+# interpolate only on values with a smaller key-val pair count 
+local num_max=20
 
 ## settings for benchmarks.tex
 # target time of a single \benchmark:n
@@ -16,7 +23,7 @@ local target="1"
 # number of \benchmark:n calls per package
 local repetitions=30
 # target time for the \benchmark:n call that only serves to get the CPU hot
-local preheat="5"
+local preheat="0"
 
 local predefs="\\def\\keypre{$preheat}"
       predefs+="\\def\\keytgt{$target}"
@@ -60,7 +67,11 @@ local line_end=$(grep -m1 -n -x ' \*\*\*\*\*\*\*\*\*\*\*' $tmp.log | cut -d: -f1
 sed -n "$line_start,$line_end p" $tmp.log > $versions
 
 echo "\n\n\n### Results ###"
-python3 read_results.py $results
+if [[ -n $num_min && -n $num_max ]];then
+    python3 read_results.py $results $num_min $num_max
+else
+    python3 read_results.py $results
+fi
 
 rm expkv.sty expkv.tex expkv.log
 rm $tmp.*
