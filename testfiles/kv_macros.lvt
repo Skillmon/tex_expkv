@@ -54,8 +54,10 @@
 \TIMO
 \TESTEXP{expandable}
   {%
-    \ekvset{expandable}{key,key=hihi, key2 ,key2 = haha}%
-    \ekvparse\onlykey\keyandvalue{key,key=hihi, key2 ,key2 = haha}%
+    \ekvset{expandable}{,key,key=hihi, key2 ,key2 = haha}%
+    \expanded{\ekvparse\onlykey\keyandvalue{,key,key=hihi, key2 ,key2 = haha}}%
+    \NEWLINE
+    \ekvparse\onlykey\keyandvalue{,key,key=hihi, key2 ,key2 = haha}%
   }
 
 \END

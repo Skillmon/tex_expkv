@@ -24,4 +24,5 @@ Arg: hihi
 No Argument.
 Arg: haha
 k:key;k:key,v:hihi;k:key2;k:key2,v:haha;
+\onlykey {key}\keyandvalue {key}{hihi}\onlykey {key2}\keyandvalue {key2}{haha}
 ============================================================
