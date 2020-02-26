@@ -30,6 +30,10 @@ completely self-contained. There is a LaTeX package `expkv.sty` included to play
 nice on LaTeX's package loading system, but that package is not needed and does
 not provide more functionality than the generic code in `expkv.tex`.
 
+A key-defining interface that is not as rudimentary as the macros provided in
+this package is contained in expkv-def:
+https://github.com/Skillmon/tex_expkv-def
+
 # Building expkv
 
 The only place where version numbers and dates are guaranteed to be correct in
