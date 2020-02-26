@@ -645,11 +645,14 @@ and the derived files           expkv.pdf
 %   \ourmacro{width=5pt}\par
 % \end{minipage}
 %
-% \paragraph{The same keys using \protect\expkvd}
-% Using \expkvd\ we can set up the equivalent keys using a \kv\ interface, after
-% the following we could use |\ourmacro| in the same way as above.
+% \paragraph{The same key using \protect\expkvd}
+% Using \expkvd\ we can set up the equivalent key using a \kv\ interface, after
+% the following we could use |\ourmacro| in the same way as above. \expkvd\ will
+% allocate and initialise |\ourdim| and define the |width| key |\protected| for
+% us, so the result will be exactly the same -- with the exception that the
+% default will use |\ourdim=.9\hsize\relax| instead.
 % \begin{lstlisting}
-% \input expkv-def
+% \input expkv-def                 % or \usepackage{expkv-def}
 % \ekvdefinekeys{our}
 %   {
 %     dimen    width = \ourdim,
