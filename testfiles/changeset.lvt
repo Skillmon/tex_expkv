@@ -1,0 +1,19 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+
+\OMIT
+\ekvdefNoVal{B}{A}{\ekvchangeset{A}{Changing set from B to A\NEWLINE}}
+\ekvdefNoVal{A}{B}{\ekvchangeset{B}{Changing set from A to B\NEWLINE}}
+\ekvdefNoVal{A}{a}{a in SetA\NEWLINE}
+\ekvdefNoVal{A}{b}{b in SetA\NEWLINE}
+\ekvdefNoVal{B}{a}{a in SetB\NEWLINE}
+\ekvdefNoVal{B}{b}{b in SetB\NEWLINE}
+\TIMO
+\TESTEXP{changing sets}
+  {%
+    \ekvset{A}{a,b,B,a,b,A,a,b}
+  }
+\END
