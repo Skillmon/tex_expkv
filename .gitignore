@@ -1,5 +1,8 @@
 expkv.pdf
 Benchmarks/*.txt
+Benchmarks/*.txt.*.bak
 Benchmarks/*.png
+Benchmarks/__pycache__
 build
 expkv-ctan.zip
+expkv-ctan.curlopt

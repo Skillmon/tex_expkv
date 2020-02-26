@@ -85,7 +85,7 @@ and the derived files           expkv.pdf
         \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,^^A
         \ekvset,\ekvparse,\ekvVersion,\ekvDate,\ekvifdefined,^^A
         \ekvifdefinedNoVal,\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak,^^A
-        \ekvsneak,\ekvsneakPre
+        \ekvsneak,\ekvsneakPre,\ekvchangeset
       }
     ,morecomment=[l]\%
     ,commentstyle=\color[gray]{0.4}
@@ -108,16 +108,40 @@ and the derived files           expkv.pdf
         \mbox
           {^^A
             \BeginAccSupp{ActualText=expkv}^^A
+            \href{https://github.com/Skillmon/tex_expkv}
+              {^^A
+                \rmfamily
+                \bfseries
+                {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+                \lower.493ex
+                  \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+                \kern-.18em{\color{expkvred}v}^^A
+              }^^A
+            \EndAccSupp{}^^A
+          }^^A
+      }
+      {expkv}^^A
+  }
+\newcommand*\expkvd
+  {^^A
+    \texorpdfstring
+      {^^A
+        \mbox
+          {^^A
+            \BeginAccSupp{ActualText=expkv-def}^^A
             \rmfamily
             \bfseries
             {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
             \lower.493ex
               \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
             \kern-.18em{\color{expkvred}v}^^A
+            {\color{expkvgrey}^^A
+              \kern.05em\rule[-.1ex]{.08em}{1.2ex}\kern.05em\textsc{def}^^A
+            }^^A
             \EndAccSupp{}^^A
           }^^A
       }
-      {expkv}^^A
+      {expkv-def}^^A
   }
 \newcommand\kv{\meta{key}=\meta{value}}
 \newcommand\key{\meta{key}}
@@ -149,9 +173,7 @@ and the derived files           expkv.pdf
     {^^A
       \texorpdfstring
         {^^A
-          \huge
-          \href{https://github.com/Skillmon/tex_expkv}
-            {\expkv}^^A
+          \huge\expkv
           \\[\medskipamount]
           \Large an expandable \kv\ implementation^^A
         }{expkv - an expandable <key>=<value> implementation}^^A
@@ -199,6 +221,12 @@ and the derived files           expkv.pdf
 % |\ProvidesFile|.
 %
 % \subsection{Setting up Keys}\label{sec:define}
+% \expkv\ provides a rather simple approach to setting up keys, similar to
+% \pkg{keyval}. However there is an auxiliary package named
+% \href{https://github.com/Skillmon/tex_expkv-def}{\expkvd} (the files use
+% \file{expkv-def} instead because \string| isn't allowed in package names by
+% CTAN) which provides a more sophisticated interface, similar to well
+% established packages like \pkg{pgfkeys} or \pkg{l3keys}.
 %
 % Keys in \expkv\ (as in almost all other \kv\ implementations) belong to a
 % \emph{set} such that different sets can contain keys of the same name. Unlike
@@ -292,11 +320,11 @@ and the derived files           expkv.pdf
 %   If you need control over the necessary steps of expansion you
 %   can use |\expanded| around it.
 %
-%   |\ekvbreak| and |\ekvsneak| and their relatives don't work in |\ekvparse|.
-%   It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|, but not with the same
-%   parsing rules -- |\keyval_parse:NNn| throws an error on multiple equal
-%   signs per \kv\ pair and on empty \key\ names in a \kv\ pair, both of which
-%   |\ekvparse| doesn't deal with.
+%   |\ekvbreak|, |\ekvsneak|, and |\ekvchangeset| and their relatives don't work
+%   in |\ekvparse|.  It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|, but
+%   not with the same parsing rules -- |\keyval_parse:NNn| throws an error on
+%   multiple equal signs per \kv\ pair and on empty \key\ names in a \kv\ pair,
+%   both of which |\ekvparse| doesn't deal with.
 %
 %   As a small example:
 % \begin{lstlisting}
@@ -370,6 +398,17 @@ and the derived files           expkv.pdf
 %   This reads and reinserts the remainder of the current |\ekvset| macro and
 %   its argument list to do its job. A small usage example is shown in
 %   \autoref{sec:sneakex}.
+% \end{function}
+%
+% \begin{function}{\ekvchangeset}
+%   \begin{syntax}
+%     \cs{ekvchangeset}\marg{new-set}
+%   \end{syntax}
+%   Replaces the current set with \meta{new-set}, so for the rest of the current
+%   |\ekvset| call, that call behaves as if it was called with
+%   \texttt{\cs[no-index]{ekvset}\marg{new-set}}. Just like |\ekvsneak| this
+%   reads and reinserts the remainder of the current |\ekvset| macro to do its
+%   job. It is comparable to using \texttt{\meta{key}/.cd} in \pkg{pgfkeys}.
 % \end{function}
 %
 % \bigskip
@@ -605,6 +644,19 @@ and the derived files           expkv.pdf
 %   \ourmacro{width}\par
 %   \ourmacro{width=5pt}\par
 % \end{minipage}
+%
+% \paragraph{The same keys using \protect\expkvd}
+% Using \expkvd\ we can set up the equivalent keys using a \kv\ interface, after
+% the following we could use |\ourmacro| in the same way as above.
+% \begin{lstlisting}
+% \input expkv-def
+% \ekvdefinekeys{our}
+%   {
+%     dimen    width = \ourdim,
+%     qdefault width = .9\hsize,
+%     initial  width = 150pt
+%   }
+% \end{lstlisting}
 %
 % \subsubsection{An Expandable \kv\ Macro Using \cs[no-index]{ekvsneak}}
 % \label{sec:sneakex}
@@ -866,8 +918,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{0.4}
-\def\ekvDate{2020-02-22}
+\def\ekvVersion{0.5}
+\def\ekvDate{2020-02-26}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -893,7 +945,7 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbletostop,\ekv@fi@gobble,\ekv@fi@secondoftwo
+%     \ekv@gobbleto@stop,\ekv@fi@secondoftwo,\ekv@gobble@mark
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -904,12 +956,12 @@ and the derived files           expkv.pdf
 \long\def\@firstofone#1{#1}
 \long\def\@firstoftwo#1#2{#1}
 \long\def\@secondoftwo#1#2{#2}
-\long\def\ekv@gobbletostop#1\ekv@stop{}
-\long\def\ekv@fi@gobble\fi\@firstofone#1{\fi}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
+\long\def\ekv@gobbleto@stop#1\ekv@stop{}
+\def\ekv@gobble@mark\ekv@mark{}
 %    \end{macrocode}
 % \end{macro}
-% As you can see |\ekv@gobbletostop| uses a special marker |\ekv@stop|. The
+% As you can see |\ekv@gobbleto@stop| uses a special marker |\ekv@stop|. The
 % package will use three such markers, the one you've seen already, |\ekv@mark|
 % and |\ekv@nil|. Contrarily to how for instance \pkg{expl3} does things, we
 % don't define them, as we don't need them to have an actual meaning. This has
@@ -1148,7 +1200,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % Test whether we're at the end, if so invoke |\ekv@endset|,
 %    \begin{macrocode}
-    \ekv@ifstop##2\ekv@endset\ekv@mark\ekv@stop
+    \ekv@gobbleto@markstop##2\ekv@endset\ekv@mark\ekv@stop
 %    \end{macrocode}
 % else go on with other commas,
 %    \begin{macrocode}
@@ -1179,7 +1231,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@set@other##1##2,%
   {%
-    \ekv@ifstop##2\ekv@endset@other\ekv@mark\ekv@stop
+    \ekv@gobbleto@markstop##2\ekv@endset@other\ekv@mark\ekv@stop
     \ekv@ifhas@eq@other##2=\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
       {\ekv@set@eq@other##1##2\ekv@stop}%
@@ -1278,7 +1330,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse##1##2##3#1%
   {%
-    \ekv@ifstop##3\ekv@endparse\ekv@mark\ekv@stop
+    \ekv@gobbleto@markstop##3\ekv@endparse\ekv@mark\ekv@stop
     \ekv@parse@other##1##2##3,\ekv@stop,%
     \ekv@parse##1##2\ekv@mark
   }
@@ -1295,7 +1347,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@other##1##2##3,%
   {%
-    \ekv@ifstop##3\ekv@endparse@other\ekv@mark\ekv@stop
+    \ekv@gobbleto@markstop##3\ekv@endparse@other\ekv@mark\ekv@stop
     \ekv@ifhas@eq@other##3=\ekv@ifempty@B\ekv@ifempty@false
       \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
       {\ekv@parse@eq@other##3\ekv@stop##2}%
@@ -1373,12 +1425,40 @@ and the derived files           expkv.pdf
 \ekvset,=
 %    \end{macrocode}
 %
-% \begin{macro}[internal]{\ekv@ifstop}
-% The |\ekv@ifstop| test works similar to our if-empty test, but instead of
-% using tokens which are used nowhere else (|\ekv@ifempty@A| and
-% |\ekv@ifempty@B|) we use |\ekv@mark| and |\ekv@stop|.
+% \begin{macro}{\ekvchangeset}
+% Provide a macro that is able to switch out the current \set\ in |\ekvset|.
+% This operation is slow (by comparison, it should be slightly faster than
+% |\ekvsneak|), but allows for something similar to \pkg{pgfkeys}'s
+% \texttt{\meta{key}/.cd} mechanism. However this operation is more expensive
+% than |/.cd| as we can't just redefine some token to reflect this, but have to
+% switch out the set expandably, so this works similar to the |\ekvsneak| macros
+% reading and reinserting the remainder of the \kv\ list.
 %    \begin{macrocode}
-\long\def\ekv@ifstop#1\ekv@mark\ekv@stop{}
+\def\ekvchangeset#1%
+  {%
+    \expandafter\ekv@changeset\csname\ekv@name@set{#1}\endcsname\ekv@mark
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}[internal]{\ekv@changeset}
+% This macro does the real change-out of |\ekvchangeset|. We introduced an
+% |\ekv@mark| to not accidentally remove some braces which we have to remove
+% again.
+%    \begin{macrocode}
+\long\def\ekv@changeset#1#2\ekv@set@other#3#4\ekv@set#5%
+  {%
+    \ekv@gobble@mark#2\ekv@set@other#1#4\ekv@set#1%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}[internal]{\ekv@gobbleto@markstop}
+% The |\ekv@gobbleto@markstop| can be used to test for |\ekv@stop| similar to
+% our if-empty test, but instead of using tokens which are used nowhere else
+% (|\ekv@ifempty@A| and |\ekv@ifempty@B|) it uses |\ekv@mark| and |\ekv@stop|.
+%    \begin{macrocode}
+\long\def\ekv@gobbleto@markstop#1\ekv@mark\ekv@stop{}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1400,7 +1480,7 @@ and the derived files           expkv.pdf
           \ekv@err@noarg
           \ekv@err@unknown
           #2{#1}%
-        \ekv@gobbletostop
+        \ekv@gobbleto@stop
       }%
   }
 %    \end{macrocode}
@@ -1452,7 +1532,7 @@ and the derived files           expkv.pdf
       }%
   }
 \ekv@err
-\def\ekv@err@{\expandafter\ekv@gobbletostop}
+\def\ekv@err@{\expandafter\ekv@gobbleto@stop}
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}[internal]
