@@ -849,7 +849,7 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}
 % ! Missing \endcsname inserted.
 % <to be read again>
-%                    \ekv<set>(
+%                    \! expkv Error: Set `<set>' undefined.
 % \end{lstlisting}
 %
 % \subsection{License}
@@ -1076,6 +1076,18 @@ and the derived files           expkv.pdf
 \def\ekv@name@key#1{#1)}
 %    \end{macrocode}
 % \end{macro}
+% \begin{macro}[internal]{\ekv@undefined@set}
+% We can misuse the macro name we use to expandably store the set-name in a
+% single token -- since this increases performance drastically, especially for
+% long set-names -- to throw a more meaningful error message in case a set isn't
+% defined. The name of |\ekv@undefined@set| is a little bit misleading, as it is
+% called in either case inside of |\csname|, but the result will be a control
+% sequence with meaning |\relax| if the set is undefined, hence will break the
+% |\csname| building the key-macro which will throw the error message.
+%    \begin{macrocode}
+\def\ekv@undefined@set#1{! expkv Error: Set `#1' undefined.}
+%    \end{macrocode}
+% \end{macro}
 % \begin{macro}[internal]{\ekv@checkvalid}
 % We place some restrictions on the allowed names, though, namely sets and
 % keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
@@ -1171,7 +1183,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekv@defset#1%
   {%
-    \expandafter\edef\csname\ekv@name@set{#1}\endcsname##1%
+    \expandafter\edef\csname\ekv@undefined@set{#1}\endcsname##1%
       {\ekv@name@set{#1}\ekv@name@key{##1}}%
   }
 %    \end{macrocode}
@@ -1189,7 +1201,7 @@ and the derived files           expkv.pdf
 \endgroup
 \long\def\ekvset##1##2%
   {%
-    \expandafter\ekv@set\csname\ekv@name@set{##1}\endcsname
+    \expandafter\ekv@set\csname\ekv@undefined@set{##1}\endcsname
       \ekv@mark##2#1\ekv@stop#1{}%
   }
 %    \end{macrocode}
@@ -1439,7 +1451,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \def\ekvchangeset#1%
   {%
-    \expandafter\ekv@changeset\csname\ekv@name@set{#1}\endcsname\ekv@mark
+    \expandafter\ekv@changeset\csname\ekv@undefined@set{#1}\endcsname\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1547,7 +1559,7 @@ and the derived files           expkv.pdf
 % use those instead of the full strings.
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
-\long\def\ekv@err@common@#1#2#3#4#5(#6#7{\ekv@err{#6 (`#7', set `#5')}}
+\long\def\ekv@err@common@#1`#2' #3.#4#5{\ekv@err{#4 (`#5', set `#2')}}
 \long\def\ekv@err@unknown#1#2{\ekv@err@common{unknown key}#1{#2}}
 \long\def\ekv@err@noarg  #1#2{\ekv@err@common{value forbidden}#1{#2}}
 \long\def\ekv@err@reqval #1#2{\ekv@err@common{value required}#1{#2}}
