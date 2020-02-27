@@ -1,6 +1,6 @@
 -- Build script for expkv
 module     = "expkv"
-pkgversion = "0.5"
+pkgversion = "0.5a"
 pkgdate    = "2020-02-27"
 
 -- update package date and version
