@@ -491,14 +491,15 @@ and the derived files           expkv.pdf
 % which braces are stripped that shouldn't be stripped, worsening the situation.
 %
 % \paragraph{\pkg{ltxkeys}} is over 300 times slower -- which is funny, because
-% it aims to be ``[\ldots] faster than these earlier packages [referring to
-% \pkg{keyval} and \pkg{xkeyval}].'' Since it aims to have a bigger feature set
-% than \pkg{xkeyval}, it most definitely also has a bigger feature set than
-% \expkv. Also, it can't parse |\long| input, so as soon as your values contain
-% a |\par|, it'll throw errors. Furthermore, \pkg{ltxkeys} doesn't strip outer
-% braces at all by design, which, imho, is a weird design choice. In addition
-% \pkg{ltxkeys} loads \pkg{catoptions} which is known to introduce bugs (e.g.,
-% see \url{https://tex.stackexchange.com/questions/461783}).
+% it aims to be ``[\ldots] faster [\ldots] than these earlier packages
+% [referring to \pkg{keyval} and \pkg{xkeyval}].'' Since it aims to have a
+% bigger feature set than \pkg{xkeyval}, it most definitely also has a bigger
+% feature set than \expkv. Also, it can't parse |\long| input, so as soon as
+% your values contain a |\par|, it'll throw errors. Furthermore, \pkg{ltxkeys}
+% doesn't strip outer braces at all by design, which, imho, is a weird design
+% choice. In addition \pkg{ltxkeys} loads \pkg{catoptions} which is known to
+% introduce bugs (e.g., see
+% \url{https://tex.stackexchange.com/questions/461783}).
 %
 % \paragraph{\pkg{l3keys}} is almost five times slower, but has an, imho, great
 % interface to define keys. It strips \emph{all} outer spaces, even if somehow
