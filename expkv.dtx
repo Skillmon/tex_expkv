@@ -74,6 +74,7 @@ and the derived files           expkv.pdf
 \RequirePackage{caption}
 \RequirePackage{microtype}
 \RequirePackage{accsupp}
+\RequirePackage{enumitem}
 \lstset
   {
     ,flexiblecolumns=false
@@ -122,27 +123,32 @@ and the derived files           expkv.pdf
       }
       {expkv}^^A
   }
-\newcommand*\expkvd
+\newcommand*\expkvpkg[1]
   {^^A
     \texorpdfstring
       {^^A
         \mbox
           {^^A
-            \BeginAccSupp{ActualText=expkv-def}^^A
-            \rmfamily
-            \bfseries
-            {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
-            \lower.493ex
-              \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
-            \kern-.18em{\color{expkvred}v}^^A
-            {\color{expkvgrey}^^A
-              \kern.05em\rule[-.1ex]{.08em}{1.2ex}\kern.05em\textsc{def}^^A
-            }^^A
+            \BeginAccSupp{ActualText=expkv-#1}^^A
+            \href{https://github.com/Skillmon/tex_expkv-#1}
+              {^^A
+                \rmfamily
+                \bfseries
+                {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+                \lower.493ex
+                  \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+                \kern-.18em{\color{expkvred}v}^^A
+                {\color{expkvgrey}^^A
+                  \kern.05em\rule[-.1ex]{.08em}{1.2ex}\kern.05em\textsc{#1}^^A
+                }^^A
+              }^^A
             \EndAccSupp{}^^A
           }^^A
       }
-      {expkv-def}^^A
+      {expkv-#1}^^A
   }
+\newcommand*\expkvd{\expkvpkg{def}}
+\newcommand*\expkvc{\expkvpkg{cs}}
 \newcommand\kv{\meta{key}=\meta{value}}
 \newcommand\key{\meta{key}}
 \newcommand\val{\meta{value}}
@@ -150,7 +156,7 @@ and the derived files           expkv.pdf
 \hypersetup{linkcolor=red!80!black,urlcolor=purple!80!black}
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
-\DoNotIndex{\noexpand,\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
+\DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
 \DoNotIndex{\@,\unexpanded,\string,\expanded}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
@@ -219,6 +225,17 @@ and the derived files           expkv.pdf
 % The \LaTeX\ package doesn't do more than \file{expkv.tex}, except calling
 % |\ProvidesPackage| and setting things up such that \file{expkv.tex} will use
 % |\ProvidesFile|.
+%
+% In the \expkv\ family are other packages contained which provide additional
+% functionality. Those packages currently are:
+% \begin{description}[format=\expkvpkg]
+%   \item[def]
+%     a key-defining frontend for \expkv\ using a \kv\ syntax
+%   \item[cs]
+%     define expandable \kv\ macros utilizing \expkv
+% \end{description}
+% Note that while the package names are stylised with a vertical rule, their
+% names are all lower case with a hyphen.
 %
 % \subsection{Setting up Keys}\label{sec:define}
 % \expkv\ provides a rather simple approach to setting up keys, similar to
@@ -778,6 +795,30 @@ and the derived files           expkv.pdf
 %   \edef\myval{\sine{f=tan}{1}}\texttt{\meaning\myval}
 % \end{minipage}
 %
+% \paragraph{The same macro using \protect\expkvc}
+% Using \expkvc\ we can set up something equivalent with a bit less code. The
+% implementation chosen in \expkvc\ is more efficient than the example above and
+% way easier to code.
+% \begin{lstlisting}
+% \makeatletter
+% \ekvcSplitAndForward\sine\sine@
+%   {
+%     f=sin,
+%     unit=d,
+%     round=3,
+%   }
+% \ekvcSecondaryKeys\sine
+%   {
+%     nmeta degree={unit=d},
+%     nmeta radian={unit={}},
+%   }
+% \newcommand*\sine@[4]{\fpeval{round(#1#2(#4),#3)}}
+% \makeatother
+% \end{lstlisting}
+% The resulting macro will behave just like the one previously defined, but will
+% have an additional |unit| key, since in \expkvc\ every argument must have a
+% value taking key which defines it.
+%
 %
 % \subsection{Error Messages}
 %
@@ -922,8 +963,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{0.5a}
-\def\ekvDate{2020-02-27}
+\def\ekvVersion{0.5b}
+\def\ekvDate{2020-04-03}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1543,7 +1584,7 @@ and the derived files           expkv.pdf
     \unexpanded{\long\def\ekv@err}##1%
       {%
         \unexpanded{\expandafter\ekv@err@\@firstofone}%
-        {\expandafter\noexpand\csname ! expkv Error:\endcsname ##1.}%
+        {\unexpanded\expandafter{\csname ! expkv Error:\endcsname}##1.}%
         \unexpanded{\ekv@stop}%
       }%
   }
