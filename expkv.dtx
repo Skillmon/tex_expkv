@@ -235,15 +235,13 @@ and the derived files           expkv.pdf
 %     define expandable \kv\ macros utilizing \expkv
 % \end{description}
 % Note that while the package names are stylised with a vertical rule, their
-% names are all lower case with a hyphen.
+% names are all lower case with a hyphen (\emph{e.g.}, \file{expkv-def}).
 %
 % \subsection{Setting up Keys}\label{sec:define}
 % \expkv\ provides a rather simple approach to setting up keys, similar to
-% \pkg{keyval}. However there is an auxiliary package named
-% \href{https://github.com/Skillmon/tex_expkv-def}{\expkvd} (the files use
-% \file{expkv-def} instead because \string| isn't allowed in package names by
-% CTAN) which provides a more sophisticated interface, similar to well
-% established packages like \pkg{pgfkeys} or \pkg{l3keys}.
+% \pkg{keyval}. However there is an auxiliary package named \expkvd\ which
+% provides a more sophisticated interface, similar to well established packages
+% like \pkg{pgfkeys} or \pkg{l3keys}.
 %
 % Keys in \expkv\ (as in almost all other \kv\ implementations) belong to a
 % \emph{set} such that different sets can contain keys of the same name. Unlike
