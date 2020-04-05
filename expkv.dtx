@@ -942,6 +942,14 @@ and the derived files           expkv.pdf
 % \gobbledocstriptag
 %<*tex>
 %
+% We make sure that it's only input once:
+%    \begin{macrocode}
+\expandafter\ifx\csname ekvVersion\endcsname\relax
+\else
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+%
 % Check whether \eTeX\ is available -- \expkv\ requires \eTeX.
 %    \begin{macrocode}
 \begingroup\expandafter\expandafter\expandafter\endgroup
@@ -951,13 +959,6 @@ and the derived files           expkv.pdf
 \fi
 %    \end{macrocode}
 %
-% We make sure that it's only input once:
-%    \begin{macrocode}
-\expandafter\ifx\csname ekvVersion\endcsname\relax
-\else
-  \expandafter\endinput
-\fi
-%    \end{macrocode}
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
@@ -1131,7 +1132,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]{\ekv@checkvalid}
 % We place some restrictions on the allowed names, though, namely sets and
 % keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
-% or} key-names consisting of spaces).
+% or} key-names consisting of spaces). The |\def\ekv@tmp| gobbles any \TeX\
+% prefixes which would otherwise throw errors.
 %    \begin{macrocode}
 \protected\def\ekv@checkvalid#1#2%
   {%
@@ -1287,19 +1289,19 @@ and the derived files           expkv.pdf
 \long\def\ekv@set@other##1##2,%
   {%
     \ekv@gobbleto@markstop##2\ekv@endset@other\ekv@mark\ekv@stop
-    \ekv@ifhas@eq@other##2=\ekv@ifempty@B\ekv@ifempty@false
-      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@set@eq@other##1##2\ekv@stop}%
+    \ekv@ifhas@eq@other##2\ekv@mark{\ekv@set@eq@other##1##2\ekv@stop}%
+      =\ekv@mark
       {%
-        \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
-          \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\ekv@set@eq@active##1##2\ekv@stop}%
+        \ekv@ifhas@eq@active##2\ekv@mark{\ekv@set@eq@active##1##2\ekv@stop}%
+          #2\ekv@mark
           {%
             \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
               \ekv@ifempty@A\ekv@ifempty@B\@firstofone
               {\ekv@strip{##2}\ekv@set@key##1}%
           }%
+          \ekv@stop
       }%
+      \ekv@stop
     \ekv@set@other##1\ekv@mark%
   }
 %    \end{macrocode}
@@ -1312,10 +1314,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@set@eq@other##1##2=%
   {%
-    \ekv@ifhas@eq@active##2#2\ekv@ifempty@B\ekv@ifempty@false
-      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@set@eq@active##1##2=}%
-      {\ekv@strip{##2}\ekv@set@pair##1}%
+    \ekv@ifhas@eq@active##2\ekv@mark{\ekv@set@eq@active##1##2=}%
+      #2\ekv@mark{\ekv@strip{##2}\ekv@set@pair##1}\ekv@stop
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1333,14 +1333,13 @@ and the derived files           expkv.pdf
 % And we have to set up the testing macros for our equal signs and
 % |\ekv@endset@other|.
 %    \begin{macrocode}
-\long\def\ekv@ifhas@eq@other\ekv@mark##1={\ekv@ifempty@\ekv@ifempty@A}
-\long\def\ekv@ifhas@eq@active\ekv@mark##1#2{\ekv@ifempty@\ekv@ifempty@A}
+\long\def\ekv@ifhas@eq@other\ekv@mark##1=##2\ekv@mark##3##4\ekv@stop{##3}
+\long\def\ekv@ifhas@eq@active\ekv@mark##1#2##2\ekv@mark##3##4\ekv@stop{##3}
 \long\def\ekv@endset@other
     \ekv@mark\ekv@stop
-    \ekv@ifhas@eq@other##1=\ekv@ifempty@B\ekv@ifempty@false
-    \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-    ##2%
-    \ekv@set@other##3\ekv@mark
+    \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
+    =\ekv@mark##3\ekv@stop
+    \ekv@set@other##4\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
@@ -1403,19 +1402,19 @@ and the derived files           expkv.pdf
 \long\def\ekv@parse@other##1##2##3,%
   {%
     \ekv@gobbleto@markstop##3\ekv@endparse@other\ekv@mark\ekv@stop
-    \ekv@ifhas@eq@other##3=\ekv@ifempty@B\ekv@ifempty@false
-      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@parse@eq@other##3\ekv@stop##2}%
+    \ekv@ifhas@eq@other##3\ekv@mark{\ekv@parse@eq@other##3\ekv@stop##2}%
+      =\ekv@mark
       {%
-        \ekv@ifhas@eq@active##3#2\ekv@ifempty@B\ekv@ifempty@false
-          \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-          {\ekv@parse@eq@active##3\ekv@stop##2}%
+        \ekv@ifhas@eq@active##3\ekv@mark{\ekv@parse@eq@active##3\ekv@stop##2}%
+          #2\ekv@mark
           {%
             \ekv@ifblank@##3\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
               \ekv@ifempty@A\ekv@ifempty@B\@firstofone
               {\ekv@strip{##3}\ekv@parse@key##1}%
           }%
+          \ekv@stop
       }%
+      \ekv@stop
     \ekv@parse@other##1##2\ekv@mark
   }
 %    \end{macrocode}
@@ -1424,10 +1423,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@eq@other##1=%
   {%
-    \ekv@ifhas@eq@active##1#2\ekv@ifempty@B\ekv@ifempty@false
-      \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-      {\ekv@parse@eq@active##1=}%
-      {\ekv@strip{##1}\ekv@parse@pair\ekv@mark}%
+    \ekv@ifhas@eq@active##1\ekv@mark{\ekv@parse@eq@active##1=}%
+      #2\ekv@mark{\ekv@strip{##1}\ekv@parse@pair\ekv@mark}\ekv@stop
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1443,10 +1440,10 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
     \ekv@mark\ekv@stop
-    \ekv@ifhas@eq@other##1=\ekv@ifempty@B\ekv@ifempty@false
-    \ekv@ifempty@A\ekv@ifempty@B\@firstoftwo
-    ##2%
-    \ekv@parse@other##3\ekv@mark
+    \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
+    =\ekv@mark##3\ekv@stop
+    ##4%
+    \ekv@parse@other##5\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
