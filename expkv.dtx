@@ -1086,7 +1086,7 @@ and the derived files           expkv.pdf
       \ekv@fi@secondoftwo
     \fi
     \@firstoftwo
-    {\ekv@set@pair@#1\ekv@mark}%
+    {\ekv@set@pair@#1}%
   }
 \def\ekv@ifdefined@key#1#2%
   {%
@@ -1289,42 +1289,67 @@ and the derived files           expkv.pdf
 \long\def\ekv@set@other##1##2,%
   {%
     \ekv@gobble@from@mark@to@stop##2\ekv@endset@other\ekv@stop
-    \ekv@ifhas@eq@other##2\ekv@mark{\ekv@set@eq@other##1##2\ekv@stop}%
-      =\ekv@mark
-      {%
-        \ekv@ifhas@eq@active##2\ekv@mark{\ekv@set@eq@active##1##2\ekv@stop}%
-          #2\ekv@mark
-          {%
-            \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-              \ekv@ifempty@A\ekv@ifempty@B\@firstofone
-              {\ekv@strip{##2}\ekv@set@key##1}%
-          }%
-          \ekv@stop
-      }%
-      \ekv@stop
-    \ekv@set@other##1\ekv@mark%
+    \ekv@set@eq@other##2\ekv@nil\ekv@mark\ekv@set@eq@other@a
+      =\ekv@mark\ekv@set@eq@active\ekv@stop
+    ##1%
+    \ekv@set@other##1\ekv@mark
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}[internal]{\ekv@set@eq@other}
-% |\ekv@set@eq@other| might not be the correct break point, there might be an
-% active equal sign in the currently parsed key-name. If so, we have to resplit.
-% If the split is correct strip the key-name of outer spaces and braces and feed
-% it to |\ekv@set@pair|.
-%    \begin{macrocode}
-\long\def\ekv@set@eq@other##1##2=%
+\long\def\ekv@set@eq@other##1=##2\ekv@mark##3##4\ekv@stop
   {%
-    \ekv@ifhas@eq@active##2\ekv@mark{\ekv@set@eq@active##1##2=}%
-      #2\ekv@mark{\ekv@strip{##2}\ekv@set@pair##1}\ekv@stop
+    ##3{##1}\ekv@mark##2%
   }
-%    \end{macrocode}
-% \end{macro}
-% \begin{macro}[internal]{\ekv@set@eq@active}
-% We need to handle the active equal signs.
-%    \begin{macrocode}
-\long\def\ekv@set@eq@active##1##2#2%
+\long\def\ekv@set@eq@other@a##1##2\ekv@nil
   {%
-    \ekv@strip{##2}\ekv@set@pair##1%
+    \ekv@set@eq@other@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a
+      #2\ekv@mark\ekv@set@eq@other@b\ekv@stop##2\ekv@stop
+  }
+\long\def\ekv@set@eq@other@active##1#2##2\ekv@mark##3##4\ekv@stop
+  {%
+    ##3{##1}\ekv@mark##2%
+  }
+\long\def\ekv@set@eq@other@active@a##1##2\ekv@nil\ekv@mark
+  {%
+    \ekv@set@eq@other@active@b{##1}##2=%
+  }
+\long\def\ekv@set@eq@other@active@b##1##2\ekv@stop
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+\long\def\ekv@set@eq@other@b##1%
+  {%
+    \ekv@set@eq@other@c##1%
+  }
+\long\def\ekv@set@eq@other@c
+    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a\ekv@mark##2\ekv@stop
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+\long\def\ekv@set@eq@active##1\ekv@mark
+  {%
+    \ekv@set@eq@active@a##1%
+  }
+\long\def\ekv@set@eq@active@a##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
+  {%
+    \ekv@set@eq@active@b##1\ekv@nil\ekv@mark\ekv@set@eq@active@c
+      #2\ekv@mark\ekv@set@noeq\ekv@stop
+  }
+\long\def\ekv@set@eq@active@b##1#2##2\ekv@mark##3##4\ekv@stop
+  {%
+    ##3{##1}\ekv@mark##2%
+  }
+\long\def\ekv@set@eq@active@c##1##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+\long\def\ekv@set@noeq##1\ekv@mark
+  {%
+    \ekv@set@noeq@##1%
+  }
+\long\def\ekv@set@noeq@##1\ekv@nil\ekv@mark\ekv@set@eq@active@c##2%
+  {%
+    \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
+      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+      {\ekv@strip{##1}\ekv@set@key##2}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1337,9 +1362,10 @@ and the derived files           expkv.pdf
 \long\def\ekv@ifhas@eq@active\ekv@mark##1#2##2\ekv@mark##3##4\ekv@stop{##3}
 \long\def\ekv@endset@other
     \ekv@stop
-    \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
-    =\ekv@mark##3\ekv@stop
-    \ekv@set@other##4\ekv@mark
+    \ekv@set@eq@other##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
+    =\ekv@mark\ekv@set@eq@active\ekv@stop
+    ##2%
+    \ekv@set@other##3\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
@@ -1520,21 +1546,22 @@ and the derived files           expkv.pdf
 % first argument, the set-macro as the second argument, and following that is
 % the key-value right delimited by an |\ekv@stop|.
 %    \begin{macrocode}
-\long\def\ekv@set@pair#1#2%
+\long\def\ekv@set@pair#1#2#3%
   {%
-    \ekv@ifdefined@pair#2{#1}%
+    \ekv@ifdefined@pair#3{#1}%
       {%
 %    \end{macrocode}
 % This branch will be executed if the key is not defined as an argument grabbing
 % one. If so test whether there is a |NoVal| key of the same name or whether the
 % key is unknown. Throw a meaningful error message and gobble the value.
 %    \begin{macrocode}
-        \ekv@ifdefined{#2{#1}N}%
+        \ekv@ifdefined{#3{#1}N}%
           \ekv@err@noarg
           \ekv@err@unknown
-          #2{#1}%
-        \ekv@gobbleto@stop
+          #3{#1}%
+        \@gobble
       }%
+      {#2}%
   }
 %    \end{macrocode}
 % |\ekv@ifdefined@pair| will call |\ekv@set@pair@| if the key is correctly
@@ -1542,7 +1569,7 @@ and the derived files           expkv.pdf
 % and feed it to the key-macro. Afterwards |\ekv@set@other| will take control
 % again.
 %    \begin{macrocode}
-\long\def\ekv@set@pair@#1#2\ekv@stop
+\long\def\ekv@set@pair@#1#2%
   {%
     \ekv@strip{#2}#1%
   }
