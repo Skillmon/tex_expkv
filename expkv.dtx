@@ -1257,7 +1257,7 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % Test whether we're at the end, if so invoke |\ekv@endset|,
 %    \begin{macrocode}
-    \ekv@gobbleto@markstop##2\ekv@endset\ekv@mark\ekv@stop
+    \ekv@gobble@from@mark@to@stop##2\ekv@endset\ekv@stop
 %    \end{macrocode}
 % else go on with other commas,
 %    \begin{macrocode}
@@ -1274,7 +1274,7 @@ and the derived files           expkv.pdf
 % of |\ekv@set| and unbrace the sneaked stuff.
 %    \begin{macrocode}
 \long\def\ekv@endset
-    \ekv@mark\ekv@stop\ekv@set@other##1,\ekv@stop,\ekv@set##2\ekv@mark
+    \ekv@stop\ekv@set@other##1,\ekv@stop,\ekv@set##2\ekv@mark
     ##3%
   {##3}
 %    \end{macrocode}
@@ -1288,7 +1288,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@set@other##1##2,%
   {%
-    \ekv@gobbleto@markstop##2\ekv@endset@other\ekv@mark\ekv@stop
+    \ekv@gobble@from@mark@to@stop##2\ekv@endset@other\ekv@stop
     \ekv@ifhas@eq@other##2\ekv@mark{\ekv@set@eq@other##1##2\ekv@stop}%
       =\ekv@mark
       {%
@@ -1336,7 +1336,7 @@ and the derived files           expkv.pdf
 \long\def\ekv@ifhas@eq@other\ekv@mark##1=##2\ekv@mark##3##4\ekv@stop{##3}
 \long\def\ekv@ifhas@eq@active\ekv@mark##1#2##2\ekv@mark##3##4\ekv@stop{##3}
 \long\def\ekv@endset@other
-    \ekv@mark\ekv@stop
+    \ekv@stop
     \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
     =\ekv@mark##3\ekv@stop
     \ekv@set@other##4\ekv@mark
@@ -1384,7 +1384,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse##1##2##3#1%
   {%
-    \ekv@gobbleto@markstop##3\ekv@endparse\ekv@mark\ekv@stop
+    \ekv@gobble@from@mark@to@stop##3\ekv@endparse\ekv@stop
     \ekv@parse@other##1##2##3,\ekv@stop,%
     \ekv@parse##1##2\ekv@mark
   }
@@ -1393,7 +1393,7 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]{\ekv@endparse}
 %    \begin{macrocode}
 \long\def\ekv@endparse
-    \ekv@mark\ekv@stop\ekv@parse@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
+    \ekv@stop\ekv@parse@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
@@ -1401,7 +1401,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@other##1##2##3,%
   {%
-    \ekv@gobbleto@markstop##3\ekv@endparse@other\ekv@mark\ekv@stop
+    \ekv@gobble@from@mark@to@stop##3\ekv@endparse@other\ekv@stop
     \ekv@ifhas@eq@other##3\ekv@mark{\ekv@parse@eq@other##3\ekv@stop##2}%
       =\ekv@mark
       {%
@@ -1439,7 +1439,7 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]{\ekv@endparse@other}
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
-    \ekv@mark\ekv@stop
+    \ekv@stop
     \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
     =\ekv@mark##3\ekv@stop
     ##4%
@@ -1505,12 +1505,13 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 %
-% \begin{macro}[internal]{\ekv@gobbleto@markstop}
-% The |\ekv@gobbleto@markstop| can be used to test for |\ekv@stop| similar to
-% our if-empty test, but instead of using tokens which are used nowhere else
-% (|\ekv@ifempty@A| and |\ekv@ifempty@B|) it uses |\ekv@mark| and |\ekv@stop|.
+% \begin{macro}[internal]{\ekv@gobble@from@mark@to@stop}
+% The |\ekv@gobble@from@mark@to@stop| can be used to test for |\ekv@stop|
+% similar to our if-empty test, but instead of using tokens which are used
+% nowhere else (|\ekv@ifempty@A| and |\ekv@ifempty@B|) it uses |\ekv@mark| and
+% |\ekv@stop|.
 %    \begin{macrocode}
-\long\def\ekv@gobbleto@markstop#1\ekv@mark\ekv@stop{}
+\long\def\ekv@gobble@from@mark@to@stop\ekv@mark#1\ekv@stop{}
 %    \end{macrocode}
 % \end{macro}
 %
