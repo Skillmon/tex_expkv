@@ -989,7 +989,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbleto@stop,\ekv@fi@secondoftwo,\ekv@gobble@mark
+%     \ekv@gobbleto@stop,\ekv@fi@secondoftwo,\ekv@gobble@mark,
+%     \ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -1003,6 +1004,7 @@ and the derived files           expkv.pdf
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 \long\def\ekv@gobbleto@stop#1\ekv@stop{}
 \def\ekv@gobble@mark\ekv@mark{}
+\long\def\ekv@gobble@from@mark@to@stop\ekv@mark#1\ekv@stop{}
 %    \end{macrocode}
 % \end{macro}
 % As you can see |\ekv@gobbleto@stop| uses a special marker |\ekv@stop|. The
@@ -1015,7 +1017,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \ekv@ifempty,\ekv@ifempty@,\ekv@ifempty@true,\ekv@ifempty@false,
-%     \ekv@ifempty@true@F
+%     \ekv@ifempty@true@F,\ekv@ifempty@true@F@gobble,
+%     \ekv@ifempty@true@F@gobbletwo
 %   }
 % We can test for a lot of things building on an if-empty test, so lets define a
 % really fast one. Since some tests might have reversed logic (true if something
@@ -1030,6 +1033,11 @@ and the derived files           expkv.pdf
 \long\def\ekv@ifempty@true\ekv@ifempty@A\ekv@ifempty@B\@secondoftwo#1#2{#1}
 \long\def\ekv@ifempty@false\ekv@ifempty@A\ekv@ifempty@B\@firstoftwo#1#2{#2}
 \long\def\ekv@ifempty@true@F\ekv@ifempty@A\ekv@ifempty@B\@firstofone#1{}
+\long\def\ekv@ifempty@true@F@gobble\ekv@ifempty@A\ekv@ifempty@B\@firstofone#1#2%
+  {}
+\long\def\ekv@ifempty@true@F@gobbletwo
+    \ekv@ifempty@A\ekv@ifempty@B\@firstofone#1#2#3%
+  {}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1060,54 +1068,6 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
-  % \begin{macro}[internal]
-%   {
-%     \ekv@ifdefined@pair,\ekv@ifdefined@pair@,\ekv@ifdefined@key,
-%     \ekv@ifdefined@key@
-%   }
-% Since we can save some time if we only have to create the control sequence
-% once when we know beforehand how we want to use it, we build some other macros
-% for those cases (which we'll have quite often, once per key usage).
-%    \begin{macrocode}
-\def\ekv@ifdefined@pair#1#2%
-  {%
-    \expandafter\ekv@ifdefined@pair@
-      \csname
-        \ifcsname #1{#2}\endcsname
-          #1{#2}%
-        \else
-          relax%
-        \fi
-      \endcsname
-  }
-\def\ekv@ifdefined@pair@#1%
-  {%
-    \ifx#1\relax
-      \ekv@fi@secondoftwo
-    \fi
-    \@firstoftwo
-    {\ekv@set@pair@#1}%
-  }
-\def\ekv@ifdefined@key#1#2%
-  {%
-    \expandafter\ekv@ifdefined@key@
-      \csname
-        \ifcsname #1{#2}N\endcsname
-          #1{#2}N%
-        \else
-          relax%
-        \fi
-      \endcsname
-  }
-\def\ekv@ifdefined@key@#1%
-  {%
-    \ifx#1\relax
-      \ekv@fi@secondoftwo
-    \fi
-    \@firstoftwo#1%
-  }
-%    \end{macrocode}
-% \end{macro}
 %
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
@@ -1117,6 +1077,7 @@ and the derived files           expkv.pdf
 \def\ekv@name@key#1{#1)}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@undefined@set}
 % We can misuse the macro name we use to expandably store the set-name in a
 % single token -- since this increases performance drastically, especially for
@@ -1129,6 +1090,7 @@ and the derived files           expkv.pdf
 \def\ekv@undefined@set#1{! expkv Error: Set `#1' undefined.}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@checkvalid}
 % We place some restrictions on the allowed names, though, namely sets and
 % keys are not allowed to be empty -- blanks are fine (meaning \mbox{set-
@@ -1154,6 +1116,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
@@ -1218,6 +1181,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@defset}
 %   In order to enhance the speed the set name given to |\ekvset| will be turned
 %   into a control sequence pretty early, so we have to define that control
@@ -1248,6 +1212,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@set}
 % |\ekv@set| will split the \kv\ list at active commas. Then it has to check
 % whether there were unprotected other commas and resplit there.
@@ -1269,6 +1234,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@endset}
 % |\ekv@endset| is a hungry little macro. It will eat everything that remains
 % of |\ekv@set| and unbrace the sneaked stuff.
@@ -1279,96 +1245,150 @@ and the derived files           expkv.pdf
   {##3}
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}[internal]{\ekv@set@other}
-% The macro |\ekv@set@other| is guaranteed to get only single \kv\ pairs.
-% First we test whether we're done, if not split at equal signs. It is faster to
-% first split at category 12 equal signs and only after that on actives.
-% If there is no equal sign, we need to test whether we got a blank argument and
-% if not this is a |NoVal| key.
+%
+% \begin{macro}[internal]{\ekv@eq@other,\ekv@eq@active}
+%   Splitting at equal signs will be done in a way that checks whether there is
+%   an equal sign and splits at the same time. This gets quite messy and the
+%   code might look complicated, but this is pretty fast (faster than first
+%   checking for an equal sign and splitting if one is found). The splitting
+%   code will be adapted for |\ekvset| and |\ekvparse| to get the most speed,
+%   but some of these macros don't require such adaptions. |\ekv@eq@other| and
+%   |\ekv@eq@active| will split the argument at the first equal sign and insert
+%   the macro which comes after the first following |\ekv@mark|. This allows for
+%   fast branching based on \TeX's argument grabbing rules and we don't have to
+%   split after the branching if the equal sign was there.
 %    \begin{macrocode}
-\long\def\ekv@set@other##1##2,%
+\long\def\ekv@eq@other##1=##2\ekv@mark##3##4\ekv@stop
   {%
-    \ekv@gobble@from@mark@to@stop##2\ekv@endset@other\ekv@stop
-    \ekv@set@eq@other##2\ekv@nil\ekv@mark\ekv@set@eq@other@a
-      =\ekv@mark\ekv@set@eq@active\ekv@stop
-    ##1%
-    \ekv@set@other##1\ekv@mark
+    ##3##1\ekv@stop\ekv@mark##2%
   }
-\long\def\ekv@set@eq@other##1=##2\ekv@mark##3##4\ekv@stop
+\long\def\ekv@eq@active##1#2##2\ekv@mark##3##4\ekv@stop
   {%
-    ##3{##1}\ekv@mark##2%
-  }
-\long\def\ekv@set@eq@other@a##1##2\ekv@nil
-  {%
-    \ekv@set@eq@other@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a
-      #2\ekv@mark\ekv@set@eq@other@b\ekv@stop##2\ekv@stop
-  }
-\long\def\ekv@set@eq@other@active##1#2##2\ekv@mark##3##4\ekv@stop
-  {%
-    ##3{##1}\ekv@mark##2%
-  }
-\long\def\ekv@set@eq@other@active@a##1##2\ekv@nil\ekv@mark
-  {%
-    \ekv@set@eq@other@active@b{##1}##2=%
-  }
-\long\def\ekv@set@eq@other@active@b##1##2\ekv@stop
-  {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
-  }
-\long\def\ekv@set@eq@other@b##1%
-  {%
-    \ekv@set@eq@other@c##1%
-  }
-\long\def\ekv@set@eq@other@c
-    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a\ekv@mark##2\ekv@stop
-  {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
-  }
-\long\def\ekv@set@eq@active##1\ekv@mark
-  {%
-    \ekv@set@eq@active@a##1%
-  }
-\long\def\ekv@set@eq@active@a##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
-  {%
-    \ekv@set@eq@active@b##1\ekv@nil\ekv@mark\ekv@set@eq@active@c
-      #2\ekv@mark\ekv@set@noeq\ekv@stop
-  }
-\long\def\ekv@set@eq@active@b##1#2##2\ekv@mark##3##4\ekv@stop
-  {%
-    ##3{##1}\ekv@mark##2%
-  }
-\long\def\ekv@set@eq@active@c##1##2\ekv@nil
-  {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
-  }
-\long\def\ekv@set@noeq##1\ekv@mark
-  {%
-    \ekv@set@noeq@##1%
-  }
-\long\def\ekv@set@noeq@##1\ekv@nil\ekv@mark\ekv@set@eq@active@c##2%
-  {%
-    \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
-      {\ekv@strip{##1}\ekv@set@key##2}%
+    ##3##1\ekv@stop\ekv@mark##2%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}[internal]
-%   {\ekv@ifhas@eq@other,\ekv@ifhas@eq@active,\ekv@endset@other}
-% And we have to set up the testing macros for our equal signs and
-% |\ekv@endset@other|.
+%
+% \begin{macro}[internal]{\ekv@set@other}
+%   The macro |\ekv@set@other| is guaranteed to get only single \kv\ pairs.
 %    \begin{macrocode}
-\long\def\ekv@ifhas@eq@other\ekv@mark##1=##2\ekv@mark##3##4\ekv@stop{##3}
-\long\def\ekv@ifhas@eq@active\ekv@mark##1#2##2\ekv@mark##3##4\ekv@stop{##3}
+\long\def\ekv@set@other##1##2,%
+  {%
+%    \end{macrocode}
+%   First we test whether we're done.
+%    \begin{macrocode}
+    \ekv@gobble@from@mark@to@stop##2\ekv@endset@other\ekv@stop
+%    \end{macrocode}
+%   If not we split at the equal sign of category other.
+%    \begin{macrocode}
+    \ekv@eq@other##2\ekv@nil\ekv@mark\ekv@set@eq@other@a
+      =\ekv@mark\ekv@set@eq@active\ekv@stop
+%    \end{macrocode}
+%   And insert the set name and the next recursion step of |\ekv@set@other|.
+%    \begin{macrocode}
+    ##1%
+    \ekv@set@other##1\ekv@mark
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@set@eq@other@a, \ekv@set@eq@other@b}
+%   The first of these two macros runs the split-test for equal signs of
+%   category active. It will only be inserted if the \kv\ pair contained at
+%   least one equal sign of category other and |##1| will contain everything up
+%   to that equal sign.
+%    \begin{macrocode}
+\long\def\ekv@set@eq@other@a##1\ekv@stop
+  {%
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a
+      #2\ekv@mark\ekv@set@eq@other@b\ekv@stop
+  }
+%    \end{macrocode}
+%   The second macro will have been called by |\ekv@eq@active| if no active
+%   equal sign was found. All it does is remove the excess tokens of that
+%   test and forward the \kv\ pair to |\ekv@set@pair|.
+%    \begin{macrocode}
+\long\def\ekv@set@eq@other@b
+    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a\ekv@stop\ekv@mark
+    ##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@set@eq@other@active@a,\ekv@set@eq@other@active@b}
+%   |\ekv@set@eq@other@active@a| will be called if the \kv\ pair was wrongly
+%   split on an equal sign of category other but has an earlier equal sign of
+%   category active. |##1| will be the contents up to the active equal sign and
+%   |##2| everything that remains until the first found other equal sign. It has
+%   to reinsert the equal sign and passes things on to
+%   |\ekv@set@eq@other@active@b| which calls |\ekv@set@pair| on the then
+%   correctly split \kv\ pair.
+%    \begin{macrocode}
+\long\def\ekv@set@eq@other@active@a##1\ekv@stop##2\ekv@nil\ekv@mark
+  {%
+    \ekv@set@eq@other@active@b{##1}##2=%
+  }
+\long\def\ekv@set@eq@other@active@b##1##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@set@eq@active, \ekv@set@eq@active@}
+%   |\ekv@set@eq@active| will be called when there was no equal sign of category
+%   other in the \kv\ pair. It removes the excess tokens of the prior test and
+%   split-checks for an active equal sign.
+%    \begin{macrocode}
+\long\def\ekv@set@eq@active
+    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@a\ekv@stop\ekv@mark
+  {%
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@active@
+      #2\ekv@mark\ekv@set@noeq\ekv@stop
+  }
+%    \end{macrocode}
+%   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
+%   the now split \kv\ pair on to |\ekv@set@pair|.
+%    \begin{macrocode}
+\long\def\ekv@set@eq@active@##1##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@set@pair{##2}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@set@noeq}
+%   If no active equal sign was found by |\ekv@set@eq@active| there is no equal
+%   sign contained in the parsed list entry. In that case we have to check
+%   whether the entry is blank in order to ignore it (in which case we'll have
+%   to gobble the set-name which was put after these tests by |\ekv@set@other|).
+%   Else this is a |NoVal| key and the entry is passed on to |\ekv@set@key|.
+%    \begin{macrocode}
+\long\def\ekv@set@noeq##1\ekv@nil\ekv@mark\ekv@set@eq@active@\ekv@stop\ekv@mark
+  {%
+    \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F@gobble
+      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+      {\ekv@strip{##1}\ekv@set@key}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@endset@other}
+%   All that's left for |\ekv@set@other| is the macro which breaks the recursion
+%   loop at the end. This is done by gobbling all the remaining tokens.
+%    \begin{macrocode}
 \long\def\ekv@endset@other
     \ekv@stop
-    \ekv@set@eq@other##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
+    \ekv@eq@other##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
     =\ekv@mark\ekv@set@eq@active\ekv@stop
     ##2%
     \ekv@set@other##3\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}{\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak}
 % Provide macros that can completely stop the parsing of |\ekvset|, who knows
 % what it'll be useful for.
@@ -1378,6 +1398,7 @@ and the derived files           expkv.pdf
 \long\def\ekvbreakPostSneak##1##2\ekv@stop#1##3{##3##1}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}{\ekvsneak,\ekvsneakPre}
 % One last thing we want to do for |\ekvset| is to provide macros that just
 % smuggle stuff after |\ekvset|'s effects.
@@ -1406,6 +1427,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@parse}
 %    \begin{macrocode}
 \long\def\ekv@parse##1##2##3#1%
@@ -1416,6 +1438,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@endparse}
 %    \begin{macrocode}
 \long\def\ekv@endparse
@@ -1423,71 +1446,105 @@ and the derived files           expkv.pdf
   {}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@parse@other}
 %    \begin{macrocode}
 \long\def\ekv@parse@other##1##2##3,%
   {%
     \ekv@gobble@from@mark@to@stop##3\ekv@endparse@other\ekv@stop
-    \ekv@ifhas@eq@other##3\ekv@mark{\ekv@parse@eq@other##3\ekv@stop##2}%
-      =\ekv@mark
-      {%
-        \ekv@ifhas@eq@active##3\ekv@mark{\ekv@parse@eq@active##3\ekv@stop##2}%
-          #2\ekv@mark
-          {%
-            \ekv@ifblank@##3\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F
-              \ekv@ifempty@A\ekv@ifempty@B\@firstofone
-              {\ekv@strip{##3}\ekv@parse@key##1}%
-          }%
-          \ekv@stop
-      }%
-      \ekv@stop
+    \ekv@eq@other##3\ekv@nil\ekv@mark\ekv@parse@eq@other@a
+      =\ekv@mark\ekv@parse@eq@active\ekv@stop
+    ##1##2%
     \ekv@parse@other##1##2\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}[internal]{\ekv@parse@eq@other}
+%
+% \begin{macro}[internal]{\ekv@parse@eq@other@a,\ekv@parse@eq@other@b}
 %    \begin{macrocode}
-\long\def\ekv@parse@eq@other##1=%
+\long\def\ekv@parse@eq@other@a##1\ekv@stop
   {%
-    \ekv@ifhas@eq@active##1\ekv@mark{\ekv@parse@eq@active##1=}%
-      #2\ekv@mark{\ekv@strip{##1}\ekv@parse@pair\ekv@mark}\ekv@stop
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active@a
+      #2\ekv@mark\ekv@parse@eq@other@b\ekv@stop
+  }
+\long\def\ekv@parse@eq@other@b
+    ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active@a\ekv@stop\ekv@mark
+    ##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@parse@pair{##2}%
   }
 %    \end{macrocode}
 % \end{macro}
-% \begin{macro}[internal]{\ekv@parse@eq@active}
+%
+% \begin{macro}[internal]
+%   {\ekv@parse@eq@other@active@a,\ekv@parse@eq@other@active@b}
 %    \begin{macrocode}
-\long\def\ekv@parse@eq@active##1#2%
+\long\def\ekv@parse@eq@other@active@a##1\ekv@stop##2\ekv@nil\ekv@mark
   {%
-    \ekv@strip{##1}\ekv@parse@pair\ekv@mark
+    \ekv@parse@eq@other@active@b{##1}##2=%
+  }
+\long\def\ekv@parse@eq@other@active@b##1##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@parse@pair{##2}%
   }
 %    \end{macrocode}
 % \end{macro}
+%
+% \begin{macro}[internal]{\ekv@parse@eq@active,\ekv@parse@eq@active@}
+%    \begin{macrocode}
+\long\def\ekv@parse@eq@active
+    ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@a\ekv@stop\ekv@mark
+  {%
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
+      #2\ekv@mark\ekv@parse@noeq\ekv@stop
+  }
+\long\def\ekv@parse@eq@active@##1##2\ekv@nil
+  {%
+    \ekv@strip{##1}\ekv@parse@pair{##2}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@parse@noeq}
+%    \begin{macrocode}
+\long\def\ekv@parse@noeq
+    ##1\ekv@nil\ekv@mark\ekv@parse@eq@active@\ekv@stop\ekv@mark
+  {%
+    \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F@gobbletwo
+      \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+      {\ekv@strip{##1}\ekv@parse@key}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}[internal]{\ekv@endparse@other}
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
     \ekv@stop
-    \ekv@ifhas@eq@other\ekv@mark##1\ekv@mark##2%
-    =\ekv@mark##3\ekv@stop
-    ##4%
-    \ekv@parse@other##5\ekv@mark
+    \ekv@eq@other##1\ekv@nil\ekv@mark\ekv@parse@eq@other@a
+    =\ekv@mark\ekv@parse@eq@active\ekv@stop
+    ##2%
+    \ekv@parse@other##3\ekv@mark
   {}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\long\def\ekv@parse@pair##1##2\ekv@stop
+\long\def\ekv@parse@pair##1##2%
   {%
     \ekv@strip{##2}\ekv@parse@pair@{##1}%
   }
-\long\def\ekv@parse@pair@##1##2##3%
+\long\def\ekv@parse@pair@##1##2##3##4%
   {%
-    \unexpanded{##3{##2}{##1}}%
+    \unexpanded{##4{##2}{##1}}%
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@parse@key}
 %    \begin{macrocode}
-\long\def\ekv@parse@key##1##2%
+\long\def\ekv@parse@key##1##2##3%
   {%
     \unexpanded{##2{##1}}%
   }
@@ -1518,6 +1575,7 @@ and the derived files           expkv.pdf
   }
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]{\ekv@changeset}
 % This macro does the real change-out of |\ekvchangeset|. We introduced an
 % |\ekv@mark| to not accidentally remove some braces which we have to remove
@@ -1531,66 +1589,72 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 %
-% \begin{macro}[internal]{\ekv@gobble@from@mark@to@stop}
-% The |\ekv@gobble@from@mark@to@stop| can be used to test for |\ekv@stop|
-% similar to our if-empty test, but instead of using tokens which are used
-% nowhere else (|\ekv@ifempty@A| and |\ekv@ifempty@B|) it uses |\ekv@mark| and
-% |\ekv@stop|.
-%    \begin{macrocode}
-\long\def\ekv@gobble@from@mark@to@stop\ekv@mark#1\ekv@stop{}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}[internal]{\ekv@set@pair,\ekv@set@pair@}
-% |\ekv@set@pair| gets invoked with the space and brace stripped key-name as its
-% first argument, the set-macro as the second argument, and following that is
-% the key-value right delimited by an |\ekv@stop|.
+% \begin{macro}[internal]{\ekv@set@pair}
+%   |\ekv@set@pair| gets invoked with the space and brace stripped key-name as
+%   its first argument, the value as the second argument, and the set name as
+%   the third argument. It builds the key-macro name and provides everything to
+%   be able to throw meaningful error messages if it isn't defined.
+%   |\ekv@set@pair@| will space and brace strip the value if the macro is
+%   defined and call the key-macro. Else it'll branch into the error messages
+%   provided by |\ekv@set@pair|.
 %    \begin{macrocode}
 \long\def\ekv@set@pair#1#2#3%
   {%
-    \ekv@ifdefined@pair#3{#1}%
+    \expandafter\ekv@set@pair@
+      \csname
+        \ifcsname #3{#1}\endcsname
+          #3{#1}%
+        \else
+          relax%
+        \fi
+      \endcsname
+      {#2}%
       {%
-%    \end{macrocode}
-% This branch will be executed if the key is not defined as an argument grabbing
-% one. If so test whether there is a |NoVal| key of the same name or whether the
-% key is unknown. Throw a meaningful error message and gobble the value.
-%    \begin{macrocode}
         \ekv@ifdefined{#3{#1}N}%
           \ekv@err@noarg
           \ekv@err@unknown
           #3{#1}%
-        \@gobble
       }%
-      {#2}%
   }
-%    \end{macrocode}
-% |\ekv@ifdefined@pair| will call |\ekv@set@pair@| if the key is correctly
-% defined. This will then grab the value, strip outer spaces and braces from it
-% and feed it to the key-macro. Afterwards |\ekv@set@other| will take control
-% again.
-%    \begin{macrocode}
 \long\def\ekv@set@pair@#1#2%
   {%
-    \ekv@strip{#2}#1%
+    \ifx#1\relax
+      \ekv@fi@secondoftwo
+    \fi
+    \@firstoftwo
+    {\ekv@strip{#2}#1}%
   }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@set@key}
-% Analogous to |\ekv@set@pair|, |\ekv@set@key| lets |\ekv@ifdefined@key| test
-% whether a |NoVal| key is defined, else it'll throw a meaningful error message.
-% Since we don't have to grab any value |\ekv@ifdefined@key| will invoke the
-% key-macro and we're done here, |\ekv@set@other| will take over again.
+% Analogous to |\ekv@set@pair|, |\ekv@set@key| builds the |NoVal| key-macro and
+% provides an error-branch. |\ekv@set@key@| will test whether the key-macro is
+% defined and if so call it, else the errors are thrown.
 %    \begin{macrocode}
 \long\def\ekv@set@key#1#2%
   {%
-    \ekv@ifdefined@key#2{#1}%
+    \expandafter\ekv@set@key@
+      \csname
+        \ifcsname #2{#1}N\endcsname
+          #2{#1}N%
+        \else
+          relax%
+        \fi
+      \endcsname
       {%
         \ekv@ifdefined{#2{#1}}%
           \ekv@err@reqval
           \ekv@err@unknown
           #2{#1}%
       }%
+  }
+\def\ekv@set@key@#1%
+  {%
+    \ifx#1\relax
+      \ekv@fi@secondoftwo
+    \fi
+    \@firstoftwo#1%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1615,6 +1679,7 @@ and the derived files           expkv.pdf
 \def\ekv@err@{\expandafter\ekv@gobbleto@stop}
 %    \end{macrocode}
 % \end{macro}
+%
 % \begin{macro}[internal]
 %   {
 %     \ekv@err@common,\ekv@err@common@,
