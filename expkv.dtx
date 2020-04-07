@@ -479,7 +479,7 @@ and the derived files           expkv.pdf
 % that it does less. The same is true for |\keyval_parse:NNn| compared to
 % |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger).
 %
-% \paragraph{\pkg{keyval}} is about two times faster and has a comparable
+% \paragraph{\pkg{keyval}} is about $1.6$ times faster and has a comparable
 % feature set just a slightly different way how it handles keys without values.
 % That might be considered a drawback, as it limits the versatility, but also as
 % an advantage, as it might reduce doubled code. Keep in mind that as soon as
@@ -499,53 +499,53 @@ and the derived files           expkv.pdf
 % \setkeys{foo}{bar={{baz}}}
 % \end{lstlisting}
 %
-% \paragraph{\pkg{xkeyval}} is roughly fourteen times slower, but it provides
+% \paragraph{\pkg{xkeyval}} is roughly seventeen times slower, but it provides
 % more functionality, e.g., it has choice keys, boolean keys, and so on. It
 % contains the same bug as \pkg{keyval} as it has to be compatible with it by
 % design (it replaces \pkg{keyval}'s frontend), but also adds even more cases in
 % which braces are stripped that shouldn't be stripped, worsening the situation.
 %
-% \paragraph{\pkg{ltxkeys}} is over 300 times slower -- which is funny, because
+% \paragraph{\pkg{ltxkeys}} is over 370 times slower -- which is funny, because
 % it aims to be ``[\ldots] faster [\ldots] than these earlier packages
-% [referring to \pkg{keyval} and \pkg{xkeyval}].'' Since it aims to have a
-% bigger feature set than \pkg{xkeyval}, it most definitely also has a bigger
-% feature set than \expkv. Also, it can't parse |\long| input, so as soon as
-% your values contain a |\par|, it'll throw errors. Furthermore, \pkg{ltxkeys}
-% doesn't strip outer braces at all by design, which, imho, is a weird design
-% choice. In addition \pkg{ltxkeys} loads \pkg{catoptions} which is known to
-% introduce bugs (e.g., see
+% [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time to parse
+% zero keys than four of the packages in this comparison need to parse 100 keys.
+% Since it aims to have a bigger feature set than \pkg{xkeyval}, it most
+% definitely also has a bigger feature set than \expkv. Also, it can't parse
+% |\long| input, so as soon as your values contain a |\par|, it'll throw errors.
+% Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by design, which,
+% imho, is a weird design choice. In addition \pkg{ltxkeys} loads
+% \pkg{catoptions} which is known to introduce bugs (e.g., see
 % \url{https://tex.stackexchange.com/questions/461783}).
 %
-% \paragraph{\pkg{l3keys}} is almost five times slower, but has an, imho, great
+% \paragraph{\pkg{l3keys}} is around six times slower, but has an, imho, great
 % interface to define keys. It strips \emph{all} outer spaces, even if somehow
 % multiple spaces ended up on either end. It offers more features, but is pretty
-% much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
+% much bound to \pkg{expl3} code. Whether that's a drawback is up to you. Note
+% that this comparison uses the version contained in \TeX Live 2019 (frozen)
+% which is a bit slower than versions starting with \TeX Live 2020.
 %
-% \paragraph{\pkg{pgfkeys}} is a bit more than two times slower for one key,
-% but has an \emph{enormous} feature set. However, since adding additional keys
-% doesn't add as much needed time for \pkg{pgfkeys} compared to \expkv, it gets
-% faster than \expkv\ at around eight \kv\ pairs.
+% \paragraph{\pkg{pgfkeys}} is around $2.7$ times slower for one key,
+% but has an \emph{enormous} feature set.
 % It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
 % also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
 % was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
 % don't know whether this might introduce new bugs.
 %
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about three times
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about $3.7$ times
 % slower, but it works even if commas and equals have category codes different
 % from 12 (just as some other packages in this list). Else the features of the
 % keys are equal to those of \pkg{keyval}, the parser has more features, though.
 %
-% \paragraph{\pkg{options}} is a bit slower for only a single value, but gets a
-% tad faster than \expkv\ at around 10 \kv\ pairs. It has a much bigger feature
-% set. Unfortunately it also suffers from the premature unbracing bug
-% \pkg{keyval} has.
+% \paragraph{\pkg{options}} is a $1.5$ times slower for only a single value. It
+% has a much bigger feature set. Unfortunately it also suffers from the
+% premature unbracing bug \pkg{keyval} has.
 %
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
 % I don't understand the documentation) and from what I can see, there is no
 % direct way to define the equivalent test key. Nevertheless, I tested the
 % closest possible equivalent of my test key while siding for \pkg{simplekv}'s
 % design not forcing something into it it doesn't seem to be designed for. It is
-% more than five times slower and has hard to predict behaviour regarding brace
+% almost seven times slower and has hard to predict behaviour regarding brace
 % and space stripping, similar to \pkg{keyval}. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{simplekv}
@@ -553,7 +553,7 @@ and the derived files           expkv.pdf
 % \setKV[simplekv]{ height = 6 }                             % benchmarked
 % \end{lstlisting}
 %
-% \paragraph{\pkg{yax}} is over eighteen times slower. It has a pretty strange
+% \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
 % syntax, imho, and again a direct equivalent is hard to define. It has the
 % premature unbracing bug, too. Also somehow loading \pkg{yax} broke
 % \pkg{options} for me. The tested definition was:
@@ -591,16 +591,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.539 &    1.844 &    6.969 & \yes & \yes & 2014-10-28 \\
-%     \expkv    &   26.411 &    2.391 &   12.610 & \no  & \no  & 2020-02-22 \\
-%     options   &   25.532 &   10.518 &   21.393 & \yes & \yes & 2015-03-01 \\
-%     pgfkeys   &   26.444 &   40.939 &   55.790 & \yes & \yes & 2020-01-08 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   41.620 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &  114.456 &   35.357 &   52.667 & \no  & \no  & 2020-02-14 \\
-%     simplekv  &  160.523 &   10.809 &    8.698 & \yes & \yes & 2017-08-08 \\
-%     xkeyval   &  260.872 &  180.435 &  164.167 & \yes & \yes & 2014-12-03 \\
-%     yax       &  507.643 &   62.863 &  123.533 & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3932.759 & 4737.818 & 5883.000 & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.423 &    2.594 &    6.928 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   19.718 &    7.256 &    9.611 & \no  & \no  & 2020-04-07 \\
+%     options   &   23.436 &   15.618 &   19.920 & \yes & \yes & 2015-03-01 \\
+%     pgfkeys   &   24.577 &   46.244 &   52.770 & \yes & \yes & 2020-01-08 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   39.760 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &  108.001 &   56.299 &   50.710 & \no  & \no  & 2020-02-25 \\
+%     simplekv  &  149.181 &   25.712 &    8.070 & \yes & \yes & 2017-08-08 \\
+%     xkeyval   &  248.777 &  234.420 &  161.900 & \yes & \yes & 2014-12-03 \\
+%     yax       &  443.584 &  170.471 &  115.700 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3516.032 & 5254.811 & 5487.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -609,13 +609,13 @@ and the derived files           expkv.pdf
 %   \fnsym For \pkg{kvsetkeys} the linear model used for the other
 %   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
 %   quadratic run-time, the coefficients of the second degree polynomial fit are
-%   $p_2=\num{9.911}$, $p_1=\num{40.523}$, and $p_0=\num{61.500}$. Of course the
+%   $p_2=\num{7.473}$, $p_1=\num{51.276}$, and $p_0=\num{49.568}$. Of course the
 %   other packages might not really have linear run-time, but at least from 1~to
 %   20~keys the fits don't seem too bad (the maximum ratio $p_2/p_1$
-%   for the other packages is \num{9.697e-3}). If one extrapolates the fits
+%   for the other packages is \num{3.478e-3}). If one extrapolates the fits
 %   for 100 \kv\ pairs one finds that most of them match pretty well, the
 %   exception being \pkg{ltxkeys}, which behaves quadratic as well with
-%   $p_2=\num{31.685}$, $p_1=\num{3267.368}$, and $p_0=\num{7177.582}$.
+%   $p_2=\num{11.396}$, $p_1=\num{3276.713}$, and $p_0=\num{6132.315}$.
 % \end{table}
 %
 % \subsection{Examples}
@@ -962,8 +962,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{0.5b}
-\def\ekvDate{2020-04-04}
+\def\ekvVersion{1.0}
+\def\ekvDate{2020-04-07}
 %    \end{macrocode}
 % \end{macro}
 %

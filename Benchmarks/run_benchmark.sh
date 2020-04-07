@@ -21,7 +21,7 @@ local num_max=20
 # target time of a single \benchmark:n
 local target="1"
 # number of \benchmark:n calls per package
-local repetitions=30
+local repetitions=10
 # target time for the \benchmark:n call that only serves to get the CPU hot
 local preheat="0"
 
