@@ -1310,9 +1310,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@set@eq@other@b
     ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a\ekv@stop\ekv@mark
-    ##2\ekv@nil
   {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
+    \ekv@strip{##1}\ekv@set@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1330,9 +1329,9 @@ and the derived files           expkv.pdf
   {%
     \ekv@set@eq@other@active@b{##1}##2=%
   }
-\long\def\ekv@set@eq@other@active@b##1##2\ekv@nil
+\long\def\ekv@set@eq@other@active@b##1%
   {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
+    \ekv@strip{##1}\ekv@set@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1352,9 +1351,9 @@ and the derived files           expkv.pdf
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@active@##1##2\ekv@nil
+\long\def\ekv@set@eq@active@##1%
   {%
-    \ekv@strip{##1}\ekv@set@pair{##2}%
+    \ekv@strip{##1}\ekv@set@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1469,9 +1468,8 @@ and the derived files           expkv.pdf
   }
 \long\def\ekv@parse@eq@other@b
     ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active@a\ekv@stop\ekv@mark
-    ##2\ekv@nil
   {%
-    \ekv@strip{##1}\ekv@parse@pair{##2}%
+    \ekv@strip{##1}\ekv@parse@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1483,9 +1481,9 @@ and the derived files           expkv.pdf
   {%
     \ekv@parse@eq@other@active@b{##1}##2=%
   }
-\long\def\ekv@parse@eq@other@active@b##1##2\ekv@nil
+\long\def\ekv@parse@eq@other@active@b##1%
   {%
-    \ekv@strip{##1}\ekv@parse@pair{##2}%
+    \ekv@strip{##1}\ekv@parse@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1498,9 +1496,9 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
       #2\ekv@mark\ekv@parse@noeq\ekv@stop
   }
-\long\def\ekv@parse@eq@active@##1##2\ekv@nil
+\long\def\ekv@parse@eq@active@##1%
   {%
-    \ekv@strip{##1}\ekv@parse@pair{##2}%
+    \ekv@strip{##1}\ekv@parse@pair
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1531,7 +1529,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\long\def\ekv@parse@pair##1##2%
+\long\def\ekv@parse@pair##1##2\ekv@nil
   {%
     \ekv@strip{##2}\ekv@parse@pair@{##1}%
   }
@@ -1598,7 +1596,7 @@ and the derived files           expkv.pdf
 %   defined and call the key-macro. Else it'll branch into the error messages
 %   provided by |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@pair#1#2#3%
+\long\def\ekv@set@pair#1#2\ekv@nil#3%
   {%
     \expandafter\ekv@set@pair@
       \csname
