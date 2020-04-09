@@ -1351,7 +1351,7 @@ and the derived files           expkv.pdf
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@active@##1%
+\long\def\ekv@set@eq@active@##1\ekv@stop
   {%
     \ekv@strip{##1}\ekv@set@pair
   }
@@ -1496,7 +1496,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
       #2\ekv@mark\ekv@parse@noeq\ekv@stop
   }
-\long\def\ekv@parse@eq@active@##1%
+\long\def\ekv@parse@eq@active@##1\ekv@stop
   {%
     \ekv@strip{##1}\ekv@parse@pair
   }

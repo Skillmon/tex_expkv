@@ -59,5 +59,30 @@
     \NEWLINE
     \ekvparse\onlykey\keyandvalue{,key,key=hihi, key2 ,key2 = haha}%
   }
-
+\begingroup
+\lccode`\~=`\=
+\lowercase{\endgroup
+\def~{<=>}
+\ekvdef{single k=v}{a}{a-key arg: #1\NEWLINE}
+\ekvdefNoVal{single k=v}{a}{a-key got no arg\NEWLINE}
+\TESTEXP{single k=v}
+  {%
+    \ekvset{single k=v}{}\NEWLINE
+    \ekvset{single k=v}{a}\NEWLINE
+    \ekvset{single k=v}{a=b}\NEWLINE
+    \ekvset{single k=v}{a~b}\NEWLINE
+    \ekvset{single k=v}{a=b=c}\NEWLINE
+    \ekvset{single k=v}{a=b~c}\NEWLINE
+    \ekvset{single k=v}{a~b=c}\NEWLINE
+    \ekvset{single k=v}{a~b~c}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a=b}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a~b}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a=b=c}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a=b~c}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a~b=c}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{a~b~c}\NEWLINE
+  }
+}
 \END
