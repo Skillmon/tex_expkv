@@ -308,6 +308,28 @@ and the derived files           expkv.pdf
 %   whether that second key exists.
 % \end{function}
 %
+% \begin{function}{\ekvdefunknown}
+%   \begin{syntax}
+%     \cs{ekvdefunknown}\marg{set}\marg{code}
+%   \end{syntax}
+%   By default an error will be thrown if an unknown \key\ is encountered. With
+%   this macro you can define \meta{code} that will be executed for a given
+%   \set\ when an unknown \key\ with a \val\ was encountered instead of throwing
+%   an error. You can refer to the given \val\ with |#1| and to the unknown
+%   \key's name with |#2| in \meta{code}.\footnotemark
+% \end{function}
+% \footnotetext{That order is correct, this way the code is faster.}
+%
+% \begin{function}{\ekvdefunknownNoVal}
+%   \begin{syntax}
+%     \cs{ekvdefunknownNoVal}\marg{set}\marg{code}
+%   \end{syntax}
+%   As already explained for \cs[no-index]{ekvdefunknown}, \expkv\ would throw
+%   an error when encountering an unknown \key. With this you can instead let it
+%   execute \meta{code} if an unknown |NoVal| \key\ was encountered. You can
+%   refer to the given \key\ with |#1| in \meta{code}.
+% \end{function}
+%
 % \subsection{Parsing Keys}
 %
 % \begin{function}{\ekvset}
@@ -1152,7 +1174,10 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}
-%   {\ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal}
+%   {
+%     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
+%     \ekvdefunknown,\ekvdefunknownNoVal
+%   }
 % Set up the key defining macros |\ekvdef| etc.
 %    \begin{macrocode}
 \protected\long\def\ekvdef#1#2#3%
@@ -1202,6 +1227,22 @@ and the derived files           expkv.pdf
       {%
         \expandafter\let\csname\ekv@name{#1}{#2}N\expandafter\endcsname
         \csname\ekv@name{#3}{#4}N\endcsname
+        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
+      }%
+  }
+\protected\def\ekvdefunknown#1#2%
+  {%
+    \ekv@checkvalid{#1}{.}%
+      {%
+        \expandafter\def\csname\ekv@name{#1}{}u\endcsname##1##2{#2}%
+        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
+      }%
+  }
+\protected\def\ekvdefunknownNoVal#1#2%
+  {%
+    \ekv@checkvalid{#1}{.}%
+      {%
+        \expandafter\def\csname\ekv@name{#1}{}uN\endcsname##1{#2}%
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
@@ -1621,8 +1662,9 @@ and the derived files           expkv.pdf
 %   the third argument. It builds the key-macro name and provides everything to
 %   be able to throw meaningful error messages if it isn't defined.
 %   |\ekv@set@pair@| will space and brace strip the value if the macro is
-%   defined and call the key-macro. Else it'll branch into the error messages
-%   provided by |\ekv@set@pair|.
+%   defined and call the key-macro. Else it'll branch into the check whether an
+%   unknown key handler is defined for this set and that one will branch into
+%   the error messages provided by |\ekv@set@pair| if it isn't.
 %    \begin{macrocode}
 \long\def\ekv@set@pair#1#2\ekv@nil#3%
   {%
@@ -1636,10 +1678,22 @@ and the derived files           expkv.pdf
       \endcsname
       {#2}%
       {%
-        \ekv@ifdefined{#3{#1}N}%
-          \ekv@err@noarg
-          \ekv@err@unknown
-          #3{#1}%
+        \expandafter\ekv@set@pair@
+          \csname
+            \ifcsname #3{}u\endcsname
+              #3{}u%
+            \else
+              relax%
+            \fi
+          \endcsname
+          {#2}%
+          {%
+            \ekv@ifdefined{#3{#1}N}%
+              \ekv@err@noarg
+              \ekv@err@unknown
+              #3%
+          }%
+          {#1}%
       }%
   }
 \long\def\ekv@set@pair@#1#2%
@@ -1669,10 +1723,21 @@ and the derived files           expkv.pdf
         \fi
       \endcsname
       {%
-        \ekv@ifdefined{#2{#1}}%
-          \ekv@err@reqval
-          \ekv@err@unknown
-          #2{#1}%
+        \expandafter\ekv@set@key@
+          \csname
+            \ifcsname #2{}uN\endcsname
+              #2{}uN%
+            \else
+              relax%
+            \fi
+          \endcsname
+          {%
+            \ekv@ifdefined{#2{#1}}%
+              \ekv@err@reqval
+              \ekv@err@unknown
+              #2%
+          }%
+          {#1}%
       }%
   }
 \def\ekv@set@key@#1%

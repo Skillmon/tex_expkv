@@ -1,0 +1,9 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: unknown kv
+============================================================
+Undefined key was `key', no value was given
+Undefined key was `key', its value was `A'
+Undefined key was `key', its value was `{A}'
+============================================================

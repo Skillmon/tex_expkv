@@ -85,4 +85,13 @@
     \ekvparse\onlykey\keyandvalue{a~b~c}\NEWLINE
   }
 }
+
+\TEST{setdef}
+  {%
+    \ekvdef{setdef}{key}{\TRUE}
+    \ekvdefNoVal{setdef}{KEY}{\TRUE}
+    \ekvsetdef\setdef{setdef}
+    \setdef{key=a, KEY}
+  }
+
 \END

@@ -1,0 +1,12 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+\ekvdefunknown{test}{Undefined key was `#2', its value was `#1'\NEWLINE}
+\ekvdefunknownNoVal{test}{Undefined key was `#1', no value was given\NEWLINE}
+\TESTEXP{unknown kv}
+  {%
+    \ekvset{test}{key, key=A, key={{A}}}%
+  }
+\END
