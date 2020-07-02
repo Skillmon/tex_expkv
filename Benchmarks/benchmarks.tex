@@ -121,8 +121,8 @@
 \benchmark{options}{\options{/666,#1}}
 
 \usepackage{simplekv}
-\setKVdefault[777]{height={ abc}}
-\testbug{simplekv}{\edef\myheight{\unexpanded\expandafter\expandafter\expandafter{\useKV[777]{height}}}}
+\defKV[777]{height={\def\myheight{#1}}}
+\testbug{simplekv}{\setKV[777]{height={ abc}}}
 \testcat{\setKV[777]}{}
 \benchmark{simplekv}{\setKV[777]{#1}}
 
