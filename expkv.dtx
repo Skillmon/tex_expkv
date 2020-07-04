@@ -1037,18 +1037,22 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbleto@stop,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
+%     \ekv@gobbleto@stop,\ekv@fi@gobble,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
 %     \ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
 % some other utility functions that just grab some tokens. The ones that are
-% also contained in \LaTeX\ don't use the |ekv| prefix.
+% also contained in \LaTeX\ don't use the |ekv| prefix. Not all of the ones
+% defined here are really needed by \expkv\ but are provided because packages
+% like \expkvd\ or \expkvo\ need them (and I don't want to define them in each
+% package which might need them).
 %    \begin{macrocode}
 \long\def\@gobble#1{}
 \long\def\@firstofone#1{#1}
 \long\def\@firstoftwo#1#2{#1}
 \long\def\@secondoftwo#1#2{#2}
+\long\def\ekv@fi@gobble\fi\@firstofone#1{\fi}
 \long\def\ekv@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 \long\def\ekv@gobbleto@stop#1\ekv@stop{}
