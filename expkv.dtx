@@ -429,6 +429,14 @@ and the derived files           expkv.pdf
 %   |\relax|.
 % \end{function}
 %
+% \begin{function}{\ekvifdefinedset}
+%   \begin{syntax}
+%     \cs{ekvifdefinedset}\marg{set}\marg{true}\marg{false}
+%   \end{syntax}
+%   This macro tests whether \set\ is defined (which it is if at least one key
+%   was defined for it). If it is \meta{true} will be run, else \meta{false}.
+% \end{function}
+%
 % \begin{function}{\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak}
 %   \begin{syntax}
 %     \cs{ekvbreak}\marg{after}
@@ -1029,8 +1037,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbleto@stop,\ekv@fi@secondoftwo,\ekv@gobble@mark,
-%     \ekv@gobble@from@mark@to@stop
+%     \ekv@gobbleto@stop,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
+%     \ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -1041,6 +1049,7 @@ and the derived files           expkv.pdf
 \long\def\@firstofone#1{#1}
 \long\def\@firstoftwo#1#2{#1}
 \long\def\@secondoftwo#1#2{#2}
+\long\def\ekv@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 \long\def\ekv@gobbleto@stop#1\ekv@stop{}
 \def\ekv@gobble@mark\ekv@mark{}
@@ -1259,6 +1268,15 @@ and the derived files           expkv.pdf
     \ifx#1\relax
       \edef#1##1{\ekv@name@set{#2}\ekv@name@key{\noexpand\detokenize{##1}}}%
     \fi
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ekvifdefinedset}
+%    \begin{macrocode}
+\def\ekvifdefinedset#1%
+  {%
+    \ekv@ifdefined{\ekv@undefined@set{#1}}%
   }
 %    \end{macrocode}
 % \end{macro}
