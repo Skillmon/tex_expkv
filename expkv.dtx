@@ -492,9 +492,13 @@ and the derived files           expkv.pdf
 %     }.
 %   For |NoVal| keys an additional |N| gets appended irrespective of these
 %   macros' definition, so their name is
-%   \cs[no-index]{\csname ekv@name\endcsname{\set}{\key}N}. You might redefine
-%   |\ekv@name@set| and |\ekv@name@key| locally but \emph{don't redefine}
-%   |\ekv@name|!
+%   {^^A
+%     \makeatletter
+%     \let\detokenize\@firstofone
+%     \cs[no-index]{\ekv@name{\set}{\key}N}^^A
+%   }.
+%   You might redefine |\ekv@name@set| and |\ekv@name@key| locally but
+%   \emph{don't redefine} |\ekv@name|!
 % \end{function}
 %
 % \subsubsection{Bugs}
