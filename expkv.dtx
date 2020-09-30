@@ -1132,6 +1132,53 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}[internal]{\ekv@strip,\ekv@strip@a,\ekv@strip@b,\ekv@strip@c}
+% We borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
+% from keys and values. This |\ekv@strip| also strips one level of outer braces
+% \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
+% stripping. It should be used with |#1| prefixed by |\ekv@mark|. Also this
+% implementation at most strips \emph{one} space from both sides.
+%    \begin{macrocode}
+\def\ekv@strip#1%
+  {%
+    \long\def\ekv@strip##1%
+      {%
+        \ekv@strip@a
+          ##1%
+          \ekv@nil
+          \ekv@mark#1%
+          #1\ekv@nil{}%
+        \ekv@stop
+      }%
+    \long\def\ekv@strip@a##1\ekv@mark#1##2\ekv@nil##3%
+      {%
+        \ekv@strip@b##3##1##2\ekv@nil
+      }%
+    \long\def\ekv@strip@b##1#1\ekv@nil
+      {%
+        \ekv@strip@c##1\ekv@nil
+      }%
+    \long\def\ekv@strip@c\ekv@mark##1\ekv@nil##2\ekv@stop##3%
+      {%
+        ##3{##1}%
+      }%
+  }
+\ekv@strip{ }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@exp@unbraced@no,\ekv@exp@unbraced@no@}
+% To reduce some code doublets while gaining some speed, it is often useful to
+% expand the first token in a definition once. Let's define a wrapper for this.
+%    \begin{macrocode}
+\long\def\ekv@exp@unbraced@no#1#2%
+  {%
+    \expandafter\ekv@exp@unbraced@no@\expandafter{#2}{#1}%
+  }
+\long\def\ekv@exp@unbraced@no@#1#2{#2{#1}}%
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
 %    \begin{macrocode}
@@ -1162,7 +1209,7 @@ and the derived files           expkv.pdf
 % package if an |\outer| has been gobbled this way. I consider that good,
 % because keys shouldn't be defined |\outer| anyways.
 %    \begin{macrocode}
-\protected\def\ekv@checkvalid#1#2%
+\ekv@exp@unbraced@no{\protected\def\ekv@checkvalid#1#2}%
   {%
     \ekv@ifempty{#1}%
       {%
@@ -1185,8 +1232,9 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
-\def\ekvifdefined#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}}}
-\def\ekvifdefinedNoVal#1#2{\ekv@ifdefined{\ekv@name{#1}{#2}N}}
+\ekv@exp@unbraced@no{\def\ekvifdefined#1#2}{\ekv@ifdefined{\ekv@name{#1}{#2}}}
+\ekv@exp@unbraced@no{\def\ekvifdefinedNoVal#1#2}%
+  {\ekv@ifdefined{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1197,7 +1245,7 @@ and the derived files           expkv.pdf
 %   }
 % Set up the key defining macros |\ekvdef| etc.
 %    \begin{macrocode}
-\protected\long\def\ekvdef#1#2#3%
+\ekv@exp@unbraced@no{\protected\long\def\ekvdef#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1205,7 +1253,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\long\def\ekvdefNoVal#1#2#3%
+\ekv@exp@unbraced@no{\protected\long\def\ekvdefNoVal#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1213,7 +1261,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvlet#1#2#3%
+\ekv@exp@unbraced@no{\protected\def\ekvlet#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1221,7 +1269,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvletNoVal#1#2#3%
+\ekv@exp@unbraced@no{\protected\def\ekvletNoVal#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1229,7 +1277,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvletkv#1#2#3#4%
+\ekv@exp@unbraced@no{\protected\def\ekvletkv#1#2#3#4}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1238,7 +1286,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvletkvNoVal#1#2#3#4%
+\ekv@exp@unbraced@no{\protected\def\ekvletkvNoVal#1#2#3#4}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1247,7 +1295,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvdefunknown#1#2%
+\ekv@exp@unbraced@no{\protected\def\ekvdefunknown#1#2}%
   {%
     \ekv@checkvalid{#1}{.}%
       {%
@@ -1255,7 +1303,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\protected\def\ekvdefunknownNoVal#1#2%
+\ekv@exp@unbraced@no{\protected\def\ekvdefunknownNoVal#1#2}%
   {%
     \ekv@checkvalid{#1}{.}%
       {%
@@ -1282,7 +1330,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}{\ekvifdefinedset}
 %    \begin{macrocode}
-\def\ekvifdefinedset#1%
+\ekv@exp@unbraced@no{\def\ekvifdefinedset#1}%
   {%
     \ekv@ifdefined{\ekv@undefined@set{#1}}%
   }
@@ -1403,8 +1451,11 @@ and the derived files           expkv.pdf
 %   equal sign was found. All it does is remove the excess tokens of that
 %   test and forward the \kv\ pair to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@other@b
-    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
+\ekv@exp@unbraced@no
+  {%
+    \long\def\ekv@set@eq@other@b
+        ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
+  }%
   {%
     \ekv@strip{##1}\ekv@set@pair
   }
@@ -1418,7 +1469,8 @@ and the derived files           expkv.pdf
 %   |##2| everything that remains until the first found other equal sign. It has
 %   to reinsert the equal sign and forward things to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark
+\ekv@exp@unbraced@no
+  {\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
   {%
     \ekv@strip{##1}\ekv@set@pair##2=%
   }
@@ -1440,7 +1492,7 @@ and the derived files           expkv.pdf
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@active@##1\ekv@stop
+\ekv@exp@unbraced@no{\long\def\ekv@set@eq@active@##1\ekv@stop}%
   {%
     \ekv@strip{##1}\ekv@set@pair
   }
@@ -1555,21 +1607,21 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active
       #2\ekv@mark\ekv@parse@eq@other@b\ekv@stop
   }
-\long\def\ekv@parse@eq@other@b
-    ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
+\ekv@exp@unbraced@no
   {%
-    \ekv@strip{##1}\ekv@parse@pair
-  }
+    \long\def\ekv@parse@eq@other@b
+        ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
+  }%
+  {\ekv@strip{##1}\ekv@parse@pair}
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}[internal]
 %   {\ekv@parse@eq@other@active}
 %    \begin{macrocode}
-\long\def\ekv@parse@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark
-  {%
-    \ekv@strip{##1}\ekv@parse@pair##2=%
-  }
+\ekv@exp@unbraced@no
+  {\long\def\ekv@parse@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
+  {\ekv@strip{##1}\ekv@parse@pair##2=}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1581,7 +1633,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
       #2\ekv@mark\ekv@parse@noeq\ekv@stop
   }
-\long\def\ekv@parse@eq@active@##1\ekv@stop
+\ekv@exp@unbraced@no{\long\def\ekv@parse@eq@active@##1\ekv@stop}%
   {%
     \ekv@strip{##1}\ekv@parse@pair
   }
@@ -1614,7 +1666,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\long\def\ekv@parse@pair##1##2\ekv@nil
+\ekv@exp@unbraced@no{\long\def\ekv@parse@pair##1##2\ekv@nil}%
   {%
     \ekv@strip{##2}\ekv@parse@pair@{##1}%
   }
@@ -1824,41 +1876,6 @@ and the derived files           expkv.pdf
 \long\def\ekv@err@unknown#1#2{\ekv@err@common{unknown key}#1{#2}}
 \long\def\ekv@err@noarg  #1#2{\ekv@err@common{value forbidden}#1{#2}}
 \long\def\ekv@err@reqval #1#2{\ekv@err@common{value required}#1{#2}}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}[internal]{\ekv@strip,\ekv@strip@a,\ekv@strip@b,\ekv@strip@c}
-% Finally we borrow some ideas of \pkg{expl3}'s \pkg{l3tl} to strip spaces
-% from keys and values. This |\ekv@strip| also strips one level of outer braces
-% \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
-% stripping. It should be used with |#1| prefixed by |\ekv@mark|. Also this
-% implementation at most strips \emph{one} space from both sides.
-%    \begin{macrocode}
-\def\ekv@strip#1%
-  {%
-    \long\def\ekv@strip##1%
-      {%
-        \ekv@strip@a
-          ##1%
-          \ekv@nil
-          \ekv@mark#1%
-          #1\ekv@nil{}%
-        \ekv@stop
-      }%
-    \long\def\ekv@strip@a##1\ekv@mark#1##2\ekv@nil##3%
-      {%
-        \ekv@strip@b##3##1##2\ekv@nil
-      }%
-    \long\def\ekv@strip@b##1#1\ekv@nil
-      {%
-        \ekv@strip@c##1\ekv@nil
-      }%
-    \long\def\ekv@strip@c\ekv@mark##1\ekv@nil##2\ekv@stop##3%
-      {%
-        ##3{##1}%
-      }%
-  }
-\ekv@strip{ }
 %    \end{macrocode}
 % \end{macro}
 %
