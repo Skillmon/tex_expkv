@@ -1783,17 +1783,17 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \protected\def\ekvsetdef#1#2%
   {%
-    \expandafter\expandafter\expandafter
-    \ekv@setdef\expandafter\expandafter\expandafter{\ekvset{#2}{##1}}#1%
+    \expandafter\ekv@setdef@a\expandafter{\ekvset{#2}{##1}}#1%
   }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]{\ekv@setdef}
+% \begin{macro}[internal]{\ekv@setdef@a,\ekv@setdef@b}
 %   This auxiliary macro defines the shorthand macro after |\ekvset| got
 %   expanded as far as possible.
 %    \begin{macrocode}
-\protected\def\ekv@setdef#1#2%
+\protected\def\ekv@setdef@a{\expandafter\ekv@setdef@b\expandafter}
+\protected\def\ekv@setdef@b#1#2%
   {%
     \long\def#2##1{#1}%
   }
