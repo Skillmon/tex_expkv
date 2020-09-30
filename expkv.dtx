@@ -1038,11 +1038,21 @@ and the derived files           expkv.pdf
 % restore it at the end of the file, we never care for the actual definition of
 % it.
 %
+% \begin{macro}[internal]{\ekv@empty}
+% Sometimes we have to introduce a token to prevent accidental brace stripping.
+% This token would then need to be removed by |\@gobble| or similar. Instead we
+% can use |\ekv@empty| which will just expand to nothing, that is faster than
+% gobbling an argument.
+%    \begin{macrocode}
+\def\ekv@empty{}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
 %     \ekv@gobbleto@stop,\ekv@fi@gobble,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
-%     \ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
+%     \ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -1060,7 +1070,6 @@ and the derived files           expkv.pdf
 \long\def\ekv@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 \long\def\ekv@gobbleto@stop#1\ekv@stop{}
-\def\ekv@gobble@mark\ekv@mark{}
 \long\def\ekv@gobble@from@mark@to@stop\ekv@mark#1\ekv@stop{}
 %    \end{macrocode}
 % \end{macro}
@@ -1706,19 +1715,19 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \def\ekvchangeset#1%
   {%
-    \expandafter\ekv@changeset\csname\ekv@undefined@set{#1}\endcsname\ekv@mark
+    \expandafter\ekv@changeset\csname\ekv@undefined@set{#1}\endcsname\ekv@empty
   }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@changeset}
-% This macro does the real change-out of |\ekvchangeset|. We introduced an
-% |\ekv@mark| to not accidentally remove some braces which we have to remove
-% again.
+% This macro does the real change-out of |\ekvchangeset|. |#2| will have a
+% leading |\ekv@empty| so that braces aren't stripped accidentally, but that
+% will not hurt and just expand to nothing in one step.
 %    \begin{macrocode}
 \long\def\ekv@changeset#1#2\ekv@set@other#3#4\ekv@set#5%
   {%
-    \ekv@gobble@mark#2\ekv@set@other#1#4\ekv@set#1%
+    #2\ekv@set@other#1#4\ekv@set#1%
   }
 %    \end{macrocode}
 % \end{macro}
