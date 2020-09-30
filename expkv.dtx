@@ -1395,7 +1395,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@set@eq@other@a##1\ekv@stop
   {%
-    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active
       #2\ekv@mark\ekv@set@eq@other@b\ekv@stop
   }
 %    \end{macrocode}
@@ -1404,29 +1404,23 @@ and the derived files           expkv.pdf
 %   test and forward the \kv\ pair to |\ekv@set@pair|.
 %    \begin{macrocode}
 \long\def\ekv@set@eq@other@b
-    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active@a\ekv@stop\ekv@mark
+    ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
   {%
     \ekv@strip{##1}\ekv@set@pair
   }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]{\ekv@set@eq@other@active@a,\ekv@set@eq@other@active@b}
-%   |\ekv@set@eq@other@active@a| will be called if the \kv\ pair was wrongly
+% \begin{macro}[internal]{\ekv@set@eq@other@active}
+%   |\ekv@set@eq@other@active| will be called if the \kv\ pair was wrongly
 %   split on an equal sign of category other but has an earlier equal sign of
 %   category active. |##1| will be the contents up to the active equal sign and
 %   |##2| everything that remains until the first found other equal sign. It has
-%   to reinsert the equal sign and passes things on to
-%   |\ekv@set@eq@other@active@b| which calls |\ekv@set@pair| on the then
-%   correctly split \kv\ pair.
+%   to reinsert the equal sign and forward things to |\ekv@set@pair|.
 %    \begin{macrocode}
-\long\def\ekv@set@eq@other@active@a##1\ekv@stop##2\ekv@nil\ekv@mark
+\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark
   {%
-    \ekv@set@eq@other@active@b{##1}##2=%
-  }
-\long\def\ekv@set@eq@other@active@b##1%
-  {%
-    \ekv@strip{##1}\ekv@set@pair
+    \ekv@strip{##1}\ekv@set@pair##2=%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1558,11 +1552,11 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@eq@other@a##1\ekv@stop
   {%
-    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active@a
+    \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active
       #2\ekv@mark\ekv@parse@eq@other@b\ekv@stop
   }
 \long\def\ekv@parse@eq@other@b
-    ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active@a\ekv@stop\ekv@mark
+    ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
   {%
     \ekv@strip{##1}\ekv@parse@pair
   }
@@ -1570,15 +1564,11 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}[internal]
-%   {\ekv@parse@eq@other@active@a,\ekv@parse@eq@other@active@b}
+%   {\ekv@parse@eq@other@active}
 %    \begin{macrocode}
-\long\def\ekv@parse@eq@other@active@a##1\ekv@stop##2\ekv@nil\ekv@mark
+\long\def\ekv@parse@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark
   {%
-    \ekv@parse@eq@other@active@b{##1}##2=%
-  }
-\long\def\ekv@parse@eq@other@active@b##1%
-  {%
-    \ekv@strip{##1}\ekv@parse@pair
+    \ekv@strip{##1}\ekv@parse@pair##2=%
   }
 %    \end{macrocode}
 % \end{macro}
