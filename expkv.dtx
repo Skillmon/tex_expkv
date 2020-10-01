@@ -70,6 +70,7 @@ and the derived files           expkv.pdf
 \RequirePackage{array}
 \RequirePackage{collcell}
 \RequirePackage{siunitx}
+\DeclareSIUnit\ops{ops}
 \RequirePackage{xcolor}
 \RequirePackage{caption}
 \RequirePackage{microtype}
@@ -514,7 +515,8 @@ and the derived files           expkv.pdf
 % \pkg{l3benchmark} package. The key and its usage should be equivalent to
 % \begin{lstlisting}
 % \protected\ekvdef{test}{height}{\def\myheight{#1}}
-% \ekvset{test}{ height = 6 }
+% \ekvsetdef\expkvtest{test}
+% \expkvtest{ height = 6 }
 % \end{lstlisting}
 % and only the usage of the key, not its definition, is benchmarked. For the
 % impatient, the essence of these comparisons regarding speed and buggy
@@ -580,6 +582,10 @@ and the derived files           expkv.pdf
 %
 % \paragraph{\pkg{pgfkeys}} is around $2.7$ times slower for one key,
 % but has an \emph{enormous} feature set.
+% To get the best performance |\pgfqkeys| was used in the benchmark. This
+% reduces the overhead for setting the base directory of the benchmark keys by
+% about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
+% bigger if |\pgfkeys{|\meta{path}|/.cd,|\meta{keys}|}| was used instead).
 % It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
 % also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
 % was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
@@ -644,16 +650,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.694 &    1.504 &    7.008 & \yes & \yes & 2014-10-28 \\
-%     simplekv  &   18.739 &    5.325 &   17.68  & \yes & \yes & 2020-04-27 \\
-%     \expkv    &   22.007 &    3.100 &   10.095 & \no  & \no  & 2020-06-21 \\
-%     options   &   24.351 &   12.010 &   20.38  & \yes & \yes & 2015-03-01 \\
-%     pgfkeys   &   24.621 &   45.474 &   53.25  & \yes & \yes & 2020-06-17 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   40.0   & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   92.103 &   32.724 &   38.05  & \no  & \no  & 2020-06-18 \\
-%     xkeyval   &  257.125 &  173.704 &  164.5   & \yes & \yes & 2014-12-03 \\
-%     yax       &  440.234 &   76.276 &  113.9   & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3448.339 & 4470.031 & 5241.0   & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.604 &    2.663 &    7.041 & \yes & \yes & 2014-10-28 \\
+%     simplekv  &   18.535 &    5.709 &   17.73  & \yes & \yes & 2020-04-27 \\
+%     \expkv    &   21.962 &    2.839 &    7.194 & \no  & \no  & 2020-10-01 \\
+%     pgfkeys   &   24.090 &    2.984 &   10.27  & \yes & \yes & 2020-09-05 \\
+%     options   &   23.629 &   15.044 &   20.51  & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   40.11  & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   71.001 &   34.666 &   31.22  & \no  & \no  & 2020-09-06 \\
+%     xkeyval   &  254.536 &  198.540 &  164.1   & \yes & \yes & 2014-12-03 \\
+%     yax       &  434.408 &  133.355 &  112.7   & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3428.911 & 4887.032 & 5270.0   & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -1883,9 +1889,12 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
 \long\def\ekv@err@common@#1`#2' #3.#4#5{\ekv@err{#4 (`#5', set `#2')}}
-\long\def\ekv@err@unknown#1#2{\ekv@err@common{unknown key}#1{#2}}
-\long\def\ekv@err@noarg  #1#2{\ekv@err@common{value forbidden}#1{#2}}
-\long\def\ekv@err@reqval #1#2{\ekv@err@common{value required}#1{#2}}
+\ekv@exp@unbraced@no{\long\def\ekv@err@unknown#1}%
+  {\ekv@err@common{unknown key}{#1}}
+\ekv@exp@unbraced@no{\long\def\ekv@err@noarg  #1}%
+  {\ekv@err@common{value forbidden}{#1}}
+\ekv@exp@unbraced@no{\long\def\ekv@err@reqval #1}%
+  {\ekv@err@common{value required}{#1}}
 %    \end{macrocode}
 % \end{macro}
 %
