@@ -80,6 +80,15 @@ if __name__ == "__main__":
                 o[1] = o[1][idx]
             print_polycoeffs(o[0], o[1])
     else:
+        x = {o: np.mean(ops[o][num == 1]) for o in ops}
+        x_sorted = {k: v
+                    for k, v in sorted(x.items(), key=lambda item: item[1])}
+        ops = {k: ops[k] for k in x_sorted}
+        T0 = {o: np.mean(ops[o][num == 0]) for o in ops}
+        print('T0:')
+        for k, v in T0.items():
+            print(' ',k, round(v, 3))
+        print()
         if len(argv) == 4:
             idx = np.logical_and(num >= num_min, num <= num_max)
             ops = {k: v[idx] for k, v in ops.items()}
@@ -87,3 +96,15 @@ if __name__ == "__main__":
         for i in ops:
             print(i)
             print_polycoeffs(num, ops[i])
+        p1 = {k: np.polyfit(num, v, 1) for k, v in ops.items()}
+        print('\nLaTeX-table:')
+        for k, v in p1.items():
+            if k == 'expkv':
+                print('\\{: <8} & {: >8.3f} & {: >8.3f} & {: >8.3f}'.format(
+                    k, p1[k][0], p1[k][1], T0[k]))
+            elif k == 'kvsetkeys':
+                print('kvsetkeys & {} & {} & {: >8.3f}'.format(
+                    '{\\fnsym}','{\\fnsym}',T0[k]))
+            else:
+                print('{: <9} & {: >8.3f} & {: >8.3f} & {: >8.3f}'.format(
+                    k, p1[k][0], p1[k][1], T0[k]))
