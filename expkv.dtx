@@ -650,16 +650,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.604 &    2.663 &    7.041 & \yes & \yes & 2014-10-28 \\
-%     simplekv  &   18.535 &    5.709 &   17.73  & \yes & \yes & 2020-04-27 \\
-%     \expkv    &   21.962 &    2.839 &    7.194 & \no  & \no  & 2020-10-01 \\
-%     pgfkeys   &   24.090 &    2.984 &   10.27  & \yes & \yes & 2020-09-05 \\
-%     options   &   23.629 &   15.044 &   20.51  & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   40.11  & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   71.001 &   34.666 &   31.22  & \no  & \no  & 2020-09-06 \\
-%     xkeyval   &  254.536 &  198.540 &  164.1   & \yes & \yes & 2014-12-03 \\
-%     yax       &  434.408 &  133.355 &  112.7   & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3428.911 & 4887.032 & 5270.0   & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.621 &    2.213 &    7.086 & \yes & \yes & 2014-10-28 \\
+%     simplekv  &   18.654 &    5.086 &   17.580 & \yes & \yes & 2020-04-27 \\
+%     \expkv    &   22.326 &    1.195 &    7.228 & \no  & \no  & 2020-10-01 \\
+%     pgfkeys   &   24.464 &    0.478 &   10.450 & \yes & \yes & 2020-09-05 \\
+%     options   &   23.692 &   14.803 &   20.700 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   40.190 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   71.920 &   31.287 &   31.440 & \no  & \no  & 2020-09-06 \\
+%     xkeyval   &  255.610 &  192.803 &  165.600 & \yes & \yes & 2014-12-03 \\
+%     yax       &  433.368 &  102.665 &  115.000 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3403.020 & 4698.095 & 5277.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -1183,15 +1183,15 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]{\ekv@exp@unbraced@no,\ekv@exp@unbraced@no@}
+% \begin{macro}[internal]{\ekv@expB@unbraceA,\ekv@expB@unbraceA@}
 % To reduce some code doublets while gaining some speed, it is often useful to
 % expand the first token in a definition once. Let's define a wrapper for this.
 %    \begin{macrocode}
-\long\def\ekv@exp@unbraced@no#1#2%
+\long\def\ekv@expB@unbraceA#1#2%
   {%
-    \expandafter\ekv@exp@unbraced@no@\expandafter{#2}{#1}%
+    \expandafter\ekv@expB@unbraceA@\expandafter{#2}{#1}%
   }
-\long\def\ekv@exp@unbraced@no@#1#2{#2{#1}}%
+\long\def\ekv@expB@unbraceA@#1#2{#2{#1}}%
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1225,7 +1225,7 @@ and the derived files           expkv.pdf
 % package if an |\outer| has been gobbled this way. I consider that good,
 % because keys shouldn't be defined |\outer| anyways.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\protected\def\ekv@checkvalid#1#2}%
+\ekv@expB@unbraceA{\protected\def\ekv@checkvalid#1#2}%
   {%
     \ekv@ifempty{#1}%
       {%
@@ -1248,8 +1248,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\def\ekvifdefined#1#2}{\ekv@ifdefined{\ekv@name{#1}{#2}}}
-\ekv@exp@unbraced@no{\def\ekvifdefinedNoVal#1#2}%
+\ekv@expB@unbraceA{\def\ekvifdefined#1#2}{\ekv@ifdefined{\ekv@name{#1}{#2}}}
+\ekv@expB@unbraceA{\def\ekvifdefinedNoVal#1#2}%
   {\ekv@ifdefined{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
@@ -1261,7 +1261,7 @@ and the derived files           expkv.pdf
 %   }
 % Set up the key defining macros |\ekvdef| etc.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\protected\long\def\ekvdef#1#2#3}%
+\ekv@expB@unbraceA{\protected\long\def\ekvdef#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1269,7 +1269,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\long\def\ekvdefNoVal#1#2#3}%
+\ekv@expB@unbraceA{\protected\long\def\ekvdefNoVal#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1277,7 +1277,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvlet#1#2#3}%
+\ekv@expB@unbraceA{\protected\def\ekvlet#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1285,7 +1285,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvletNoVal#1#2#3}%
+\ekv@expB@unbraceA{\protected\def\ekvletNoVal#1#2#3}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1293,7 +1293,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvletkv#1#2#3#4}%
+\ekv@expB@unbraceA{\protected\def\ekvletkv#1#2#3#4}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1302,7 +1302,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvletkvNoVal#1#2#3#4}%
+\ekv@expB@unbraceA{\protected\def\ekvletkvNoVal#1#2#3#4}%
   {%
     \ekv@checkvalid{#1}{#2}%
       {%
@@ -1311,7 +1311,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvdefunknown#1#2}%
+\ekv@expB@unbraceA{\protected\def\ekvdefunknown#1#2}%
   {%
     \ekv@checkvalid{#1}{.}%
       {%
@@ -1319,7 +1319,7 @@ and the derived files           expkv.pdf
         \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
   }
-\ekv@exp@unbraced@no{\protected\def\ekvdefunknownNoVal#1#2}%
+\ekv@expB@unbraceA{\protected\def\ekvdefunknownNoVal#1#2}%
   {%
     \ekv@checkvalid{#1}{.}%
       {%
@@ -1346,7 +1346,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}{\ekvifdefinedset}
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\def\ekvifdefinedset#1}%
+\ekv@expB@unbraceA{\def\ekvifdefinedset#1}%
   {%
     \ekv@ifdefined{\ekv@undefined@set{#1}}%
   }
@@ -1467,7 +1467,7 @@ and the derived files           expkv.pdf
 %   equal sign was found. All it does is remove the excess tokens of that
 %   test and forward the \kv\ pair to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no
+\ekv@expB@unbraceA
   {%
     \long\def\ekv@set@eq@other@b
         ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
@@ -1485,7 +1485,7 @@ and the derived files           expkv.pdf
 %   |##2| everything that remains until the first found other equal sign. It has
 %   to reinsert the equal sign and forward things to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no
+\ekv@expB@unbraceA
   {\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
   {%
     \ekv@strip{##1}\ekv@set@pair##2=%
@@ -1508,7 +1508,7 @@ and the derived files           expkv.pdf
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\long\def\ekv@set@eq@active@##1\ekv@stop}%
+\ekv@expB@unbraceA{\long\def\ekv@set@eq@active@##1\ekv@stop}%
   {%
     \ekv@strip{##1}\ekv@set@pair
   }
@@ -1623,7 +1623,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active
       #2\ekv@mark\ekv@parse@eq@other@b\ekv@stop
   }
-\ekv@exp@unbraced@no
+\ekv@expB@unbraceA
   {%
     \long\def\ekv@parse@eq@other@b
         ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
@@ -1635,7 +1635,7 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {\ekv@parse@eq@other@active}
 %    \begin{macrocode}
-\ekv@exp@unbraced@no
+\ekv@expB@unbraceA
   {\long\def\ekv@parse@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
   {\ekv@strip{##1}\ekv@parse@pair##2=}
 %    \end{macrocode}
@@ -1649,7 +1649,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
       #2\ekv@mark\ekv@parse@noeq\ekv@stop
   }
-\ekv@exp@unbraced@no{\long\def\ekv@parse@eq@active@##1\ekv@stop}%
+\ekv@expB@unbraceA{\long\def\ekv@parse@eq@active@##1\ekv@stop}%
   {%
     \ekv@strip{##1}\ekv@parse@pair
   }
@@ -1682,7 +1682,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\ekv@exp@unbraced@no{\long\def\ekv@parse@pair##1##2\ekv@nil}%
+\ekv@expB@unbraceA{\long\def\ekv@parse@pair##1##2\ekv@nil}%
   {%
     \ekv@strip{##2}\ekv@parse@pair@{##1}%
   }
@@ -1836,24 +1836,14 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}{\ekvsetdef}
 %   Provide a macro to define a shorthand to use |\ekvset| on a specified \set.
-%   The first macro expands |\ekvset| twice, such that everything which can be
-%   done up to this point is done.
+%   To gain the maximum speed |\ekvset| is expanded twice by
+%   |\ekv@expB@unbraceA| so that during runtime the macro storing the set name
+%   is already built and one |\expandafter| doesn't have to be used.
 %    \begin{macrocode}
-\protected\def\ekvsetdef#1#2%
+\ekv@expB@unbraceA{\protected\def\ekvsetdef#1#2}%
   {%
-    \expandafter\ekv@setdef@a\expandafter{\ekvset{#2}{##1}}#1%
-  }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}[internal]{\ekv@setdef@a,\ekv@setdef@b}
-%   This auxiliary macro defines the shorthand macro after |\ekvset| got
-%   expanded as far as possible.
-%    \begin{macrocode}
-\protected\def\ekv@setdef@a{\expandafter\ekv@setdef@b\expandafter}
-\protected\def\ekv@setdef@b#1#2%
-  {%
-    \long\def#2##1{#1}%
+    \ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def#1##1}}%
+      {\ekvset{#2}{##1}}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1889,11 +1879,11 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
 \long\def\ekv@err@common@#1`#2' #3.#4#5{\ekv@err{#4 (`#5', set `#2')}}
-\ekv@exp@unbraced@no{\long\def\ekv@err@unknown#1}%
+\ekv@expB@unbraceA{\long\def\ekv@err@unknown#1}%
   {\ekv@err@common{unknown key}{#1}}
-\ekv@exp@unbraced@no{\long\def\ekv@err@noarg  #1}%
+\ekv@expB@unbraceA{\long\def\ekv@err@noarg  #1}%
   {\ekv@err@common{value forbidden}{#1}}
-\ekv@exp@unbraced@no{\long\def\ekv@err@reqval #1}%
+\ekv@expB@unbraceA{\long\def\ekv@err@reqval #1}%
   {\ekv@err@common{value required}{#1}}
 %    \end{macrocode}
 % \end{macro}
