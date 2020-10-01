@@ -1840,7 +1840,8 @@ and the derived files           expkv.pdf
 %   |\ekv@expB@unbraceA| so that during runtime the macro storing the set name
 %   is already built and one |\expandafter| doesn't have to be used.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\protected\def\ekvsetdef#1#2}%
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
+\protected\def\ekvsetdef#1#2}}}}%
   {%
     \ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def#1##1}}%
       {\ekvset{#2}{##1}}%
