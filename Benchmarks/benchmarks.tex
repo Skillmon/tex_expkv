@@ -91,9 +91,10 @@
 
 \usepackage{expkv}
 \ekvdef{222}{height}{\def\myheight{#1}}
-\testbug{expkv}{\ekvset{222}{height={ abc}}}
-\testcat{\ekvset{222}}{}
-\benchmark{expkv}{\ekvset{222}{#1}}
+\ekvsetdef\expkvtest{222}
+\testbug{expkv}{\expkvtest{height={ abc}}}
+\testcat{\expkvtest}{}
+\benchmark{expkv}{\expkvtest{#1}}
 
 % l3keys
 \typeout{} % just to get a line between expkv and this in the log
@@ -103,9 +104,9 @@
 
 \usepackage{pgfkeys}
 \pgfkeys{/444/.cd,height/.code={\def\myheight{#1}}}
-\testbug{pgfkeys}{\pgfkeys{/444/.cd,height={ abc}}}
-\testcat{\pgfkeys}{/444/.cd,}
-\benchmark{pgfkeys}{\pgfkeys{/444/.cd,#1}}
+\testbug{pgfkeys}{\pgfqkeys{/444}{height={ abc}}}
+\testcat{\pgfqkeys{/444}}{}
+\benchmark{pgfkeys}{\pgfqkeys{/444}{#1}}
 
 \usepackage{kvsetkeys}
 \usepackage{kvdefinekeys}
