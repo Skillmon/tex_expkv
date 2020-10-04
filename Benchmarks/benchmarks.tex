@@ -140,6 +140,9 @@
 \benchmark{yax}{\setparameterlist{999}{#1}}
 
 \makeatother
+% ltxkeys isn't compatible with the new format and will throw an error at
+% \begin{document}. Hence we use \stop so that we can still benchmark it.
+\stop
 
 \begin{document}
 \end{document}

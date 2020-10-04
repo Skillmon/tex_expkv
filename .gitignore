@@ -1,6 +1,8 @@
 expkv.pdf
 Benchmarks/*.txt
 Benchmarks/*.txt.*.bak
+Benchmarks/*.aux
+Benchmarks/*.log
 Benchmarks/*.png
 Benchmarks/__pycache__
 build
