@@ -94,4 +94,23 @@
     \setdef{key=a, KEY}
   }
 
+\ekvdef{Sneaked}{a}{a-key arg: #1\NEWLINE}
+\ekvdef{Sneaked}{b}{\ekvsneak{b-key arg: #1\NEWLINE}}
+\ekvdef{Sneaked}{c}{\ekvsneakPre{b-key arg: #1\NEWLINE}}
+\TESTEXP{ekvsetSneaked}
+  {%
+    \ekvsetSneaked{Sneaked}{Everything's fine\NEWLINE}{}%
+    \ekvsetSneaked{Sneaked}{Everything's fine\NEWLINE}{a=b}%
+    \ekvsetSneaked{Sneaked}{Everything's fine\NEWLINE}{b=c}%
+    \ekvsetSneaked{Sneaked}{Everything's fine\NEWLINE}{c=a}%
+  }
+
+\TEST{setdefSneaked and setSneakeddef}
+  {%
+    \ekvsetSneakeddef\setSneakeddef{Sneaked}
+    \ekvsetdefSneaked\setdefSneaked{Sneaked}{Good}
+    \TYPE{\setSneakeddef{Yes}{a=b}}
+    \TYPE{\setdefSneaked{a=b}}
+  }
+
 \END
