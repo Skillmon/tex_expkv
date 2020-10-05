@@ -459,7 +459,8 @@ and the derived files           expkv.pdf
 %   while |\ekvsneakPre| will put \meta{after} before other smuggled stuff.
 %   This reads and reinserts the remainder of the current |\ekvset| macro and
 %   its argument list to do its job. A small usage example is shown in
-%   \autoref{sec:sneakex}.
+%   \autoref{sec:sneakex}. After |\ekvset| has parsed the entire \kv\ list
+%   everything that has been |\ekvsneak|ed will be left in the input stream.
 % \end{function}
 %
 % \begin{function}{\ekvchangeset}
@@ -498,8 +499,6 @@ and the derived files           expkv.pdf
 %     \let\detokenize\@firstofone
 %     \cs[no-index]{\ekv@name{\set}{\key}N}^^A
 %   }.
-%   You might redefine |\ekv@name@set| and |\ekv@name@key| locally but
-%   \emph{don't redefine} |\ekv@name|!
 % \end{function}
 %
 % \subsubsection{Bugs}
@@ -535,7 +534,7 @@ and the derived files           expkv.pdf
 % that it does less. The same is true for |\keyval_parse:NNn| compared to
 % |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger).
 %
-% \paragraph{\pkg{keyval}} is about $1.6$ times faster and has a comparable
+% \paragraph{\pkg{keyval}} is about \SI{40}{\percent} faster and has a comparable
 % feature set just a slightly different way how it handles keys without values.
 % That might be considered a drawback, as it limits the versatility, but also as
 % an advantage, as it might reduce doubled code. Keep in mind that as soon as
@@ -551,37 +550,37 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}[belowskip=0pt]
 % \setkeys{foo}{bar=baz}
 % \setkeys{foo}{bar= {baz}}
-% \setkeys{foo}{bar={ baz}}
-% \setkeys{foo}{bar={{baz}}}
+% \setkeys{foo}{bar={ baz}}  % should be ` baz'
+% \setkeys{foo}{bar={{baz}}} % should be `{baz}'
 % \end{lstlisting}
 %
-% \paragraph{\pkg{xkeyval}} is roughly seventeen times slower, but it provides
+% \paragraph{\pkg{xkeyval}} is roughly nineteen times slower, but it provides
 % more functionality, e.g., it has choice keys, boolean keys, and so on. It
 % contains the same bug as \pkg{keyval} as it has to be compatible with it by
 % design (it replaces \pkg{keyval}'s frontend), but also adds even more cases in
 % which braces are stripped that shouldn't be stripped, worsening the situation.
 %
-% \paragraph{\pkg{ltxkeys}} is over 370 times slower -- which is funny, because
-% it aims to be ``[\ldots] faster [\ldots] than these earlier packages
-% [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time to parse
-% zero keys than four of the packages in this comparison need to parse 100 keys.
-% Since it aims to have a bigger feature set than \pkg{xkeyval}, it most
-% definitely also has a bigger feature set than \expkv. Also, it can't parse
-% |\long| input, so as soon as your values contain a |\par|, it'll throw errors.
-% Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by design, which,
-% imho, is a weird design choice. In addition \pkg{ltxkeys} loads
+% \paragraph{\pkg{ltxkeys}} is no longer compatible with the \LaTeX\ kernel
+% starting with the release 2020-10-01. It is over 380 times slower -- which is
+% funny, because it aims to be ``[\ldots] faster [\ldots] than these earlier
+% packages [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time
+% to parse zero keys than four of the packages in this comparison need to parse
+% 100 keys.  Since it aims to have a bigger feature set than \pkg{xkeyval}, it
+% most definitely also has a bigger feature set than \expkv.  Also, it can't
+% parse |\long| input, so as soon as your values contain a |\par|, it'll throw
+% errors.  Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by
+% design, which, imho, is a weird design choice. In addition \pkg{ltxkeys} loads
 % \pkg{catoptions} which is known to introduce bugs (e.g., see
 % \url{https://tex.stackexchange.com/questions/461783}).
 %
-% \paragraph{\pkg{l3keys}} is around six times slower, but has an, imho, great
+% \paragraph{\pkg{l3keys}} is around four times slower, but has an, imho, great
 % interface to define keys. It strips \emph{all} outer spaces, even if somehow
 % multiple spaces ended up on either end. It offers more features, but is pretty
-% much bound to \pkg{expl3} code. Whether that's a drawback is up to you. Note
-% that this comparison uses the version contained in \TeX Live 2019 (frozen)
-% which is a bit slower than versions starting with \TeX Live 2020.
+% much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
 %
-% \paragraph{\pkg{pgfkeys}} is around $2.7$ times slower for one key,
-% but has an \emph{enormous} feature set.
+% \paragraph{\pkg{pgfkeys}} is around $2.7$ times slower for one key if one uses
+% the |/|\meta{path}|/.cd| syntax and \SI{10}{\percent} slower if one uses
+% |\pgfqkeys|, but has an \emph{enormous} feature set.
 % To get the best performance |\pgfqkeys| was used in the benchmark. This
 % reduces the overhead for setting the base directory of the benchmark keys by
 % about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
@@ -591,12 +590,12 @@ and the derived files           expkv.pdf
 % was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
 % don't know whether this might introduce new bugs.
 %
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about $3.7$ times
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about $4.1$ times
 % slower, but it works even if commas and equals have category codes different
 % from 12 (just as some other packages in this list). Else the features of the
 % keys are equal to those of \pkg{keyval}, the parser has more features, though.
 %
-% \paragraph{\pkg{options}} is $1.5$ times slower for only a single value. It
+% \paragraph{\pkg{options}} is $1.6$ times slower for only a single value. It
 % has a much bigger feature set. Unfortunately it also suffers from the
 % premature unbracing bug \pkg{keyval} has.
 %
@@ -610,7 +609,8 @@ and the derived files           expkv.pdf
 % fails if the \kv\ list already got tokenized. Regarding unknown keys it got a
 % very interesting behaviour. It doesn't throw an error, but stores the \val\ in
 % a new entry accessible with \cs[no-index]{useKV}. Also if you omit \val\ it
-% stores |true| for that \key. It is around $10\,\%$ faster than \expkv.
+% stores |true| for that \key. For zero or one key, \expkv\ is a bit faster, for
+% more keys \pkg{simplekv} takes the lead.
 %
 % \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
 % syntax, imho, and again a direct equivalent is hard to define. It has the
@@ -650,16 +650,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.621 &    2.213 &    7.086 & \yes & \yes & 2014-10-28 \\
-%     simplekv  &   18.654 &    5.086 &   17.580 & \yes & \yes & 2020-04-27 \\
-%     \expkv    &   22.326 &    1.195 &    7.228 & \no  & \no  & 2020-10-01 \\
-%     pgfkeys   &   24.464 &    0.478 &   10.450 & \yes & \yes & 2020-09-05 \\
-%     options   &   23.692 &   14.803 &   20.700 & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   40.190 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   71.920 &   31.287 &   31.440 & \no  & \no  & 2020-09-06 \\
-%     xkeyval   &  255.610 &  192.803 &  165.600 & \yes & \yes & 2014-12-03 \\
-%     yax       &  433.368 &  102.665 &  115.000 & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3403.020 & 4698.095 & 5277.000 & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.711 &    2.773 &    7.096 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   21.048 &    3.565 &    7.154 & \no  & \no  & 2020-10-01 \\
+%     simplekv  &   18.440 &    7.741 &   17.600 & \yes & \yes & 2020-04-27 \\
+%     pgfkeys   &   24.148 &    4.299 &   10.320 & \yes & \yes & 2020-09-05 \\
+%     options   &   23.710 &   17.938 &   20.570 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   39.840 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   71.738 &   36.861 &   31.320 & \no  & \no  & 2020-09-06 \\
+%     xkeyval   &  256.685 &  206.889 &  165.400 & \yes & \yes & 2014-12-03 \\
+%     yax       &  438.494 &  116.310 &  114.000 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3453.283 & 4796.832 & 5363.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -1160,26 +1160,16 @@ and the derived files           expkv.pdf
     \long\def\ekv@strip##1%
       {%
         \ekv@strip@a
-          ##1%
-          \ekv@nil
+          ##1\ekv@nil
           \ekv@mark#1%
-          #1\ekv@nil{}%
+          #1\ekv@nil
         \ekv@stop
       }%
-    \long\def\ekv@strip@a##1\ekv@mark#1##2\ekv@nil##3%
-      {%
-        \ekv@strip@b##3##1##2\ekv@nil
-      }%
-    \long\def\ekv@strip@b##1#1\ekv@nil
-      {%
-        \ekv@strip@c##1\ekv@nil
-      }%
-    \long\def\ekv@strip@c\ekv@mark##1\ekv@nil##2\ekv@stop##3%
-      {%
-        ##3{##1}%
-      }%
+    \long\def\ekv@strip@a##1\ekv@mark#1{\ekv@strip@b##1\ekv@mark}%
+    \long\def\ekv@strip@b##1#1\ekv@nil {\ekv@strip@c##1\ekv@nil}%
   }
 \ekv@strip{ }
+\long\def\ekv@strip@c\ekv@mark#1\ekv@nil\ekv@mark#2\ekv@nil\ekv@stop#3{#3{#1}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1198,9 +1188,14 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
 %    \begin{macrocode}
-\def\ekv@name#1#2{\ekv@name@set{#1}\ekv@name@key{\detokenize{#2}}}
 \def\ekv@name@set#1{ekv#1(}
 \def\ekv@name@key#1{#1)}
+\edef\ekv@name
+  {%
+    \unexpanded\expandafter{\ekv@name@set{#1}}%
+    \unexpanded\expandafter{\ekv@name@key{\detokenize{#2}}}%
+  }
+\ekv@expB@unbraceA{\def\ekv@name#1#2}{\ekv@name}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1225,32 +1220,36 @@ and the derived files           expkv.pdf
 % package if an |\outer| has been gobbled this way. I consider that good,
 % because keys shouldn't be defined |\outer| anyways.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\protected\def\ekv@checkvalid#1#2}%
+\edef\ekv@checkvalid
   {%
-    \ekv@ifempty{#1}%
-      {%
+    \unexpanded\expandafter{\ekv@ifempty{#1}}%
+    \unexpanded
+      {{%
         \def\ekv@tmp{}%
         \errmessage{expkv Error: empty set name not allowed}%
-      }%
+      }}%
       {%
-        \ekv@ifempty{#2}%
-          {%
+        \unexpanded\expandafter{\ekv@ifempty{#2}}%
+        \unexpanded
+          {{%
             \def\ekv@tmp{}%
             \errmessage{expkv Error: empty key name not allowed}%
-          }%
-          \@secondoftwo
+          }}%
+          \noexpand\@secondoftwo
       }%
-    \@gobble
+    \noexpand\@gobble
   }
+\ekv@expB@unbraceA{\protected\def\ekv@checkvalid#1#2}{\ekv@checkvalid}%
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\def\ekvifdefined#1#2}{\ekv@ifdefined{\ekv@name{#1}{#2}}}
-\ekv@expB@unbraceA{\def\ekvifdefinedNoVal#1#2}%
-  {\ekv@ifdefined{\ekv@name{#1}{#2}N}}
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\def\ekvifdefined#1#2}}%
+  {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}}}
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\def\ekvifdefinedNoVal#1#2}}%
+  {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1335,20 +1334,24 @@ and the derived files           expkv.pdf
 %   into a control sequence pretty early, so we have to define that control
 %   sequence.
 %    \begin{macrocode}
-\protected\def\ekv@defsetmacro#1#2%
-  {%
-    \ifx#1\relax
-      \edef#1##1{\ekv@name@set{#2}\ekv@name@key{\noexpand\detokenize{##1}}}%
-    \fi
+\edef\ekv@defsetmacro
+  {
+    \unexpanded{\ifx#1\relax\edef#1##1}%
+      {%
+        \unexpanded\expandafter{\ekv@name@set{#2}}%
+        \unexpanded\expandafter{\ekv@name@key{\noexpand\detokenize{##1}}}%
+      }%
+    \unexpanded{\fi}%
   }
+\ekv@expB@unbraceA{\protected\def\ekv@defsetmacro#1#2}{\ekv@defsetmacro}
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\ekvifdefinedset}
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\def\ekvifdefinedset#1}%
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\def\ekvifdefinedset#1}}%
   {%
-    \ekv@ifdefined{\ekv@undefined@set{#1}}%
+    \expandafter\ekv@ifdefined\expandafter{\ekv@undefined@set{#1}}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1362,11 +1365,13 @@ and the derived files           expkv.pdf
 % |#1| will be a \texttt{,\textsubscript{13}} and |#2| will be a
 % \texttt{=\textsubscript{13}}.
 %    \begin{macrocode}
+\begingroup
 \def\ekvset#1#2{%
 \endgroup
-\long\def\ekvset##1##2%
+\ekv@expB@unbraceA{\long\def\ekvset##1##2}%
   {%
-    \expandafter\ekv@set\csname\ekv@undefined@set{##1}\endcsname
+    \expandafter\expandafter\expandafter
+    \ekv@set\expandafter\csname\ekv@undefined@set{##1}\endcsname
       \ekv@mark##2#1\ekv@stop#1{}%
   }
 %    \end{macrocode}
@@ -1705,7 +1710,6 @@ and the derived files           expkv.pdf
 % Finally really setting things up with |\ekvset|'s temporary meaning:
 %    \begin{macrocode}
 }
-\begingroup
 \catcode`\,=13
 \catcode`\==13
 \ekvset,=
@@ -1720,9 +1724,10 @@ and the derived files           expkv.pdf
 % switch out the set expandably, so this works similar to the |\ekvsneak| macros
 % reading and reinserting the remainder of the \kv\ list.
 %    \begin{macrocode}
-\def\ekvchangeset#1%
+\ekv@expB@unbraceA{\def\ekvchangeset#1}%
   {%
-    \expandafter\ekv@changeset\csname\ekv@undefined@set{#1}\endcsname\ekv@empty
+    \expandafter\expandafter\expandafter
+    \ekv@changeset\expandafter\csname\ekv@undefined@set{#1}\endcsname\ekv@empty
   }
 %    \end{macrocode}
 % \end{macro}
