@@ -383,8 +383,8 @@ and the derived files           expkv.pdf
 %   resulting macro is a bit faster than the idiomatic definition:\par
 %   \texttt
 %     {%
-%       \string\long\string\def\meta{cs}\#1\#2\{%
-%       \string\ekvsetSneaked\marg{set}\{\#1\}\{\#2\}\}%
+%       \string\long\string\def\meta{cs}\#1\#2\{^^A
+%       \string\ekvsetSneaked\marg{set}\{\#1\}\{\#2\}\}^^A
 %     }
 % \end{function}
 %
@@ -397,8 +397,8 @@ and the derived files           expkv.pdf
 %   idiomatic definition:\par
 %   \texttt
 %     {%
-%       \string\long\string\def\meta{cs}\#1\{%
-%       \string\ekvsetSneaked\marg{set}\marg{sneaked}\{\#1\}\}%
+%       \string\long\string\def\meta{cs}\#1\{^^A
+%       \string\ekvsetSneaked\marg{set}\marg{sneaked}\{\#1\}\}^^A
 %     }
 % \end{function}
 %
@@ -599,14 +599,17 @@ and the derived files           expkv.pdf
 % starting with the release 2020-10-01. It is over 380 times slower -- which is
 % funny, because it aims to be ``[\ldots] faster [\ldots] than these earlier
 % packages [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time
-% to parse zero keys than four of the packages in this comparison need to parse
-% 100 keys.  Since it aims to have a bigger feature set than \pkg{xkeyval}, it
+% to parse zero~keys than five of the packages in this comparison need to parse
+% 100~keys.  Since it aims to have a bigger feature set than \pkg{xkeyval}, it
 % most definitely also has a bigger feature set than \expkv.  Also, it can't
 % parse |\long| input, so as soon as your values contain a |\par|, it'll throw
 % errors.  Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by
 % design, which, imho, is a weird design choice. In addition \pkg{ltxkeys} loads
 % \pkg{catoptions} which is known to introduce bugs (e.g., see
-% \url{https://tex.stackexchange.com/questions/461783}).
+% \url{https://tex.stackexchange.com/questions/461783}). Because it is no longer
+% compatible with the kernel, I stop benchmarking it (so the numbers listed here
+% and in \autoref{tab:comp} regarding \pkg{ltxkeys} were last updated on
+% 2020-10-05).
 %
 % \paragraph{\pkg{l3keys}} is around four times slower, but has an, imho, great
 % interface to define keys. It strips \emph{all} outer spaces, even if somehow
@@ -622,8 +625,9 @@ and the derived files           expkv.pdf
 % bigger if |\pgfkeys{|\meta{path}|/.cd,|\meta{keys}|}| was used instead).
 % It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
 % also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
-% was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also I
-% don't know whether this might introduce new bugs.
+% was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also
+% \pkg{pgfkeyx} is no longer compatible with versions of \pkg{pgfkeys} newer
+% than 2020-05-25.
 %
 % \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about $4.1$ times
 % slower, but it works even if commas and equals have category codes different
@@ -685,16 +689,16 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.711 &    2.773 &    7.096 & \yes & \yes & 2014-10-28 \\
-%     \expkv    &   21.048 &    3.565 &    7.154 & \no  & \no  & 2020-10-01 \\
-%     simplekv  &   18.440 &    7.741 &   17.600 & \yes & \yes & 2020-04-27 \\
-%     pgfkeys   &   24.148 &    4.299 &   10.320 & \yes & \yes & 2020-09-05 \\
-%     options   &   23.710 &   17.938 &   20.570 & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   39.840 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   71.738 &   36.861 &   31.320 & \no  & \no  & 2020-09-06 \\
-%     xkeyval   &  256.685 &  206.889 &  165.400 & \yes & \yes & 2014-12-03 \\
-%     yax       &  438.494 &  116.310 &  114.000 & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3453.283 & 4796.832 & 5363.000 & \no  & \no  & 2012-11-17 \\
+%     keyval    &   13.751 &    1.672 &    7.061 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   21.189 &    1.532 &    7.135 & \no  & \no  & 2020-10-05 \\
+%     simplekv  &   18.667 &    5.217 &   17.510 & \yes & \yes & 2020-04-27 \\
+%     pgfkeys   &   24.459 &    1.356 &   10.320 & \yes & \yes & 2020-09-05 \\
+%     options   &   24.167 &   13.191 &   20.360 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   40.320 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   72.325 &   29.412 &   31.620 & \no  & \no  & 2020-09-24 \\
+%     xkeyval   &  258.080 &  183.467 &  164.800 & \yes & \yes & 2014-12-03 \\
+%     yax       &  435.716 &  101.030 &  114.500 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
 %   \par
@@ -703,12 +707,12 @@ and the derived files           expkv.pdf
 %   \fnsym For \pkg{kvsetkeys} the linear model used for the other
 %   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
 %   quadratic run-time, the coefficients of the second degree polynomial fit are
-%   $p_2=\num{8.811}$, $p_1=\num{36.015}$, and $p_0=\num{81.792}$. Of course the
+%   $p_2=\num{8.589}$, $p_1=\num{39.410}$, and $p_0=\num{71.760}$. Of course the
 %   other packages might not really have linear run-time, but at least from 1~to
 %   20~keys the fits don't seem too bad. If one extrapolates the fits for 100
 %   \kv\ pairs one finds that most of them match pretty well, the exception
 %   being \pkg{ltxkeys}, which behaves quadratic as well with
-%   $p_2=\num{29.496}$, $p_1=\num{2828.933}$, and $p_0=\num{6741.189}$.
+%   $p_2=\num{23.500}$, $p_1=\num{2906.634}$, and $p_0=\num{6547.489}$.
 % \end{table}
 %
 % \subsection{Examples}
@@ -1374,7 +1378,7 @@ and the derived files           expkv.pdf
     \unexpanded{\ifx#1\relax\edef#1##1}%
       {%
         \unexpanded\expandafter{\ekv@name@set{#2}}%
-        \unexpanded\expandafter{\ekv@name@key{\noexpand\detokenize{##1}}}%
+        \unexpanded\expandafter{\ekv@name@key{##1}}%
       }%
     \unexpanded{\fi}%
   }
@@ -1505,15 +1509,18 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 %   The second macro will have been called by |\ekv@eq@active| if no active
 %   equal sign was found. All it does is remove the excess tokens of that
-%   test and forward the \kv\ pair to |\ekv@set@pair|.
+%   test and forward the \kv\ pair to |\ekv@set@pair|. Normally we would have to
+%   also gobble an additional |\ekv@mark| after |\ekv@stop|, but this mark is
+%   needed to delimit |\ekv@set@pair|'s argument anyway, so we just leave it
+%   there.
 %    \begin{macrocode}
 \ekv@expB@unbraceA
   {%
     \long\def\ekv@set@eq@other@b
-        ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
+        ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop
   }%
   {%
-    \ekv@strip{##1}\ekv@set@pair
+    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1528,7 +1535,7 @@ and the derived files           expkv.pdf
 \ekv@expB@unbraceA
   {\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
   {%
-    \ekv@strip{##1}\ekv@set@pair##2=%
+    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2=%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1550,7 +1557,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \ekv@expB@unbraceA{\long\def\ekv@set@eq@active@##1\ekv@stop}%
   {%
-    \ekv@strip{##1}\ekv@set@pair
+    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1566,7 +1573,7 @@ and the derived files           expkv.pdf
   {%
     \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F@gobble
       \ekv@ifempty@A\ekv@ifempty@B\@firstofone
-      {\ekv@strip{##1}\ekv@set@key}%
+      {\ekv@strip{##1}{\expandafter\ekv@set@key\detokenize}\ekv@mark}%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1805,7 +1812,7 @@ and the derived files           expkv.pdf
 %   unknown key handler is defined for this set and that one will branch into
 %   the error messages provided by |\ekv@set@pair| if it isn't.
 %    \begin{macrocode}
-\long\def\ekv@set@pair#1#2\ekv@nil#3%
+\long\def\ekv@set@pair#1\ekv@mark#2\ekv@nil#3%
   {%
     \expandafter\ekv@set@pair@
       \csname
@@ -1851,7 +1858,7 @@ and the derived files           expkv.pdf
 % provides an error-branch. |\ekv@set@key@| will test whether the key-macro is
 % defined and if so call it, else the errors are thrown.
 %    \begin{macrocode}
-\long\def\ekv@set@key#1#2%
+\long\def\ekv@set@key#1\ekv@mark#2%
   {%
     \expandafter\ekv@set@key@
       \csname
@@ -1907,6 +1914,7 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvsetSneakeddef,\ekvsetdefSneaked}
 % And do the same for |\ekvsetSneaked| in the two possible ways, with a fixed
 % sneaked argument and with a flexible one.
+%    \begin{macrocode}
 \ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
 \protected\def\ekvsetSneakeddef#1#2}}}}%
   {%
@@ -1919,6 +1927,7 @@ and the derived files           expkv.pdf
     \ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def#1##1}}%
       {\ekvsetSneaked{#2}{#3}{##1}}%
   }
+%    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@err,\ekv@err@}
