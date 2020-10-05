@@ -127,11 +127,11 @@
 \testcat{\setKV[777]}{}
 \benchmark{simplekv}{\setKV[777]{#1}}
 
-\usepackage{ltxkeys}
-\ltxkeys@ordkey{888}{height}{\def\myheight{#1}}
-\testbug{ltxkeys}{\ltxkeys@setkeys{888}{height={ abc}}}
-\testcat{\ltxkeys@setkeys{888}}{}
-\benchmark{ltxkeys}{\ltxkeys@setkeys{888}{#1}}
+%\usepackage{ltxkeys}
+%\ltxkeys@ordkey{888}{height}{\def\myheight{#1}}
+%\testbug{ltxkeys}{\ltxkeys@setkeys{888}{height={ abc}}}
+%\testcat{\ltxkeys@setkeys{888}}{}
+%\benchmark{ltxkeys}{\ltxkeys@setkeys{888}{#1}}
 
 \usepackage{yax}
 \defactiveparameter 999 {\storevalue\myheight 999:height }
@@ -142,7 +142,7 @@
 \makeatother
 % ltxkeys isn't compatible with the new format and will throw an error at
 % \begin{document}. Hence we use \stop so that we can still benchmark it.
-\stop
+%\stop
 
 \begin{document}
 \end{document}
