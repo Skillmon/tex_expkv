@@ -113,4 +113,22 @@
     \TYPE{\setdefSneaked{a=b}}
   }
 
+\OMIT
+\begingroup
+\catcode`\'=13
+\lccode`N=`N
+\lccode`A=`A
+\lccode`\~=`\=
+\lccode`\'=`\,
+\lowercase{\endgroup
+\def~{A=A}
+\TIMO
+\TEST{detokenized keynames}
+  {%
+    \ekvdef{detok}{\relax}{key arg: #1\NEWLINE}%
+    \ekvdefNoVal{detok}{\relax}{NoArg\NEWLINE}%
+    \TYPE{\ekvset{detok}{\relax=abc,\relax~abc'\relax~a=bc,\relax=a~bc'\relax}}%
+  }
+}
+
 \END
