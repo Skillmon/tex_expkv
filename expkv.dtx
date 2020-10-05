@@ -523,22 +523,17 @@ and the derived files           expkv.pdf
 %     \cs{ekv@name@key}\marg{key}
 %   \end{syntax}
 %   The names of the macros that correspond to a key in a set are build with
-%   these macros. The default definition of |\ekv@name@set| is
-%   ``\texttt{\csname ekv@name@set\endcsname{\set}}'' and the default of
-%   |\ekv@name@key| is ``\texttt{\csname ekv@name@key\endcsname{\key}}''.
-%   The complete name is build using |\ekv@name| which is equivalent to
-%   \texttt
-%     {^^A
-%       \cs[no-index]{ekv@name@set}\marg{set}\cs{ekv@name@key}^^A
-%       \{\cs[no-index]{detokenize}\marg{key}\}^^A
-%     }.
+%   these macros. The name is built from two blocks, one that is formatting the
+%   \set\ name (|\ekv@name@set|) and one for formatting the \key\ name
+%   (|\ekv@name@key|). To get the actual name the argument to |\ekv@name@key|
+%   must be |\detokenize|d. Both blocks are put together (with the necessary
+%   |\detokenize|) by |\ekv@name|.
 %   For |NoVal| keys an additional |N| gets appended irrespective of these
 %   macros' definition, so their name is
-%   {^^A
-%     \makeatletter
-%     \let\detokenize\@firstofone
-%     \cs[no-index]{\ekv@name{\set}{\key}N}^^A
-%   }.
+%   \texttt{\cs[no-index]{ekv@name}\marg{set}\marg{key}N}.\par
+%   You can use these macros to implement additional functionality or access key
+%   macros outside of \expkv, but \emph{don't} change them! \expkv\ relies on
+%   their exact definitions internally.
 % \end{function}
 %
 % \subsubsection{Bugs}
