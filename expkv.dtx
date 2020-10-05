@@ -350,6 +350,16 @@ and the derived files           expkv.pdf
 %   |\ekvset| should be nestable.
 % \end{function}
 %
+% \begin{function}{\ekvsetSneaked}
+%   \begin{syntax}
+%     \cs{ekvsetSneaked}\marg{set}\marg{sneak}\{\kv,\ldots\}
+%   \end{syntax}
+%   Just like \cs[no-index]{ekvset}, this macro parses the \kv\ pairs within the
+%   given \set. But \cs[no-index]{ekvsetSneaked} will behave as if
+%   \cs[no-index]{ekvsneak} has been called with \meta{sneak} as its argument as
+%   the first action in the \kv\ list.
+% \end{function}
+%
 % \begin{function}{\ekvsetdef}
 %   \begin{syntax}
 %     \cs{ekvsetdef}\meta{cs}\marg{set}
@@ -360,6 +370,36 @@ and the derived files           expkv.pdf
 %   the idiomatic definition:\par
 %   \texttt
 %     {\string\long\string\def\meta{cs}\#1\{\string\ekvset\marg{set}\{\#1\}\}}
+% \end{function}
+%
+% \begin{function}{\ekvsetSneakeddef}
+%   \begin{syntax}
+%     \cs{ekvsetSneakeddef}\meta{cs}\marg{set}
+%   \end{syntax}
+%   Just like \cs[no-index]{ekvsetdef} this defines a shorthand macro \meta{cs},
+%   but this macro will make it a shorthand for \cs[no-index]{ekvsetSneaked},
+%   meaning that \meta{cs} will take two arguments, the first being stuff that
+%   should be given to \cs[no-index]{ekvsneak} and the second the \kv\ list. The
+%   resulting macro is a bit faster than the idiomatic definition:\par
+%   \texttt
+%     {%
+%       \string\long\string\def\meta{cs}\#1\#2\{%
+%       \string\ekvsetSneaked\marg{set}\{\#1\}\{\#2\}\}%
+%     }
+% \end{function}
+%
+% \begin{function}{\ekvsetdefSneaked}
+%   \begin{syntax}
+%     \cs{ekvsetSneakeddef}\meta{cs}\marg{set}\marg{sneaked}
+%   \end{syntax}
+%   And this one behaves like \cs[no-index]{ekvsetSneakeddef} but with a fixed
+%   \meta{sneaked} argument. So the resulting macro is a bit faster than the
+%   idiomatic definition:\par
+%   \texttt
+%     {%
+%       \string\long\string\def\meta{cs}\#1\{%
+%       \string\ekvsetSneaked\marg{set}\marg{sneaked}\{\#1\}\}%
+%     }
 % \end{function}
 %
 % \begin{function}{\ekvparse}
@@ -1715,6 +1755,21 @@ and the derived files           expkv.pdf
 \ekvset,=
 %    \end{macrocode}
 %
+% \begin{macro}{\ekvsetSneaked}
+% This macro can be defined just by expanding |\ekvsneak| once after expanding
+% |\ekvset|. To expand everything as much as possible early on we use a
+% temporary definition.
+%    \begin{macrocode}
+\edef\ekvsetSneaked
+  {%
+    \unexpanded{\ekvsneak{#2}}%
+    \unexpanded\expandafter{\ekvset{#1}{#3}}%
+  }
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def\ekvsetSneaked#1#2#3}}%
+  {\ekvsetSneaked}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\ekvchangeset}
 % Provide a macro that is able to switch out the current \set\ in |\ekvset|.
 % This operation is slow (by comparison, it should be slightly faster than
@@ -1852,6 +1907,23 @@ and the derived files           expkv.pdf
       {\ekvset{#2}{##1}}%
   }
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ekvsetSneakeddef,\ekvsetdefSneaked}
+% And do the same for |\ekvsetSneaked| in the two possible ways, with a fixed
+% sneaked argument and with a flexible one.
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
+\protected\def\ekvsetSneakeddef#1#2}}}}%
+  {%
+    \ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def#1##1##2}}%
+      {\ekvsetSneaked{#2}{##1}{##2}}%
+  }
+\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
+\protected\def\ekvsetdefSneaked#1#2#3}}}}%
+  {%
+    \ekv@expB@unbraceA{\ekv@expB@unbraceA{\long\def#1##1}}%
+      {\ekvsetSneaked{#2}{#3}{##1}}%
+  }
 % \end{macro}
 %
 % \begin{macro}[internal]{\ekv@err,\ekv@err@}
