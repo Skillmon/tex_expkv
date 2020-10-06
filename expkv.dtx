@@ -1083,6 +1083,24 @@ and the derived files           expkv.pdf
 % restore it at the end of the file, we never care for the actual definition of
 % it.
 %
+% \begin{macro}[internal]{\ekv@if@lastnamedcs}
+% If the primitive |\lastnamedcs| is available, we can be a bit faster than
+% without it. So we test for this and save the tests result in this macro.
+%    \begin{macrocode}
+\begingroup
+  \edef\ekv@tmpa{\string \lastnamedcs}
+  \edef\ekv@tmpb{\meaning\lastnamedcs}
+  \ifx\ekv@tmpa\ekv@tmpb
+    \def\ekv@if@lastnamedcs{\long\def\ekv@if@lastnamedcs##1##2{##1}}
+  \else
+    \def\ekv@if@lastnamedcs{\long\def\ekv@if@lastnamedcs##1##2{##2}}
+  \fi
+  \expandafter
+\endgroup
+\ekv@if@lastnamedcs
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}[internal]{\ekv@empty}
 % Sometimes we have to introduce a token to prevent accidental brace stripping.
 % This token would then need to be removed by |\@gobble| or similar. Instead we
@@ -1176,17 +1194,34 @@ and the derived files           expkv.pdf
 % defined ones. Since we want to be as fast as possible for correct input, this
 % is to be preferred.
 %    \begin{macrocode}
-\def\ekv@ifdefined#1%
+\ekv@if@lastnamedcs
   {%
-    \ifcsname#1\endcsname\ekv@ifdef@\fi\ekv@ifdef@false#1\endcsname\relax
-      \ekv@fi@secondoftwo
-    \fi
-    \@firstoftwo
+    \def\ekv@ifdefined#1%
+      {%
+        \ifcsname#1\endcsname\ekv@ifdef@\fi\@secondoftwo
+      }
+    \def\ekv@ifdef@\fi\@secondoftwo
+      {%
+        \fi
+        \expandafter\ifx\lastnamedcs\relax
+          \ekv@fi@secondoftwo
+        \fi
+        \@firstoftwo
+      }
   }
-\def\ekv@ifdef@\fi\ekv@ifdef@false{\fi\expandafter\ifx\csname}
-\long\def\ekv@ifdef@false
-    #1\endcsname\relax\ekv@fi@secondoftwo\fi\@firstoftwo#2#3%
-  {#3}
+  {%
+    \def\ekv@ifdefined#1%
+      {%
+        \ifcsname#1\endcsname\ekv@ifdef@\fi\ekv@ifdef@false#1\endcsname\relax
+          \ekv@fi@secondoftwo
+        \fi
+        \@firstoftwo
+      }
+    \def\ekv@ifdef@\fi\ekv@ifdef@false{\fi\expandafter\ifx\csname}
+    \long\def\ekv@ifdef@false
+        #1\endcsname\relax\ekv@fi@secondoftwo\fi\@firstoftwo#2#3%
+      {#3}
+  }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1839,25 +1874,51 @@ and the derived files           expkv.pdf
 %   unknown key handler is defined for this set and that one will branch into
 %   the error messages provided by |\ekv@set@pair| if it isn't.
 %    \begin{macrocode}
-\long\def\ekv@set@pair#1\ekv@mark#2\ekv@nil#3%
+\ekv@if@lastnamedcs
   {%
-    \ifcsname #3{#1}\endcsname
-        \ekv@set@pair@a\fi\ekv@set@pair@c#3{#1}\endcsname
-      {#2}%
+    \long\def\ekv@set@pair#1\ekv@mark#2\ekv@nil#3%
       {%
-        \ifcsname #3{}u\endcsname
-            \ekv@set@pair@a\fi\ekv@set@pair@c#3{}u\endcsname
+        \ifcsname #3{#1}\endcsname\ekv@set@pair@a\fi\@secondoftwo
           {#2}%
           {%
-            \ekv@ifdefined{#3{#1}N}%
-              \ekv@err@noarg
-              \ekv@err@unknown
-              #3%
+            \ifcsname #3{}u\endcsname\ekv@set@pair@a\fi\@secondoftwo
+              {#2}%
+              {%
+                \ekv@ifdefined{#3{#1}N}%
+                  \ekv@err@noarg
+                  \ekv@err@unknown
+                  #3%
+              }%
+              {#1}%
           }%
-          {#1}%
-      }%
+      }
+    \def\ekv@set@pair@a\fi\@secondoftwo
+      {%
+        \fi\expandafter\ekv@set@pair@b\lastnamedcs
+      }
   }
-\def\ekv@set@pair@a\fi\ekv@set@pair@c{\fi\expandafter\ekv@set@pair@b\csname}
+  {%
+    \long\def\ekv@set@pair#1\ekv@mark#2\ekv@nil#3%
+      {%
+        \ifcsname #3{#1}\endcsname
+            \ekv@set@pair@a\fi\ekv@set@pair@c#3{#1}\endcsname
+          {#2}%
+          {%
+            \ifcsname #3{}u\endcsname
+                \ekv@set@pair@a\fi\ekv@set@pair@c#3{}u\endcsname
+              {#2}%
+              {%
+                \ekv@ifdefined{#3{#1}N}%
+                  \ekv@err@noarg
+                  \ekv@err@unknown
+                  #3%
+              }%
+              {#1}%
+          }%
+      }
+    \def\ekv@set@pair@a\fi\ekv@set@pair@c{\fi\expandafter\ekv@set@pair@b\csname}
+    \long\def\ekv@set@pair@c#1\endcsname#2#3{#3}
+  }
 \long\def\ekv@set@pair@b#1%
   {%
     \ifx#1\relax
@@ -1865,7 +1926,6 @@ and the derived files           expkv.pdf
     \fi
     \ekv@set@pair@d#1%
   }
-\long\def\ekv@set@pair@c#1\endcsname#2#3{#3}
 \ekv@expB@unbraceA{\long\def\ekv@set@pair@d#1#2#3}%
   {%
     \ekv@strip{#2}#1%
@@ -1880,23 +1940,44 @@ and the derived files           expkv.pdf
 % provides an error-branch. |\ekv@set@key@| will test whether the key-macro is
 % defined and if so call it, else the errors are thrown.
 %    \begin{macrocode}
-\long\def\ekv@set@key#1\ekv@mark#2%
+\ekv@if@lastnamedcs
   {%
-    \ifcsname #2{#1}N\endcsname
-        \ekv@set@key@a\fi\ekv@set@key@c#2{#1}N\endcsname
+    \long\def\ekv@set@key#1\ekv@mark#2%
       {%
-        \ifcsname #2{}uN\endcsname
-            \ekv@set@key@a\fi\ekv@set@key@c#2{}uN\endcsname
+        \ifcsname #2{#1}N\endcsname\ekv@set@key@a\fi\@firstofone
           {%
-            \ekv@ifdefined{#2{#1}}%
-              \ekv@err@reqval
-              \ekv@err@unknown
-              #2%
+            \ifcsname #2{}uN\endcsname\ekv@set@key@a\fi\@firstofone
+              {%
+                \ekv@ifdefined{#2{#1}}%
+                  \ekv@err@reqval
+                  \ekv@err@unknown
+                  #2%
+              }%
+              {#1}%
           }%
-          {#1}%
-      }%
+      }
+    \def\ekv@set@key@a\fi\@firstofone{\fi\expandafter\ekv@set@key@b\lastnamedcs}
   }
-\def\ekv@set@key@a\fi\ekv@set@key@c{\fi\expandafter\ekv@set@key@b\csname}
+  {%
+    \long\def\ekv@set@key#1\ekv@mark#2%
+      {%
+        \ifcsname #2{#1}N\endcsname
+            \ekv@set@key@a\fi\ekv@set@key@c#2{#1}N\endcsname
+          {%
+            \ifcsname #2{}uN\endcsname
+                \ekv@set@key@a\fi\ekv@set@key@c#2{}uN\endcsname
+              {%
+                \ekv@ifdefined{#2{#1}}%
+                  \ekv@err@reqval
+                  \ekv@err@unknown
+                  #2%
+              }%
+              {#1}%
+          }%
+      }
+    \def\ekv@set@key@a\fi\ekv@set@key@c{\fi\expandafter\ekv@set@key@b\csname}
+    \long\def\ekv@set@key@c#1N\endcsname#2{#2}
+  }
 \long\def\ekv@set@key@b#1%
   {%
     \ifx#1\relax
@@ -1904,7 +1985,6 @@ and the derived files           expkv.pdf
     \fi
     \@firstoftwo#1%
   }
-\long\def\ekv@set@key@c#1N\endcsname#2{#2}
 %    \end{macrocode}
 % \end{macro}
 %
