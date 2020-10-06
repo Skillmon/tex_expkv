@@ -1189,17 +1189,14 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@ifdefined}
 % We'll need to check whether something is defined quite frequently, so why not
-% define a macro that does this. The following test is expandable, slower than
-% the typical expandable test for undefined control sequences, but faster for
-% defined ones. Since we want to be as fast as possible for correct input, this
-% is to be preferred.
+% define a macro that does this. The following test is expandable and pretty
+% fast. The version with |\lastnamedcs| is the fastest version to test for an
+% undefined macro I know of (that considers both undefined macros and those with
+% the meaning |\relax|).
 %    \begin{macrocode}
 \ekv@if@lastnamedcs
   {%
-    \def\ekv@ifdefined#1%
-      {%
-        \ifcsname#1\endcsname\ekv@ifdef@\fi\@secondoftwo
-      }
+    \def\ekv@ifdefined#1{\ifcsname#1\endcsname\ekv@ifdef@\fi\@secondoftwo}
     \def\ekv@ifdef@\fi\@secondoftwo
       {%
         \fi
@@ -1230,7 +1227,9 @@ and the derived files           expkv.pdf
 % from keys and values. This |\ekv@strip| also strips one level of outer braces
 % \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
 % stripping. It should be used with |#1| prefixed by |\ekv@mark|. Also this
-% implementation at most strips \emph{one} space from both sides.
+% implementation at most strips \emph{one} space from both sides (which should
+% be fine most of the time, since \TeX\ converts multiple spaces to a single one
+% during tokenization).
 %    \begin{macrocode}
 \def\ekv@strip#1%
   {%
@@ -1335,74 +1334,76 @@ and the derived files           expkv.pdf
 %     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
 %     \ekvdefunknown,\ekvdefunknownNoVal
 %   }
-% Set up the key defining macros |\ekvdef| etc.
+% Set up the key defining macros |\ekvdef| etc. We use a temporary macro to set
+% these up with a few expansions already done.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\protected\long\def\ekvdef#1#2#3}%
+\def\ekvdef#1#2#3#4%
   {%
-    \ekv@checkvalid{#1}{#2}%
+    \protected\long\def\ekvdef##1##2##3%
+      {#1{\expandafter\def\csname#2\endcsname####1{##3}#3}}%
+    \protected\long\def\ekvdefNoVal##1##2##3%
+      {#1{\expandafter\def\csname#2N\endcsname{##3}#3}}%
+    \protected\def\ekvlet##1##2##3%
+      {#1{\expandafter\let\csname#2\endcsname##3#3}}%
+    \protected\def\ekvletNoVal##1##2##3%
+      {#1{\expandafter\let\csname#2N\endcsname##3#3}}%
+    \ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
+        \protected\long\def\ekvdefunknown##1##2}}}%
       {%
-        \expandafter\def\csname\ekv@name{#1}{#2}\endcsname##1{#3}%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
+        \expandafter\ekv@expB@unbraceA@\expandafter
+          {%
+            \expandafter\expandafter\expandafter
+            \def\expandafter\csname\ekv@name{##1}{}u\endcsname####1####2{##2}%
+            #3%
+          }%
+          {\ekv@checkvalid{##1}.}%
+      }%
+    \ekv@expB@unbraceA{\ekv@expB@unbraceA{\ekv@expB@unbraceA{%
+        \protected\long\def\ekvdefunknownNoVal##1##2}}}%
+      {%
+        \expandafter\ekv@expB@unbraceA@\expandafter
+          {%
+            \expandafter\expandafter\expandafter
+            \def\expandafter\csname\ekv@name{##1}{}uN\endcsname####1{##2}%
+            #3%
+          }%
+          {\ekv@checkvalid{##1}.}%
+      }%
+    \protected\def\ekvletkv##1##2##3##4%
+      {%
+        #1%
+          {%
+            \expandafter\let\csname#2\expandafter\endcsname
+            \csname#4\endcsname
+            #3%
+          }%
+      }%
+    \protected\def\ekvletkvNoVal##1##2##3##4%
+      {%
+        #1%
+          {%
+            \expandafter\let\csname#2N\expandafter\endcsname
+            \csname#4N\endcsname
+            #3%
+          }%
       }%
   }
-\ekv@expB@unbraceA{\protected\long\def\ekvdefNoVal#1#2#3}%
+\ekv@expB@unbraceA
   {%
-    \ekv@checkvalid{#1}{#2}%
+    \ekv@expB@unbraceA
       {%
-        \expandafter\def\csname\ekv@name{#1}{#2}N\endcsname{#3}%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
+        \ekv@expB@unbraceA
+          {%
+            \expandafter\ekvdef\expandafter{\ekv@checkvalid{#1}{#2}}%
+          }
+          {\ekv@name{#1}{#2}}%
       }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvlet#1#2#3}%
-  {%
-    \ekv@checkvalid{#1}{#2}%
       {%
-        \expandafter\let\csname\ekv@name{#1}{#2}\endcsname#3%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
+        \expandafter\expandafter\expandafter
+        \ekv@defsetmacro\expandafter\csname\ekv@undefined@set{#1}\endcsname{#1}%
       }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvletNoVal#1#2#3}%
-  {%
-    \ekv@checkvalid{#1}{#2}%
-      {%
-        \expandafter\let\csname\ekv@name{#1}{#2}N\endcsname#3%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvletkv#1#2#3#4}%
-  {%
-    \ekv@checkvalid{#1}{#2}%
-      {%
-        \expandafter\let\csname\ekv@name{#1}{#2}\expandafter\endcsname
-        \csname\ekv@name{#3}{#4}\endcsname
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvletkvNoVal#1#2#3#4}%
-  {%
-    \ekv@checkvalid{#1}{#2}%
-      {%
-        \expandafter\let\csname\ekv@name{#1}{#2}N\expandafter\endcsname
-        \csname\ekv@name{#3}{#4}N\endcsname
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvdefunknown#1#2}%
-  {%
-    \ekv@checkvalid{#1}{.}%
-      {%
-        \expandafter\def\csname\ekv@name{#1}{}u\endcsname##1##2{#2}%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
-  }
-\ekv@expB@unbraceA{\protected\def\ekvdefunknownNoVal#1#2}%
-  {%
-    \ekv@checkvalid{#1}{.}%
-      {%
-        \expandafter\def\csname\ekv@name{#1}{}uN\endcsname##1{#2}%
-        \expandafter\ekv@defsetmacro\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
-  }
+  }%
+  {\ekv@name{#3}{#4}}%
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1867,12 +1868,14 @@ and the derived files           expkv.pdf
 %   }
 %   |\ekv@set@pair| gets invoked with the space and brace stripped and
 %   detokenized key-name as its first, the value as the second, and the set name
-%   as the third argument. It builds the key-macro name and provides everything
-%   to be able to throw meaningful error messages if it isn't defined.
-%   |\ekv@set@pair@b| will space and brace strip the value if the macro is
-%   defined and call the key-macro. Else it'll branch into the check whether an
-%   unknown key handler is defined for this set and that one will branch into
-%   the error messages provided by |\ekv@set@pair| if it isn't.
+%   as the third argument. It provides tests for the key-macros and everything
+%   to be able to throw meaningful error messages if it isn't defined. We have
+%   two routes here, one if |\lastnamedcs| is defined and one if it isn't. The
+%   big difference is that if it is we can omit a |\csname| and instead just
+%   expand |\lastnamedcs| once to get the control sequence.
+%   If the macro is defined the value will be space and brace stripped and the
+%   key-macro called. Else branch into the error handling provided by
+%   |\ekv@set@pair|.
 %    \begin{macrocode}
 \ekv@if@lastnamedcs
   {%
@@ -1893,9 +1896,7 @@ and the derived files           expkv.pdf
           }%
       }
     \def\ekv@set@pair@a\fi\@secondoftwo
-      {%
-        \fi\expandafter\ekv@set@pair@b\lastnamedcs
-      }
+      {\fi\expandafter\ekv@set@pair@b\lastnamedcs}
   }
   {%
     \long\def\ekv@set@pair#1\ekv@mark#2\ekv@nil#3%
@@ -1926,10 +1927,7 @@ and the derived files           expkv.pdf
     \fi
     \ekv@set@pair@d#1%
   }
-\ekv@expB@unbraceA{\long\def\ekv@set@pair@d#1#2#3}%
-  {%
-    \ekv@strip{#2}#1%
-  }
+\ekv@expB@unbraceA{\long\def\ekv@set@pair@d#1#2#3}{\ekv@strip{#2}#1}
 \long\def\ekv@set@pair@e\fi\ekv@set@pair@d#1#2#3{\fi#3}
 %    \end{macrocode}
 % \end{macro}
