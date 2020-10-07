@@ -159,7 +159,7 @@ and the derived files           expkv.pdf
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
 \DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
-\DoNotIndex{\@,\unexpanded,\string,\expanded,\detokenize}
+\DoNotIndex{\@,\unexpanded,\string,\expanded,\detokenize,\meaning,\lastnamedcs}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
 \DoNotIndex{\else}
@@ -298,7 +298,8 @@ and the derived files           expkv.pdf
 %     \cs{ekvletkv}\marg{set}\marg{key}\marg{set2}\marg{key2}
 %   \end{syntax}
 %   Let the \key\ in \set\ to \meta{key2} in \meta{set2}, it is not checked
-%   whether that second key exists.
+%   whether that second key exists (but take a look at
+%   \cs[no-index]{ekvifdefined}).
 % \end{function}
 %
 % \begin{function}{\ekvletkvNoVal}
@@ -306,7 +307,8 @@ and the derived files           expkv.pdf
 %     \cs{ekvletkvNoVal}\marg{set}\marg{key}\marg{set2}\marg{key2}
 %   \end{syntax}
 %   Let the \key\ in \set\ to \meta{key2} in \meta{set2}, it is not checked
-%   whether that second key exists.
+%   whether that second key exists (but take a look at
+%   \cs[no-index]{ekvifdefinedNoVal}).
 % \end{function}
 %
 % \begin{function}{\ekvdefunknown}
@@ -357,7 +359,7 @@ and the derived files           expkv.pdf
 %   Just like \cs[no-index]{ekvset}, this macro parses the \kv\ pairs within the
 %   given \set. But \cs[no-index]{ekvsetSneaked} will behave as if
 %   \cs[no-index]{ekvsneak} has been called with \meta{sneak} as its argument as
-%   the first action in the \kv\ list.
+%   the first action.
 % \end{function}
 %
 % \begin{function}{\ekvsetdef}
@@ -366,8 +368,8 @@ and the derived files           expkv.pdf
 %   \end{syntax}
 %   With this function you can define a shorthand macro \meta{cs} to parse keys
 %   of a specified \set. It is always defined |\long|, but if you need to you
-%   can also prefix it with |\global|. The resulting macro is a bit faster than
-%   the idiomatic definition:\par
+%   can also prefix it with |\global|. The resulting macro is faster than but
+%   else equivalent to the idiomatic definition:\par
 %   \texttt
 %     {\string\long\string\def\meta{cs}\#1\{\string\ekvset\marg{set}\{\#1\}\}}
 % \end{function}
@@ -380,7 +382,8 @@ and the derived files           expkv.pdf
 %   but this macro will make it a shorthand for \cs[no-index]{ekvsetSneaked},
 %   meaning that \meta{cs} will take two arguments, the first being stuff that
 %   should be given to \cs[no-index]{ekvsneak} and the second the \kv\ list. The
-%   resulting macro is a bit faster than the idiomatic definition:\par
+%   resulting macro is faster than but else equivalent to the idiomatic
+%   definition:\par
 %   \texttt
 %     {%
 %       \string\long\string\def\meta{cs}\#1\#2\{^^A
@@ -393,8 +396,8 @@ and the derived files           expkv.pdf
 %     \cs{ekvsetSneakeddef}\meta{cs}\marg{set}\marg{sneaked}
 %   \end{syntax}
 %   And this one behaves like \cs[no-index]{ekvsetSneakeddef} but with a fixed
-%   \meta{sneaked} argument. So the resulting macro is a bit faster than the
-%   idiomatic definition:\par
+%   \meta{sneaked} argument. So the resulting macro is faster than but else
+%   equivalent to the idiomatic definition:\par
 %   \texttt
 %     {%
 %       \string\long\string\def\meta{cs}\#1\{^^A
@@ -498,9 +501,9 @@ and the derived files           expkv.pdf
 %   \meta{after} after any other tokens which might have been sneaked before,
 %   while |\ekvsneakPre| will put \meta{after} before other smuggled stuff.
 %   This reads and reinserts the remainder of the current |\ekvset| macro and
-%   its argument list to do its job. A small usage example is shown in
-%   \autoref{sec:sneakex}. After |\ekvset| has parsed the entire \kv\ list
-%   everything that has been |\ekvsneak|ed will be left in the input stream.
+%   its argument list to do its job. After |\ekvset| has parsed the entire \kv\
+%   list everything that has been |\ekvsneak|ed will be left in the input
+%   stream. A small usage example is shown in \autoref{sec:sneakex}.
 % \end{function}
 %
 % \begin{function}{\ekvchangeset}
@@ -567,7 +570,10 @@ and the derived files           expkv.pdf
 % contained, as most other packages don't provide equivalent features to my
 % knowledge. |\ekvparse| is slightly faster than |\ekvset|, but keep in mind
 % that it does less. The same is true for |\keyval_parse:NNn| compared to
-% |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger).
+% |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger). Comparing
+% just the two, |\ekvparse| is a tad faster than |\keyval_parse:NNn| because of
+% the two tests (for empty key names and only a single equal sign) which are
+% omitted.
 %
 % \paragraph{\pkg{keyval}} is about \SI{40}{\percent} faster and has a comparable
 % feature set just a slightly different way how it handles keys without values.
@@ -1307,13 +1313,15 @@ and the derived files           expkv.pdf
       {%
         \unexpanded\expandafter{\ekv@ifempty{#2}}%
         \unexpanded
-          {{%
-            \def\ekv@tmp{}%
-            \errmessage{expkv Error: empty key name not allowed}%
-          }}%
-          \noexpand\@secondoftwo
+          {%
+            {%
+              \def\ekv@tmp{}%
+              \errmessage{expkv Error: empty key name not allowed}%
+            }%
+            \@secondoftwo
+          }%
       }%
-    \noexpand\@gobble
+    \unexpanded{\@gobble}%
   }
 \ekv@expB@unbraceA{\protected\def\ekv@checkvalid#1#2}{\ekv@checkvalid}%
 %    \end{macrocode}
@@ -1334,7 +1342,7 @@ and the derived files           expkv.pdf
 %     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
 %     \ekvdefunknown,\ekvdefunknownNoVal
 %   }
-% Set up the key defining macros |\ekvdef| etc. We use a temporary macro to set
+% Set up the key defining macros |\ekvdef| etc. We use temporary macros to set
 % these up with a few expansions already done.
 %    \begin{macrocode}
 \def\ekvdef#1#2#3#4%
@@ -1388,22 +1396,17 @@ and the derived files           expkv.pdf
           }%
       }%
   }
-\ekv@expB@unbraceA
+\edef\ekvdefNoVal
   {%
-    \ekv@expB@unbraceA
-      {%
-        \ekv@expB@unbraceA
-          {%
-            \expandafter\ekvdef\expandafter{\ekv@checkvalid{#1}{#2}}%
-          }
-          {\ekv@name{#1}{#2}}%
-      }%
-      {%
-        \expandafter\expandafter\expandafter
-        \ekv@defsetmacro\expandafter\csname\ekv@undefined@set{#1}\endcsname{#1}%
-      }%
+    {\unexpanded\expandafter{\ekv@checkvalid{#1}{#2}}}%
+    {\unexpanded\expandafter{\ekv@name{#1}{#2}}}%
+    {%
+      \unexpanded{\expandafter\ekv@defsetmacro\csname}%
+      \unexpanded\expandafter{\ekv@undefined@set{#1}\endcsname{#1}}%
+    }%
+    {\unexpanded\expandafter{\ekv@name{#3}{#4}}}%
   }%
-  {\ekv@name{#3}{#4}}%
+\expandafter\ekvdef\ekvdefNoVal
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1413,7 +1416,7 @@ and the derived files           expkv.pdf
 %   sequence.
 %    \begin{macrocode}
 \edef\ekv@defsetmacro
-  {
+  {%
     \unexpanded{\ifx#1\relax\edef#1##1}%
       {%
         \unexpanded\expandafter{\ekv@name@set{#2}}%
