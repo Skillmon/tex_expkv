@@ -103,6 +103,19 @@ and the derived files           expkv.pdf
 \definecolor{expkvred}{HTML}{9F393D}
 \colorlet{expkvgrey}{black!75}
 \makeatletter
+\newcommand*\expFormat
+  {^^A
+    {^^A
+      \rmfamily
+      \bfseries
+      {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+      \lower.493ex\hbox{{\color{expkvgrey}P}}^^A
+    }^^A
+  }
+\newcommand*\kvstyle
+  {^^A
+    \normalfont\rmfamily\bfseries\color{expkvred}^^A
+  }
 \newcommand*\expkv
   {^^A
     \texorpdfstring
@@ -183,7 +196,10 @@ and the derived files           expkv.pdf
         {^^A
           \huge\expkv
           \\[\medskipamount]
-          \Large an expandable \kv\ implementation^^A
+          \Large an {\expFormat}andable
+          \meta{{\kvstyle k}\kern-.05em ey}=^^A
+          \meta{{\kvstyle v}\kern-.05em alue}
+          implementation^^A
         }{expkv - an expandable <key>=<value> implementation}^^A
     }
   \date{\ekvDate\space v\ekvVersion}
@@ -199,10 +215,10 @@ and the derived files           expkv.pdf
 % \begin{abstract}
 % \noindent\parfillskip=0pt
 % \expkv\ provides a small interface for \kv\ parsing. The parsing macro is
-% fully expandable, the \meta{code} of your keys might be not. \expkv\ is pretty
-% fast, but not the fastest available \kv\ solution (\pkg{keyval} is one and a
-% half times as fast, but not expandable and it might strip braces it shouldn't
-% have stripped).
+% \emph{fully expandable}, the \meta{code} of your keys might be not. \expkv\ is
+% \emph{swift}, close to the fastest \kv\ implementation. However it is the
+% fastest which copes with active commas and equal signs and doesn't strip
+% braces accidentally.
 % \end{abstract}
 %
 % \tableofcontents
@@ -260,7 +276,7 @@ and the derived files           expkv.pdf
 % prefixes allowed for |\let| can prefix those with ``|let|'' in their name,
 % accordingly. Neither \set\ nor \key\ are allowed to be empty for new keys.
 % \set\ will be used as is inside of |\csname ...\endcsname| and \key\ will get
-% \cs[no-index]{detokenize}d.
+% |\detokenize|d.
 %
 % \begin{function}{\ekvdef}
 %   \begin{syntax}
@@ -575,12 +591,12 @@ and the derived files           expkv.pdf
 % the two tests (for empty key names and only a single equal sign) which are
 % omitted.
 %
-% \paragraph{\pkg{keyval}} is about \SI{40}{\percent} faster and has a comparable
-% feature set just a slightly different way how it handles keys without values.
-% That might be considered a drawback, as it limits the versatility, but also as
-% an advantage, as it might reduce doubled code. Keep in mind that as soon as
-% someone loads \pkg{xkeyval} the performance of \pkg{keyval} gets replaced by
-% \pkg{xkeyval}'s.
+% \paragraph{\pkg{keyval}} is about \SIrange{30}{40}{\percent} faster and has a
+% comparable feature set just a slightly different way how it handles keys
+% without values.  That might be considered a drawback, as it limits the
+% versatility, but also as an advantage, as it might reduce doubled code. Keep
+% in mind that as soon as someone loads \pkg{xkeyval} the performance of
+% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
 %
 % Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
 % without breaking backwards compatibility for \emph{many} documents, namely it
@@ -622,26 +638,26 @@ and the derived files           expkv.pdf
 % multiple spaces ended up on either end. It offers more features, but is pretty
 % much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
 %
-% \paragraph{\pkg{pgfkeys}} is around $2.7$ times slower for one key if one uses
-% the |/|\meta{path}|/.cd| syntax and \SI{10}{\percent} slower if one uses
-% |\pgfqkeys|, but has an \emph{enormous} feature set.
+% \paragraph{\pkg{pgfkeys}} is around \num{2.7} times slower for one key if one
+% uses the |/|\meta{path}|/.cd| syntax and about \SI{15}{\percent} slower if one
+% uses |\pgfqkeys|, but has an \emph{enormous} feature set.
 % To get the best performance |\pgfqkeys| was used in the benchmark. This
 % reduces the overhead for setting the base directory of the benchmark keys by
 % about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
 % bigger if |\pgfkeys{|\meta{path}|/.cd,|\meta{keys}|}| was used instead).
 % It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
 % also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
-% was last updated in 2012 and it slows down |\pgfkeys| by factor~$8$. Also
+% was last updated in 2012 and it slows down |\pgfkeys| by factor~\num{8}. Also
 % \pkg{pgfkeyx} is no longer compatible with versions of \pkg{pgfkeys} newer
 % than 2020-05-25.
 %
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about $4.1$ times
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about \num{4.3} times
 % slower, but it works even if commas and equals have category codes different
 % from 12 (just as some other packages in this list). Else the features of the
 % keys are equal to those of \pkg{keyval}, the parser has more features, though.
 %
-% \paragraph{\pkg{options}} is $1.6$ times slower for only a single value. It
-% has a much bigger feature set. Unfortunately it also suffers from the
+% \paragraph{\pkg{options}} is \num{1.7} times slower for only a single value.
+% It has a much bigger feature set. Unfortunately it also suffers from the
 % premature unbracing bug \pkg{keyval} has.
 %
 % \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
@@ -651,11 +667,11 @@ and the derived files           expkv.pdf
 % packages. It has problems with stripping braces and spaces in a hard to
 % predict manner just like \pkg{keyval}. Also, while it tries to be robust
 % against category code changes of commas and equal signs, the used mechanism
-% fails if the \kv\ list already got tokenized. Regarding unknown keys it got a
+% fails if the \kv\ list already got tokenised. Regarding unknown keys it got a
 % very interesting behaviour. It doesn't throw an error, but stores the \val\ in
 % a new entry accessible with \cs[no-index]{useKV}. Also if you omit \val\ it
-% stores |true| for that \key. For zero or one key, \expkv\ is a bit faster, for
-% more keys \pkg{simplekv} takes the lead.
+% stores |true| for that \key. For up to three keys, \expkv\ is a bit faster,
+% for more keys \pkg{simplekv} takes the lead.
 %
 % \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
 % syntax, imho, and again a direct equivalent is hard to define. It has the
@@ -695,15 +711,15 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.751 &    1.672 &    7.061 & \yes & \yes & 2014-10-28 \\
-%     \expkv    &   21.189 &    1.532 &    7.135 & \no  & \no  & 2020-10-05 \\
-%     simplekv  &   18.667 &    5.217 &   17.510 & \yes & \yes & 2020-04-27 \\
-%     pgfkeys   &   24.459 &    1.356 &   10.320 & \yes & \yes & 2020-09-05 \\
-%     options   &   24.167 &   13.191 &   20.360 & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   40.320 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   72.325 &   29.412 &   31.620 & \no  & \no  & 2020-09-24 \\
-%     xkeyval   &  258.080 &  183.467 &  164.800 & \yes & \yes & 2014-12-03 \\
-%     yax       &  435.716 &  101.030 &  114.500 & \yes & \yes & 2010-01-22 \\
+%     keyval    &   13.814 &    1.308 &    7.040 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   19.807 &    2.303 &    7.554 & \no  & \no  & 2020-10-10 \\
+%     simplekv  &   18.553 &    6.331 &   17.720 & \yes & \yes & 2020-04-27 \\
+%     pgfkeys   &   24.439 &    2.142 &   10.380 & \yes & \yes & 2020-09-05 \\
+%     options   &   24.087 &   14.411 &   20.640 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   39.750 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   72.252 &   31.682 &   31.360 & \no  & \no  & 2020-09-24 \\
+%     xkeyval   &  253.739 &  214.742 &  164.900 & \yes & \yes & 2014-12-03 \\
+%     yax       &  428.311 &  135.902 &  113.700 & \yes & \yes & 2010-01-22 \\
 %     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
@@ -713,7 +729,7 @@ and the derived files           expkv.pdf
 %   \fnsym For \pkg{kvsetkeys} the linear model used for the other
 %   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
 %   quadratic run-time, the coefficients of the second degree polynomial fit are
-%   $p_2=\num{8.589}$, $p_1=\num{39.410}$, and $p_0=\num{71.760}$. Of course the
+%   $p_2=\num{8.240}$, $p_1=\num{44.862}$, and $p_0=\num{60.793}$. Of course the
 %   other packages might not really have linear run-time, but at least from 1~to
 %   20~keys the fits don't seem too bad. If one extrapolates the fits for 100
 %   \kv\ pairs one finds that most of them match pretty well, the exception
@@ -727,7 +743,7 @@ and the derived files           expkv.pdf
 %
 % Say we have a macro for which we want to create a \kv\ interface. The macro
 % has a parameter, which is stored in the dimension |\ourdim| having a default
-% value from its initialization. Now we want to be able to change that dimension
+% value from its initialisation. Now we want to be able to change that dimension
 % with the |width| key to some specified value. For that we'd do
 % \begin{lstlisting}
 % \newdimen\ourdim
@@ -1065,8 +1081,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{1.4}
-\def\ekvDate{2020-07-04}
+\def\ekvVersion{1.5}
+\def\ekvDate{2020-10-10}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1091,7 +1107,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@if@lastnamedcs}
 % If the primitive |\lastnamedcs| is available, we can be a bit faster than
-% without it. So we test for this and save the tests result in this macro.
+% without it. So we test for this and save the test's result in this macro.
 %    \begin{macrocode}
 \begingroup
   \edef\ekv@tmpa{\string \lastnamedcs}
@@ -1234,8 +1250,8 @@ and the derived files           expkv.pdf
 % \emph{after} stripping spaces, so an input of | {abc} | becomes |abc| after
 % stripping. It should be used with |#1| prefixed by |\ekv@mark|. Also this
 % implementation at most strips \emph{one} space from both sides (which should
-% be fine most of the time, since \TeX\ converts multiple spaces to a single one
-% during tokenization).
+% be fine most of the time, since \TeX\ reads consecutive spaces as a single one
+% during tokenisation).
 %    \begin{macrocode}
 \def\ekv@strip#1%
   {%
@@ -1469,13 +1485,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
     \ekv@gobble@from@mark@to@stop##2\ekv@endset\ekv@stop
 %    \end{macrocode}
-% else go on with other commas,
+% else go on with other commas.
 %    \begin{macrocode}
     \ekv@set@other##1##2,\ekv@stop,%
-%    \end{macrocode}
-% and get the next active comma delimited \kv\ pair.
-%    \begin{macrocode}
-    \ekv@set##1\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1485,9 +1497,8 @@ and the derived files           expkv.pdf
 % of |\ekv@set| and unbrace the sneaked stuff.
 %    \begin{macrocode}
 \long\def\ekv@endset
-    \ekv@stop\ekv@set@other##1,\ekv@stop,\ekv@set##2\ekv@mark
-    ##3%
-  {##3}
+    \ekv@stop\ekv@set@other##1\ekv@mark\ekv@stop,\ekv@stop,##2%
+  {##2}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1503,11 +1514,11 @@ and the derived files           expkv.pdf
 %   fast branching based on \TeX's argument grabbing rules and we don't have to
 %   split after the branching if the equal sign was there.
 %    \begin{macrocode}
-\long\def\ekv@eq@other##1=##2\ekv@mark##3##4\ekv@stop
+\long\def\ekv@eq@other##1=##2\ekv@mark##3%
   {%
     ##3##1\ekv@stop\ekv@mark##2%
   }
-\long\def\ekv@eq@active##1#2##2\ekv@mark##3##4\ekv@stop
+\long\def\ekv@eq@active##1#2##2\ekv@mark##3%
   {%
     ##3##1\ekv@stop\ekv@mark##2%
   }
@@ -1527,12 +1538,12 @@ and the derived files           expkv.pdf
 %   If not we split at the equal sign of category other.
 %    \begin{macrocode}
     \ekv@eq@other##2\ekv@nil\ekv@mark\ekv@set@eq@other@a
-      =\ekv@mark\ekv@set@eq@active\ekv@stop
+      =\ekv@mark\ekv@set@eq@active
 %    \end{macrocode}
-%   And insert the set name and the next recursion step of |\ekv@set@other|.
+%   And insert the set name for the next recursion step of |\ekv@set@other|.
 %    \begin{macrocode}
     ##1%
-    \ekv@set@other##1\ekv@mark
+    \ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1546,7 +1557,7 @@ and the derived files           expkv.pdf
 \long\def\ekv@set@eq@other@a##1\ekv@stop
   {%
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@other@active
-      #2\ekv@mark\ekv@set@eq@other@b\ekv@stop
+      #2\ekv@mark\ekv@set@eq@other@b
   }
 %    \end{macrocode}
 %   The second macro will have been called by |\ekv@eq@active| if no active
@@ -1559,11 +1570,10 @@ and the derived files           expkv.pdf
 \ekv@expB@unbraceA
   {%
     \long\def\ekv@set@eq@other@b
-        ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop
+        ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
+        ##2\ekv@nil=\ekv@mark\ekv@set@eq@active
   }%
-  {%
-    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}%
-  }
+  {\ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2\ekv@nil}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1575,10 +1585,12 @@ and the derived files           expkv.pdf
 %   to reinsert the equal sign and forward things to |\ekv@set@pair|.
 %    \begin{macrocode}
 \ekv@expB@unbraceA
-  {\long\def\ekv@set@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
   {%
-    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2=%
-  }
+    \long\def\ekv@set@eq@other@active
+        ##1\ekv@stop##2\ekv@nil#2\ekv@mark
+        \ekv@set@eq@other@b\ekv@mark##3=\ekv@mark\ekv@set@eq@active
+  }%
+  {\ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2=##3}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1591,15 +1603,16 @@ and the derived files           expkv.pdf
     ##1\ekv@nil\ekv@mark\ekv@set@eq@other@a\ekv@stop\ekv@mark
   {%
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@set@eq@active@
-      #2\ekv@mark\ekv@set@noeq\ekv@stop
+      #2\ekv@mark\ekv@set@noeq
   }
 %    \end{macrocode}
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\long\def\ekv@set@eq@active@##1\ekv@stop}%
+\ekv@expB@unbraceA
+  {\long\def\ekv@set@eq@active@##1\ekv@stop##2\ekv@nil#2\ekv@mark\ekv@set@noeq}%
   {%
-    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark
+    \ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2\ekv@nil
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1615,13 +1628,11 @@ and the derived files           expkv.pdf
   {%
     \unexpanded
       {%
-        \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F@gobble
-          \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+        \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@set@was@blank
+          \ekv@ifempty@A\ekv@ifempty@B
       }%
-      {%
-        \unexpanded\expandafter
-          {\ekv@strip{##1}{\expandafter\ekv@set@key\detokenize}\ekv@mark}%
-      }%
+    \unexpanded\expandafter
+      {\ekv@strip{##1}{\expandafter\ekv@set@key\detokenize}\ekv@mark}%
   }
 \ekv@expB@unbraceA
   {%
@@ -1629,6 +1640,15 @@ and the derived files           expkv.pdf
         ##1\ekv@nil\ekv@mark\ekv@set@eq@active@\ekv@stop\ekv@mark
   }%
   {\ekv@set@noeq}
+\def\ekv@set@was@blank##1%
+  {%
+    \def\ekv@set@was@blank
+        \ekv@ifempty@A\ekv@ifempty@B
+        \ekv@strip@a\ekv@mark####1\ekv@nil\ekv@mark##1##1\ekv@nil\ekv@stop
+        ####2\ekv@mark
+      {\ekv@set@other}%
+  }
+\ekv@set@was@blank{ }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1638,11 +1658,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@endset@other
     \ekv@stop
-    \ekv@eq@other##1\ekv@nil\ekv@mark\ekv@set@eq@other@a
-    =\ekv@mark\ekv@set@eq@active\ekv@stop
-    ##2%
-    \ekv@set@other##3\ekv@mark
-  {}
+    \ekv@eq@other\ekv@mark\ekv@stop\ekv@nil\ekv@mark\ekv@set@eq@other@a
+    =\ekv@mark\ekv@set@eq@active
+  {\ekv@set}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1691,7 +1709,6 @@ and the derived files           expkv.pdf
   {%
     \ekv@gobble@from@mark@to@stop##3\ekv@endparse\ekv@stop
     \ekv@parse@other##1##2##3,\ekv@stop,%
-    \ekv@parse##1##2\ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1699,7 +1716,7 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]{\ekv@endparse}
 %    \begin{macrocode}
 \long\def\ekv@endparse
-    \ekv@stop\ekv@parse@other##1,\ekv@stop,\ekv@parse##2\ekv@mark
+    \ekv@stop\ekv@parse@other##1\ekv@mark\ekv@stop,\ekv@stop,%
   {}
 %    \end{macrocode}
 % \end{macro}
@@ -1710,9 +1727,9 @@ and the derived files           expkv.pdf
   {%
     \ekv@gobble@from@mark@to@stop##3\ekv@endparse@other\ekv@stop
     \ekv@eq@other##3\ekv@nil\ekv@mark\ekv@parse@eq@other@a
-      =\ekv@mark\ekv@parse@eq@active\ekv@stop
+      =\ekv@mark\ekv@parse@eq@active
     ##1##2%
-    \ekv@parse@other##1##2\ekv@mark
+    \ekv@mark
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1722,23 +1739,27 @@ and the derived files           expkv.pdf
 \long\def\ekv@parse@eq@other@a##1\ekv@stop
   {%
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active
-      #2\ekv@mark\ekv@parse@eq@other@b\ekv@stop
+      #2\ekv@mark\ekv@parse@eq@other@b
   }
 \ekv@expB@unbraceA
   {%
     \long\def\ekv@parse@eq@other@b
         ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
+        ##2\ekv@nil=\ekv@mark\ekv@parse@eq@active
   }%
-  {\ekv@strip{##1}\ekv@parse@pair}
+  {\ekv@strip{##1}\ekv@parse@pair##2\ekv@nil}
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]
-%   {\ekv@parse@eq@other@active}
+% \begin{macro}[internal]{\ekv@parse@eq@other@active}
 %    \begin{macrocode}
 \ekv@expB@unbraceA
-  {\long\def\ekv@parse@eq@other@active##1\ekv@stop##2\ekv@nil\ekv@mark}%
-  {\ekv@strip{##1}\ekv@parse@pair##2=}
+  {%
+    \long\def\ekv@parse@eq@other@active
+        ##1\ekv@stop##2\ekv@nil#2\ekv@mark
+        \ekv@parse@eq@other@b\ekv@mark##3=\ekv@mark\ekv@parse@eq@active
+  }%
+  {\ekv@strip{##1}\ekv@parse@pair##2=##3}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1748,11 +1769,12 @@ and the derived files           expkv.pdf
     ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@a\ekv@stop\ekv@mark
   {%
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
-      #2\ekv@mark\ekv@parse@noeq\ekv@stop
+      #2\ekv@mark\ekv@parse@noeq
   }
-\ekv@expB@unbraceA{\long\def\ekv@parse@eq@active@##1\ekv@stop}%
+\ekv@expB@unbraceA
+  {\long\def\ekv@parse@eq@active@##1\ekv@stop##2#2\ekv@mark\ekv@parse@noeq}%
   {%
-    \ekv@strip{##1}\ekv@parse@pair
+    \ekv@strip{##1}\ekv@parse@pair##2%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1763,10 +1785,10 @@ and the derived files           expkv.pdf
   {%
     \unexpanded
       {%
-        \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@ifempty@true@F@gobbletwo
-          \ekv@ifempty@A\ekv@ifempty@B\@firstofone
+        \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@parse@was@blank
+          \ekv@ifempty@A\ekv@ifempty@B
       }%
-      {\unexpanded\expandafter{\ekv@strip{##1}\ekv@parse@key}}%
+      \unexpanded\expandafter{\ekv@strip{##1}\ekv@parse@key}%
   }
 \ekv@expB@unbraceA
   {%
@@ -1774,6 +1796,15 @@ and the derived files           expkv.pdf
         ##1\ekv@nil\ekv@mark\ekv@parse@eq@active@\ekv@stop\ekv@mark
   }%
   {\ekv@parse@noeq}
+\def\ekv@parse@was@blank##1%
+  {%
+    \def\ekv@parse@was@blank
+        \ekv@ifempty@A\ekv@ifempty@B
+        \ekv@strip@a\ekv@mark####1\ekv@nil\ekv@mark##1##1\ekv@nil\ekv@stop
+        \ekv@parse@key
+      {\ekv@parse@other}%
+  }
+\ekv@parse@was@blank{ }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1781,11 +1812,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@endparse@other
     \ekv@stop
-    \ekv@eq@other##1\ekv@nil\ekv@mark\ekv@parse@eq@other@a
-    =\ekv@mark\ekv@parse@eq@active\ekv@stop
-    ##2%
-    \ekv@parse@other##3\ekv@mark
-  {}
+    \ekv@eq@other\ekv@mark\ekv@stop\ekv@nil\ekv@mark\ekv@parse@eq@other@a
+    =\ekv@mark\ekv@parse@eq@active
+  {\ekv@parse}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1798,6 +1827,7 @@ and the derived files           expkv.pdf
 \long\def\ekv@parse@pair@##1##2##3##4%
   {%
     \unexpanded{##4{##2}{##1}}%
+    \ekv@parse@other##3##4%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1807,6 +1837,7 @@ and the derived files           expkv.pdf
 \long\def\ekv@parse@key##1##2##3%
   {%
     \unexpanded{##2{##1}}%
+    \ekv@parse@other##2##3%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1856,9 +1887,9 @@ and the derived files           expkv.pdf
 % leading |\ekv@empty| so that braces aren't stripped accidentally, but that
 % will not hurt and just expand to nothing in one step.
 %    \begin{macrocode}
-\long\def\ekv@changeset#1#2\ekv@set@other#3#4\ekv@set#5%
+\long\def\ekv@changeset#1#2\ekv@set@other#3%
   {%
-    #2\ekv@set@other#1#4\ekv@set#1%
+    #2\ekv@set@other#1%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -1870,12 +1901,12 @@ and the derived files           expkv.pdf
 %     \ekv@set@pair@d,\ekv@set@pair@e
 %   }
 %   |\ekv@set@pair| gets invoked with the space and brace stripped and
-%   detokenized key-name as its first, the value as the second, and the set name
-%   as the third argument. It provides tests for the key-macros and everything
-%   to be able to throw meaningful error messages if it isn't defined. We have
-%   two routes here, one if |\lastnamedcs| is defined and one if it isn't. The
-%   big difference is that if it is we can omit a |\csname| and instead just
-%   expand |\lastnamedcs| once to get the control sequence.
+%   |\detokenize|d key-name as its first, the value as the second, and the set
+%   name as the third argument. It provides tests for the key-macros and
+%   everything to be able to throw meaningful error messages if it isn't
+%   defined. We have two routes here, one if |\lastnamedcs| is defined and one
+%   if it isn't. The big difference is that if it is we can omit a |\csname| and
+%   instead just expand |\lastnamedcs| once to get the control sequence.
 %   If the macro is defined the value will be space and brace stripped and the
 %   key-macro called. Else branch into the error handling provided by
 %   |\ekv@set@pair|.
@@ -1897,6 +1928,7 @@ and the derived files           expkv.pdf
               }%
               {#1}%
           }%
+        \ekv@set@other#3%
       }
     \def\ekv@set@pair@a\fi\@secondoftwo
       {\fi\expandafter\ekv@set@pair@b\lastnamedcs}
@@ -1919,6 +1951,7 @@ and the derived files           expkv.pdf
               }%
               {#1}%
           }%
+        \ekv@set@other#3%
       }
     \def\ekv@set@pair@a\fi\ekv@set@pair@c{\fi\expandafter\ekv@set@pair@b\csname}
     \long\def\ekv@set@pair@c#1\endcsname#2#3{#3}
@@ -1956,6 +1989,7 @@ and the derived files           expkv.pdf
               }%
               {#1}%
           }%
+        \ekv@set@other#2%
       }
     \def\ekv@set@key@a\fi\@firstofone{\fi\expandafter\ekv@set@key@b\lastnamedcs}
   }
@@ -1975,6 +2009,7 @@ and the derived files           expkv.pdf
               }%
               {#1}%
           }%
+        \ekv@set@other#2%
       }
     \def\ekv@set@key@a\fi\ekv@set@key@c{\fi\expandafter\ekv@set@key@b\csname}
     \long\def\ekv@set@key@c#1N\endcsname#2{#2}
