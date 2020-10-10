@@ -611,11 +611,11 @@ and the derived files           expkv.pdf
 % \setkeys{foo}{bar={{baz}}} % should be `{baz}'
 % \end{lstlisting}
 %
-% \paragraph{\pkg{xkeyval}} is roughly nineteen times slower, but it provides
-% more functionality, e.g., it has choice keys, boolean keys, and so on. It
-% contains the same bug as \pkg{keyval} as it has to be compatible with it by
-% design (it replaces \pkg{keyval}'s frontend), but also adds even more cases in
-% which braces are stripped that shouldn't be stripped, worsening the situation.
+% \paragraph{\pkg{xkeyval}} is roughly twenty times slower, but it provides more
+% functionality, e.g., it has choice keys, boolean keys, and so on. It contains
+% the same bug as \pkg{keyval} as it has to be compatible with it by design (it
+% replaces \pkg{keyval}'s frontend), but also adds even more cases in which
+% braces are stripped that shouldn't be stripped, worsening the situation.
 %
 % \paragraph{\pkg{ltxkeys}} is no longer compatible with the \LaTeX\ kernel
 % starting with the release 2020-10-01. It is over 380 times slower -- which is
@@ -633,14 +633,15 @@ and the derived files           expkv.pdf
 % and in \autoref{tab:comp} regarding \pkg{ltxkeys} were last updated on
 % 2020-10-05).
 %
-% \paragraph{\pkg{l3keys}} is around four times slower, but has an, imho, great
-% interface to define keys. It strips \emph{all} outer spaces, even if somehow
-% multiple spaces ended up on either end. It offers more features, but is pretty
-% much bound to \pkg{expl3} code. Whether that's a drawback is up to you.
+% \paragraph{\pkg{l3keys}} is around four and a half times slower, but has an,
+% imho, great interface to define keys. It strips \emph{all} outer spaces, even
+% if somehow multiple spaces ended up on either end. It offers more features,
+% but is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up
+% to you.
 %
 % \paragraph{\pkg{pgfkeys}} is around \num{2.7} times slower for one key if one
-% uses the |/|\meta{path}|/.cd| syntax and about \SI{15}{\percent} slower if one
-% uses |\pgfqkeys|, but has an \emph{enormous} feature set.
+% uses the |/|\meta{path}|/.cd| syntax and almost \SI{20}{\percent} slower if
+% one uses |\pgfqkeys|, but has an \emph{enormous} feature set.
 % To get the best performance |\pgfqkeys| was used in the benchmark. This
 % reduces the overhead for setting the base directory of the benchmark keys by
 % about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
@@ -651,7 +652,7 @@ and the derived files           expkv.pdf
 % \pkg{pgfkeyx} is no longer compatible with versions of \pkg{pgfkeys} newer
 % than 2020-05-25.
 %
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about \num{4.3} times
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about \num{4.4} times
 % slower, but it works even if commas and equals have category codes different
 % from 12 (just as some other packages in this list). Else the features of the
 % keys are equal to those of \pkg{keyval}, the parser has more features, though.
@@ -711,15 +712,15 @@ and the derived files           expkv.pdf
 %     \toprule
 %     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
 %     \midrule
-%     keyval    &   13.814 &    1.308 &    7.040 & \yes & \yes & 2014-10-28 \\
-%     \expkv    &   19.807 &    2.303 &    7.554 & \no  & \no  & 2020-10-10 \\
-%     simplekv  &   18.553 &    6.331 &   17.720 & \yes & \yes & 2020-04-27 \\
-%     pgfkeys   &   24.439 &    2.142 &   10.380 & \yes & \yes & 2020-09-05 \\
-%     options   &   24.087 &   14.411 &   20.640 & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   39.750 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   72.252 &   31.682 &   31.360 & \no  & \no  & 2020-09-24 \\
-%     xkeyval   &  253.739 &  214.742 &  164.900 & \yes & \yes & 2014-12-03 \\
-%     yax       &  428.311 &  135.902 &  113.700 & \yes & \yes & 2010-01-22 \\
+%     keyval    &   13.742 &    1.486 &    7.254 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   19.701 &    2.169 &    6.592 & \no  & \no  & 2020-10-10 \\
+%     simplekv  &   18.334 &    6.971 &   17.710 & \yes & \yes & 2020-04-27 \\
+%     pgfkeys   &   24.274 &    1.725 &   10.650 & \yes & \yes & 2020-09-05 \\
+%     options   &   23.600 &   15.638 &   20.830 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   40.290 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   71.309 &   33.131 &   31.590 & \no  & \no  & 2020-09-24 \\
+%     xkeyval   &  253.563 &  202.246 &  168.300 & \yes & \yes & 2014-12-03 \\
+%     yax       &  421.853 &  157.003 &  114.700 & \yes & \yes & 2010-01-22 \\
 %     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
