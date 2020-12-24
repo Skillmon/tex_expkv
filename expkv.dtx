@@ -1274,24 +1274,20 @@ and the derived files           expkv.pdf
 % \end{macro}
 %
 % \begin{macro}[internal]
-%   {
-%     \ekv@expB@unbraceA,\ekv@expB@unbraceA@,
-%     \ekv@expBtwice@unbraceA,\ekv@expBtwice@unbraceA@,
-%     \ekv@zero
-%   }
-% To reduce some code doublets while gaining some speed, it is often useful to
-% expand the first token in a definition once. Let's define a wrapper for this.
+%   {\ekv@exparg,\ekv@exparg@,\ekv@expargtwice,\ekv@expargtwice@,\ekv@zero}
+% To reduce some code doublets while gaining some speed (and also as convenience
+% for other packages in the family), it is often useful to expand the first
+% token in a definition once. Let's define a wrapper for this.
+%
 % Also, to end a |\romannumeral| expansion, we want to use |\z@|, which is
 % contained in both plain \TeX\ and \LaTeX, but we use a private name for it to
-% make it easier to spot and hence more manageable.
+% make it easier to spot and hence easier to manage.
 %    \begin{macrocode}
 \let\ekv@zero\z@
-\long\def\ekv@expB@unbraceA#1#2%
-  {\expandafter\ekv@expB@unbraceA@\expandafter{#2}{#1}}
-\long\def\ekv@expB@unbraceA@#1#2{#2{#1}}%
-\long\def\ekv@expBtwice@unbraceA#1#2%
-  {\expandafter\ekv@expBtwice@unbraceA@\expandafter{#2}{#1}}
-\def\ekv@expBtwice@unbraceA@{\expandafter\ekv@expB@unbraceA@\expandafter}
+\long\def\ekv@exparg#1#2{\expandafter\ekv@exparg@\expandafter{#2}{#1}}
+\long\def\ekv@exparg@#1#2{#2{#1}}%
+\long\def\ekv@expargtwice#1#2{\expandafter\ekv@expargtwice@\expandafter{#2}{#1}}
+\def\ekv@expargtwice@{\expandafter\ekv@exparg@\expandafter}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1305,7 +1301,7 @@ and the derived files           expkv.pdf
     \unexpanded\expandafter{\ekv@name@set{#1}}%
     \unexpanded\expandafter{\ekv@name@key{\detokenize{#2}}}%
   }
-\ekv@expB@unbraceA{\def\ekv@name#1#2}{\ekv@name}
+\ekv@exparg{\def\ekv@name#1#2}{\ekv@name}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1351,16 +1347,16 @@ and the derived files           expkv.pdf
       }%
     \unexpanded{\@gobble}%
   }
-\ekv@expB@unbraceA{\protected\def\ekv@checkvalid#1#2}{\ekv@checkvalid}%
+\ekv@exparg{\protected\def\ekv@checkvalid#1#2}{\ekv@checkvalid}%
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
-\ekv@expBtwice@unbraceA{\def\ekvifdefined#1#2}%
+\ekv@expargtwice{\def\ekvifdefined#1#2}%
   {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}}}
-\ekv@expBtwice@unbraceA{\def\ekvifdefinedNoVal#1#2}%
+\ekv@expargtwice{\def\ekvifdefinedNoVal#1#2}%
   {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}
@@ -1383,10 +1379,10 @@ and the derived files           expkv.pdf
       {#1{\expandafter\let\csname#2\endcsname##3#3}}%
     \protected\def\ekvletNoVal##1##2##3%
       {#1{\expandafter\let\csname#2N\endcsname##3#3}}%
-    \ekv@expBtwice@unbraceA{\protected\long\def\ekvdefunknown##1##2}%
+    \ekv@expargtwice{\protected\long\def\ekvdefunknown##1##2}%
       {%
         \romannumeral
-        \expandafter\ekv@expB@unbraceA@\expandafter
+        \expandafter\ekv@exparg@\expandafter
           {%
             \expandafter\expandafter\expandafter
             \def\expandafter\csname\ekv@name{##1}{}u\endcsname####1####2{##2}%
@@ -1394,10 +1390,10 @@ and the derived files           expkv.pdf
           }%
           {\ekv@zero\ekv@checkvalid{##1}.}%
       }%
-    \ekv@expBtwice@unbraceA{\protected\long\def\ekvdefunknownNoVal##1##2}%
+    \ekv@expargtwice{\protected\long\def\ekvdefunknownNoVal##1##2}%
       {%
         \romannumeral
-        \expandafter\ekv@expB@unbraceA@\expandafter
+        \expandafter\ekv@exparg@\expandafter
           {%
             \expandafter\expandafter\expandafter
             \def\expandafter\csname\ekv@name{##1}{}uN\endcsname####1{##2}%
@@ -1452,13 +1448,13 @@ and the derived files           expkv.pdf
       }%
     \unexpanded{\fi}%
   }
-\ekv@expB@unbraceA{\protected\def\ekv@defsetmacro#1#2}{\ekv@defsetmacro}
+\ekv@exparg{\protected\def\ekv@defsetmacro#1#2}{\ekv@defsetmacro}
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\ekvifdefinedset}
 %    \begin{macrocode}
-\ekv@expBtwice@unbraceA{\def\ekvifdefinedset#1}%
+\ekv@expargtwice{\def\ekvifdefinedset#1}%
   {\expandafter\ekv@ifdefined\expandafter{\ekv@undefined@set{#1}}}
 %    \end{macrocode}
 % \end{macro}
@@ -1475,7 +1471,7 @@ and the derived files           expkv.pdf
 \begingroup
 \def\ekvset#1#2{%
 \endgroup
-\ekv@expB@unbraceA{\long\def\ekvset##1##2}%
+\ekv@exparg{\long\def\ekvset##1##2}%
   {%
     \expandafter\expandafter\expandafter
     \ekv@set\expandafter\csname\ekv@undefined@set{##1}\endcsname
@@ -1571,7 +1567,7 @@ and the derived files           expkv.pdf
 %   needed to delimit |\ekv@set@pair|'s argument anyway, so we just leave it
 %   there.
 %    \begin{macrocode}
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@set@eq@other@b
         ##1\ekv@nil\ekv@mark\ekv@set@eq@other@active\ekv@stop\ekv@mark
@@ -1588,7 +1584,7 @@ and the derived files           expkv.pdf
 %   |##2| everything that remains until the first found other equal sign. It has
 %   to reinsert the equal sign and forward things to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@set@eq@other@active
         ##1\ekv@stop##2\ekv@nil#2\ekv@mark
@@ -1613,7 +1609,7 @@ and the derived files           expkv.pdf
 %   If an active equal sign was found in |\ekv@set@eq@active| we'll have to pass
 %   the now split \kv\ pair on to |\ekv@set@pair|.
 %    \begin{macrocode}
-\ekv@expB@unbraceA
+\ekv@exparg
   {\long\def\ekv@set@eq@active@##1\ekv@stop##2\ekv@nil#2\ekv@mark\ekv@set@noeq}%
   {\ekv@strip{##1}{\expandafter\ekv@set@pair\detokenize}\ekv@mark##2\ekv@nil}
 %    \end{macrocode}
@@ -1636,7 +1632,7 @@ and the derived files           expkv.pdf
     \unexpanded\expandafter
       {\ekv@strip{##1}{\expandafter\ekv@set@key\detokenize}\ekv@mark}%
   }
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@set@noeq
         ##1\ekv@nil\ekv@mark\ekv@set@eq@active@\ekv@stop\ekv@mark
@@ -1729,7 +1725,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active
       #2\ekv@mark\ekv@parse@eq@other@b
   }
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@parse@eq@other@b
         ##1\ekv@nil\ekv@mark\ekv@parse@eq@other@active\ekv@stop\ekv@mark
@@ -1741,7 +1737,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@parse@eq@other@active}
 %    \begin{macrocode}
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@parse@eq@other@active
         ##1\ekv@stop##2\ekv@nil#2\ekv@mark
@@ -1759,7 +1755,7 @@ and the derived files           expkv.pdf
     \ekv@eq@active##1\ekv@nil\ekv@mark\ekv@parse@eq@active@
       #2\ekv@mark\ekv@parse@noeq
   }
-\ekv@expB@unbraceA
+\ekv@exparg
   {\long\def\ekv@parse@eq@active@##1\ekv@stop##2#2\ekv@mark\ekv@parse@noeq}%
   {\ekv@strip{##1}\ekv@parse@pair##2}
 %    \end{macrocode}
@@ -1776,7 +1772,7 @@ and the derived files           expkv.pdf
       }%
       \unexpanded\expandafter{\ekv@strip{##1}\ekv@parse@key}%
   }
-\ekv@expB@unbraceA
+\ekv@exparg
   {%
     \long\def\ekv@parse@noeq
         ##1\ekv@nil\ekv@mark\ekv@parse@eq@active@\ekv@stop\ekv@mark
@@ -1801,7 +1797,7 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}[internal]{\ekv@parse@pair,\ekv@parse@pair@}
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\long\def\ekv@parse@pair##1##2\ekv@nil}%
+\ekv@exparg{\long\def\ekv@parse@pair##1##2\ekv@nil}%
   {\ekv@strip{##2}\ekv@parse@pair@{##1}}
 \long\def\ekv@parse@pair@##1##2##3##4%
   {%
@@ -1839,8 +1835,7 @@ and the derived files           expkv.pdf
     \unexpanded{\ekvsneak{#2}}%
     \unexpanded\expandafter{\ekvset{#1}{#3}}%
   }
-\ekv@expBtwice@unbraceA{\long\def\ekvsetSneaked#1#2#3}%
-  {\ekvsetSneaked}
+\ekv@expargtwice{\long\def\ekvsetSneaked#1#2#3}{\ekvsetSneaked}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1853,7 +1848,7 @@ and the derived files           expkv.pdf
 % switch out the set expandably, so this works similar to the |\ekvsneak| macros
 % reading and reinserting the remainder of the \kv\ list.
 %    \begin{macrocode}
-\ekv@expB@unbraceA{\def\ekvchangeset#1}%
+\ekv@exparg{\def\ekvchangeset#1}%
   {%
     \expandafter\expandafter\expandafter
     \ekv@changeset\expandafter\csname\ekv@undefined@set{#1}\endcsname\ekv@empty
@@ -1939,7 +1934,7 @@ and the derived files           expkv.pdf
     \fi
     \ekv@set@pair@d#1%
   }
-\ekv@expB@unbraceA{\long\def\ekv@set@pair@d#1#2#3}{\ekv@strip{#2}#1}
+\ekv@exparg{\long\def\ekv@set@pair@d#1#2#3}{\ekv@strip{#2}#1}
 \long\def\ekv@set@pair@e\fi\ekv@set@pair@d#1#2#3{\fi#3}
 %    \end{macrocode}
 % \end{macro}
@@ -2003,13 +1998,13 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvsetdef}
 %   Provide a macro to define a shorthand to use |\ekvset| on a specified \set.
 %   To gain the maximum speed |\ekvset| is expanded twice by
-%   |\ekv@expB@unbraceA| so that during runtime the macro storing the set name
+%   |\ekv@exparg| so that during runtime the macro storing the set name
 %   is already built and one |\expandafter| doesn't have to be used.
 %    \begin{macrocode}
-\ekv@expBtwice@unbraceA{\protected\def\ekvsetdef#1#2}%
+\ekv@expargtwice{\protected\def\ekvsetdef#1#2}%
   {%
     \romannumeral
-    \ekv@expB@unbraceA{\ekv@zero\ekv@expB@unbraceA{\long\def#1##1}}%
+    \ekv@exparg{\ekv@zero\ekv@exparg{\long\def#1##1}}%
       {\ekvset{#2}{##1}}%
   }
 %    \end{macrocode}
@@ -2019,16 +2014,16 @@ and the derived files           expkv.pdf
 % And do the same for |\ekvsetSneaked| in the two possible ways, with a fixed
 % sneaked argument and with a flexible one.
 %    \begin{macrocode}
-\ekv@expBtwice@unbraceA{\protected\def\ekvsetSneakeddef#1#2}%
+\ekv@expargtwice{\protected\def\ekvsetSneakeddef#1#2}%
   {%
     \romannumeral
-    \ekv@expB@unbraceA{\ekv@zero\ekv@expB@unbraceA{\long\def#1##1##2}}%
+    \ekv@exparg{\ekv@zero\ekv@exparg{\long\def#1##1##2}}%
       {\ekvsetSneaked{#2}{##1}{##2}}%
   }
-\ekv@expBtwice@unbraceA{\protected\def\ekvsetdefSneaked#1#2#3}%
+\ekv@expargtwice{\protected\def\ekvsetdefSneaked#1#2#3}%
   {%
     \romannumeral
-    \ekv@expB@unbraceA{\ekv@zero\ekv@expB@unbraceA{\long\def#1##1}}%
+    \ekv@exparg{\ekv@zero\ekv@exparg{\long\def#1##1}}%
       {\ekvsetSneaked{#2}{#3}{##1}}%
   }
 %    \end{macrocode}
@@ -2065,12 +2060,9 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
 \long\def\ekv@err@common@#1`#2' #3.#4#5{\ekv@err{#4 (`#5', set `#2')}}
-\ekv@expB@unbraceA{\long\def\ekv@err@unknown#1}%
-  {\ekv@err@common{unknown key}{#1}}
-\ekv@expB@unbraceA{\long\def\ekv@err@noarg  #1}%
-  {\ekv@err@common{value forbidden}{#1}}
-\ekv@expB@unbraceA{\long\def\ekv@err@reqval #1}%
-  {\ekv@err@common{value required}{#1}}
+\ekv@exparg{\long\def\ekv@err@unknown#1}{\ekv@err@common{unknown key}{#1}}
+\ekv@exparg{\long\def\ekv@err@noarg  #1}{\ekv@err@common{value forbidden}{#1}}
+\ekv@exparg{\long\def\ekv@err@reqval #1}{\ekv@err@common{value required}{#1}}
 %    \end{macrocode}
 % \end{macro}
 %
