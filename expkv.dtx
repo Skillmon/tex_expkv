@@ -426,10 +426,10 @@ and the derived files           expkv.pdf
 %     \cs{ekvparse}\marg{code1}\marg{code2}\{\kv,\ldots\}
 %   \end{syntax}
 %   This macro parses the \kv\ pairs and provides those list elements which are
-%   only keys as the argument to \meta{code1}, and those which are a \kv\ pair
+%   only keys as an argument to \meta{code1}, and those which are a \kv\ pair
 %   to \meta{code2} as two arguments. It is fully expandable as well and returns
-%   the parsed list in |\unexpanded|, which has no effect outside of an
-%   |\expanded| or |\edef| context\footnotemark.
+%   each element of the parsed list in |\unexpanded|, which has no effect
+%   outside of an |\expanded| or |\edef| context\footnotemark.
 %   If you need control over the necessary steps of expansion you
 %   can use |\expanded| around it. You can use multiple tokens in \meta{code1}
 %   and \meta{code2} or just a single control sequence name. In both cases the
@@ -440,14 +440,23 @@ and the derived files           expkv.pdf
 %   not with the same parsing rules -- |\keyval_parse:NNn| throws an error on
 %   multiple equal signs per \kv\ pair and on empty \key\ names in a \kv\ pair,
 %   both of which |\ekvparse| doesn't deal with.
+% \end{function}
+% \footnotetext 
+%   {^^A
+%     This is a change in behaviour, previously (v0.3 and before) \cs{ekvparse}
+%     would expand in exactly two steps. This isn't always necessary, but makes
+%     the parsing considerably slower. If this is necessary for your application
+%     you can put an \cs[no-index]{expanded} around it and will still be faster
+%     since you need only a single \cs[no-index]{expandafter} this way.^^A
+%   }
 %
 %   As a small example:
 % \begin{lstlisting}
-% \ekvparse\handlekey\handlekeyval{foo = bar, key, baz={zzz}}
+% \ekvparse{\handlekey{S}}{\handlekeyval{S}}{foo = bar, key, baz={zzz}}
 % \end{lstlisting}
-%   would expand to
+%   would be equivalent to
 % \begin{lstlisting}
-% \handlekeyval{foo}{bar}\handlekey{key}\handlekeyval{baz}{zzz}
+% \handlekeyval{S}{foo}{bar}\handlekey{S}{key}\handlekeyval{S}{baz}{zzz}
 % \end{lstlisting}
 %   and afterwards |\handlekey| and |\handlekeyval| would have to further handle
 %   the \key. There are no macros like these two contained in \expkv, you have
@@ -462,15 +471,6 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}
 % \handle\kv{foo}{bar}\k{key}\kv{baz}{zzz}
 % \end{lstlisting}
-% \end{function}
-% \footnotetext 
-%   {^^A
-%     This is a change in behaviour, previously (v0.3 and before) \cs{ekvparse}
-%     would expand in exactly two steps. This isn't always necessary, but makes
-%     the parsing considerably slower. If this is necessary for your application
-%     you can put an \cs[no-index]{expanded} around it and will still be faster
-%     since you need only a single \cs[no-index]{expandafter} this way.^^A
-%   }.
 %
 % \subsection{Miscellaneous}
 %
