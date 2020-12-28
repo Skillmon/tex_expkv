@@ -131,4 +131,16 @@
   }
 }
 
+\OMIT
+\def\onlykey#1#2{\ifx#1#21\else0\fi.}
+\def\keyval#1#2#3#4{\ifx#1#31\else0\fi\ifx#2#41\else0\fi}
+\TIMO
+
+\TESTEXP{ekvparse multiple tokens}
+  {%
+    \ekvparse{\onlykey{k}}{\keyval{k}{v}}{v,v=k,k,k=v}
+    \NEWLINE
+    \expanded{\ekvparse{\onlykey{k}}{\keyval{k}{v}}{v=k,v,k=v,k}}
+  }
+
 \END
