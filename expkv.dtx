@@ -2034,18 +2034,12 @@ and the derived files           expkv.pdf
 % is unlikely) we want to somehow throw expandable errors, in our case via
 % undefined control sequences.
 %    \begin{macrocode}
-\begingroup
-\edef\ekv@err
+\def\ekv@err#1%
   {%
-    \endgroup
-    \unexpanded{\long\def\ekv@err}##1%
-      {%
-        \unexpanded{\expandafter\ekv@err@\@firstofone}%
-        {\unexpanded\expandafter{\csname ! expkv Error:\endcsname}##1.}%
-        \unexpanded{\ekv@stop}%
-      }%
+    \long\def\ekv@err##1{\expandafter\ekv@err@\@firstofone{#1##1.}\ekv@stop}%
   }
-\ekv@err
+\begingroup\expandafter\endgroup
+\expandafter\ekv@err\csname ! expkv Error:\endcsname
 \def\ekv@err@{\expandafter\ekv@gobbleto@stop}
 %    \end{macrocode}
 % \end{macro}
