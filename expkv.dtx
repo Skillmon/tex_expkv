@@ -103,6 +103,7 @@ and the derived files           expkv.pdf
 \definecolor{expkvred}{HTML}{9F393D}
 \colorlet{expkvgrey}{black!75}
 \makeatletter
+\newcommand*\example{\par\smallskip\noindent\textit{Example:} \ignorespaces}
 \newcommand*\expFormat
   {^^A
     {^^A
@@ -257,6 +258,9 @@ and the derived files           expkv.pdf
 % Note that while the package names are stylised with a vertical rule, their
 % names are all lower case with a hyphen (\emph{e.g.}, \file{expkv-def}).
 %
+% A list of concise comparisons to other \kv\ packages is contained in
+% \autoref{sec:cmp}.
+%
 % \subsection{Setting up Keys}\label{sec:define}
 % \expkv\ provides a rather simple approach to setting up keys, similar to
 % \pkg{keyval}. However there is an auxiliary package named \expkvd\ which
@@ -285,6 +289,10 @@ and the derived files           expkv.pdf
 %   Defines a \key\ taking a value in a \set\ to expand to \meta{code}. In
 %   \meta{code} you can use |#1| to refer to the given value.
 % \end{function}
+% \example Define |text| in |foo| to store the value inside |\foo@text|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \protected\long\ekvdef{foo}{text}{\def\foo@width{#1}}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvdefNoVal}
 %   \begin{syntax}
@@ -292,6 +300,10 @@ and the derived files           expkv.pdf
 %   \end{syntax}
 %   Defines a no value taking \key\ in a \set\ to expand to \meta{code}.
 % \end{function}
+% \example Define |bool| in |foo| to set |\iffoo@bool| to |true|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \protected\ekvdefNoVal{foo}{bool}{\foo@booltrue}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvlet}
 %   \begin{syntax}
@@ -300,6 +312,10 @@ and the derived files           expkv.pdf
 %   Let the value taking \key\ in \set\ to \meta{cs}, there are no checks on
 %   \meta{cs} enforced.
 % \end{function}
+% \example Let |cmd| in |foo| do the same as |\foo@cmd|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvlet{foo}{cmd}\foo@cmd
+% \end{lstlisting}
 %
 % \begin{function}{\ekvletNoVal}
 %   \begin{syntax}
@@ -308,6 +324,7 @@ and the derived files           expkv.pdf
 %   Let the no value taking \key\ in \set\ to \meta{cs}, it is not checked
 %   whether \meta{cs} exists or that it takes no parameter.
 % \end{function}
+% \example See above.
 %
 % \begin{function}{\ekvletkv}
 %   \begin{syntax}
@@ -317,6 +334,10 @@ and the derived files           expkv.pdf
 %   whether that second key exists (but take a look at
 %   \cs[no-index]{ekvifdefined}).
 % \end{function}
+% \example Let |B| in |bar| be an alias for |A| in |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvletkv{bar}{B}{foo}{A}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvletkvNoVal}
 %   \begin{syntax}
@@ -326,6 +347,7 @@ and the derived files           expkv.pdf
 %   whether that second key exists (but take a look at
 %   \cs[no-index]{ekvifdefinedNoVal}).
 % \end{function}
+% \example See above.
 %
 % \begin{function}{\ekvdefunknown}
 %   \begin{syntax}
@@ -338,6 +360,10 @@ and the derived files           expkv.pdf
 %   \key's name with |#2| in \meta{code}.\footnotemark
 % \end{function}
 % \footnotetext{That order is correct, this way the code is faster.}
+% \example Also search |bar| for undefined keys of set |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \long\ekvdefunknown{foo}{\ekvset{bar}{#2={#1}}}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvdefunknownNoVal}
 %   \begin{syntax}
@@ -348,6 +374,10 @@ and the derived files           expkv.pdf
 %   execute \meta{code} if an unknown |NoVal| \key\ was encountered. You can
 %   refer to the given \key\ with |#1| in \meta{code}.
 % \end{function}
+% \example Also search |bar| for undefined keys of set |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvdefunknownNoVal{foo}{\ekvset{bar}{#1}}
+% \end{lstlisting}
 %
 % \subsection{Parsing Keys}
 %
@@ -409,7 +439,7 @@ and the derived files           expkv.pdf
 %
 % \begin{function}{\ekvsetdefSneaked}
 %   \begin{syntax}
-%     \cs{ekvsetSneakeddef}\meta{cs}\marg{set}\marg{sneaked}
+%     \cs{ekvsetdefSneaked}\meta{cs}\marg{set}\marg{sneaked}
 %   \end{syntax}
 %   And this one behaves like \cs[no-index]{ekvsetSneakeddef} but with a fixed
 %   \meta{sneaked} argument. So the resulting macro is faster than but else
@@ -472,9 +502,7 @@ and the derived files           expkv.pdf
 % \handle\kv{foo}{bar}\k{key}\kv{baz}{zzz}
 % \end{lstlisting}
 %
-% \subsection{Miscellaneous}
-%
-% \subsubsection{Other Macros}
+% \subsection{Other Macros}
 %
 % \expkv\ provides some other macros which might be of interest.
 %
@@ -556,189 +584,6 @@ and the derived files           expkv.pdf
 %   macros outside of \expkv, but \emph{don't} change them! \expkv\ relies on
 %   their exact definitions internally.
 % \end{function}
-%
-% \subsubsection{Bugs}
-%
-% Just like \pkg{keyval}, \expkv\ is bug free. But if you find \pmso{bugs}hidden
-% features\footnote{Thanks, David!} you can tell me about them either via mail
-% (see the first page) or directly on GitHub if you have an account there:
-% \url{https://github.com/Skillmon/tex_expkv}
-%
-% \subsubsection{Comparisons}
-%
-% Comparisons of speed are done with a very simple test key and the help of the
-% \pkg{l3benchmark} package. The key and its usage should be equivalent to
-% \begin{lstlisting}
-% \protected\ekvdef{test}{height}{\def\myheight{#1}}
-% \ekvsetdef\expkvtest{test}
-% \expkvtest{ height = 6 }
-% \end{lstlisting}
-% and only the usage of the key, not its definition, is benchmarked. For the
-% impatient, the essence of these comparisons regarding speed and buggy
-% behaviour is contained in \autoref{tab:comp}.
-%
-% As far as I know \expkv\ is the only fully expandable \kv\ parser. I tried to
-% compare \expkv\ to every \kv\ package listed on
-% \href{https://ctan.org/topic/keyval}{CTAN}, however, one might notice that
-% some of those are missing from this list. That's because I didn't get the
-% others to work due to bugs, or because they just provide wrappers around other
-% packages in this list.
-%
-% In this subsubsection is no benchmark of |\ekvparse| and |\keyval_parse:NNn|
-% contained, as most other packages don't provide equivalent features to my
-% knowledge. |\ekvparse| is slightly faster than |\ekvset|, but keep in mind
-% that it does less. The same is true for |\keyval_parse:NNn| compared to
-% |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger). Comparing
-% just the two, |\ekvparse| is a tad faster than |\keyval_parse:NNn| because of
-% the two tests (for empty key names and only a single equal sign) which are
-% omitted.
-%
-% \paragraph{\pkg{keyval}} is about \SIrange{30}{40}{\percent} faster and has a
-% comparable feature set just a slightly different way how it handles keys
-% without values.  That might be considered a drawback, as it limits the
-% versatility, but also as an advantage, as it might reduce doubled code. Keep
-% in mind that as soon as someone loads \pkg{xkeyval} the performance of
-% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
-%
-% Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
-% without breaking backwards compatibility for \emph{many} documents, namely it
-% strips braces from the argument before stripping spaces if the argument isn't
-% surrounded by spaces, also it might strip more than one set of braces. Hence
-% all of the following are equivalent in their outcome, though the last two
-% lines should result in something different than the first two:
-% \begin{lstlisting}[belowskip=0pt]
-% \setkeys{foo}{bar=baz}
-% \setkeys{foo}{bar= {baz}}
-% \setkeys{foo}{bar={ baz}}  % should be ` baz'
-% \setkeys{foo}{bar={{baz}}} % should be `{baz}'
-% \end{lstlisting}
-%
-% \paragraph{\pkg{xkeyval}} is roughly twenty times slower, but it provides more
-% functionality, e.g., it has choice keys, boolean keys, and so on. It contains
-% the same bug as \pkg{keyval} as it has to be compatible with it by design (it
-% replaces \pkg{keyval}'s frontend), but also adds even more cases in which
-% braces are stripped that shouldn't be stripped, worsening the situation.
-%
-% \paragraph{\pkg{ltxkeys}} is no longer compatible with the \LaTeX\ kernel
-% starting with the release 2020-10-01. It is over 380 times slower -- which is
-% funny, because it aims to be ``[\ldots] faster [\ldots] than these earlier
-% packages [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time
-% to parse zero~keys than five of the packages in this comparison need to parse
-% 100~keys.  Since it aims to have a bigger feature set than \pkg{xkeyval}, it
-% most definitely also has a bigger feature set than \expkv.  Also, it can't
-% parse |\long| input, so as soon as your values contain a |\par|, it'll throw
-% errors.  Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by
-% design, which, imho, is a weird design choice. In addition \pkg{ltxkeys} loads
-% \pkg{catoptions} which is known to introduce bugs (e.g., see
-% \url{https://tex.stackexchange.com/questions/461783}). Because it is no longer
-% compatible with the kernel, I stop benchmarking it (so the numbers listed here
-% and in \autoref{tab:comp} regarding \pkg{ltxkeys} were last updated on
-% 2020-10-05).
-%
-% \paragraph{\pkg{l3keys}} is around four and a half times slower, but has an,
-% imho, great interface to define keys. It strips \emph{all} outer spaces, even
-% if somehow multiple spaces ended up on either end. It offers more features,
-% but is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up
-% to you.
-%
-% \paragraph{\pkg{pgfkeys}} is around \num{2.7} times slower for one key if one
-% uses the |/|\meta{path}|/.cd| syntax and almost \SI{20}{\percent} slower if
-% one uses |\pgfqkeys|, but has an \emph{enormous} feature set.
-% To get the best performance |\pgfqkeys| was used in the benchmark. This
-% reduces the overhead for setting the base directory of the benchmark keys by
-% about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
-% bigger if |\pgfkeys{|\meta{path}|/.cd,|\meta{keys}|}| was used instead).
-% It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
-% also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
-% was last updated in 2012 and it slows down |\pgfkeys| by factor~\num{8}. Also
-% \pkg{pgfkeyx} is no longer compatible with versions of \pkg{pgfkeys} newer
-% than 2020-05-25.
-%
-% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about \num{4.4} times
-% slower, but it works even if commas and equals have category codes different
-% from 12 (just as some other packages in this list). Else the features of the
-% keys are equal to those of \pkg{keyval}, the parser has more features, though.
-%
-% \paragraph{\pkg{options}} is \num{1.7} times slower for only a single value.
-% It has a much bigger feature set. Unfortunately it also suffers from the
-% premature unbracing bug \pkg{keyval} has.
-%
-% \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
-% I don't understand the documentation). There was an update released on
-% 2020-04-27 which greatly improved the package's performance and adds
-% functionality so that it can be used more like most of the other \kv\
-% packages. It has problems with stripping braces and spaces in a hard to
-% predict manner just like \pkg{keyval}. Also, while it tries to be robust
-% against category code changes of commas and equal signs, the used mechanism
-% fails if the \kv\ list already got tokenised. Regarding unknown keys it got a
-% very interesting behaviour. It doesn't throw an error, but stores the \val\ in
-% a new entry accessible with \cs[no-index]{useKV}. Also if you omit \val\ it
-% stores |true| for that \key. For up to three keys, \expkv\ is a bit faster,
-% for more keys \pkg{simplekv} takes the lead.
-%
-% \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
-% syntax, imho, and again a direct equivalent is hard to define. It has the
-% premature unbracing bug, too. Also somehow loading \pkg{yax} broke
-% \pkg{options} for me. The tested definition was:
-% \begin{lstlisting}[belowskip=0pt]
-% \usepackage{yax}
-% \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
-% \setparameterlist{yax}{ height = 6 }                       % benchmarked
-% \end{lstlisting}
-%
-% \begin{table}
-%   \def\fnsym{\textcolor{red!80!black}{*}}%
-%   \sisetup{round-precision=1, round-mode=places}%
-%   \begingroup
-%   \centering
-%   \newcommand*\yes{\textcolor{red!80!black}  {yes}}^^A
-%   \newcommand*\no {\textcolor{green!80!black}{no}}^^A
-%   \caption[Comparison of \kv\ packages]
-%     {^^A
-%       Comparison of \kv\ packages. The packages are ordered from
-%       fastest to slowest for one \kv\ pair. Benchmarking was done using
-%       \pkg{l3benchmark} and the scripts in the \file{Benchmarks} folder
-%       of the \href{https://github.com/Skillmon/tex_expkv}{git repository}.
-%       The columns $p_i$ are the polynomial coefficients of a linear fit to the
-%       run-time, $p_0$ can be interpreted as the overhead for initialisation
-%       and $p_1$ the cost per key. The $T_0$ column is the actual mean ops
-%       needed for an empty list argument, as the linear fit doesn't match that
-%       point well in general. The column ``BB'' lists whether the
-%       parsing is affected by some sort of brace bug, ``CF'' stands for
-%       category code fragile and lists whether the parsing breaks with active
-%       commas or equal signs.^^A
-%       \label{tab:comp}^^A
-%     }
-%   \begin{tabular}
-%       {>{\collectcell\pkg}l<{\endcollectcell}*3{S[table-format=4.1]}ccc}
-%     \toprule
-%     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
-%     \midrule
-%     keyval    &   13.742 &    1.486 &    7.254 & \yes & \yes & 2014-10-28 \\
-%     \expkv    &   19.701 &    2.169 &    6.592 & \no  & \no  & 2020-10-10 \\
-%     simplekv  &   18.334 &    6.971 &   17.710 & \yes & \yes & 2020-04-27 \\
-%     pgfkeys   &   24.274 &    1.725 &   10.650 & \yes & \yes & 2020-09-05 \\
-%     options   &   23.600 &   15.638 &   20.830 & \yes & \yes & 2015-03-01 \\
-%     kvsetkeys & {\fnsym} & {\fnsym} &   40.290 & \no  & \no  & 2019-12-15 \\
-%     l3keys    &   71.309 &   33.131 &   31.590 & \no  & \no  & 2020-09-24 \\
-%     xkeyval   &  253.563 &  202.246 &  168.300 & \yes & \yes & 2014-12-03 \\
-%     yax       &  421.853 &  157.003 &  114.700 & \yes & \yes & 2010-01-22 \\
-%     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
-%     \bottomrule
-%   \end{tabular}
-%   \par
-%   \endgroup
-%   \medskip
-%   \fnsym For \pkg{kvsetkeys} the linear model used for the other
-%   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
-%   quadratic run-time, the coefficients of the second degree polynomial fit are
-%   $p_2=\num{8.240}$, $p_1=\num{44.862}$, and $p_0=\num{60.793}$. Of course the
-%   other packages might not really have linear run-time, but at least from 1~to
-%   20~keys the fits don't seem too bad. If one extrapolates the fits for 100
-%   \kv\ pairs one finds that most of them match pretty well, the exception
-%   being \pkg{ltxkeys}, which behaves quadratic as well with
-%   $p_2=\num{23.500}$, $p_1=\num{2906.634}$, and $p_0=\num{6547.489}$.
-% \end{table}
 %
 % \subsection{Examples}
 %
@@ -1013,6 +858,193 @@ and the derived files           expkv.pdf
 % <to be read again>
 %                    \! expkv Error: Set `<set>' undefined.
 % \end{lstlisting}
+%
+% \subsection{Bugs}
+%
+% Just like \pkg{keyval}, \expkv\ is bug free. But if you find \pmso{bugs}hidden
+% features\footnote{Thanks, David!} you can tell me about them either via mail
+% (see the first page) or directly on GitHub if you have an account there:
+% \url{https://github.com/Skillmon/tex_expkv}
+%
+% \subsection{Comparisons}\label{sec:cmp}
+%
+% This subsection makes some basic comparison between \expkv\ and other \kv\
+% packages. The comparisons are really concise, regarding speed, feature range
+% (without listing the features of each package), and bugs and misfeatures.
+%
+% Comparisons of speed are done with a very simple test key and the help of the
+% \pkg{l3benchmark} package. The key and its usage should be equivalent to
+% \begin{lstlisting}
+% \protected\ekvdef{test}{height}{\def\myheight{#1}}
+% \ekvsetdef\expkvtest{test}
+% \expkvtest{ height = 6 }
+% \end{lstlisting}
+% and only the usage of the key, not its definition, is benchmarked. For the
+% impatient, the essence of these comparisons regarding speed and buggy
+% behaviour is contained in \autoref{tab:comp}.
+%
+% As far as I know \expkv\ is the only fully expandable \kv\ parser. I tried to
+% compare \expkv\ to every \kv\ package listed on
+% \href{https://ctan.org/topic/keyval}{CTAN}, however, one might notice that
+% some of those are missing from this list. That's because I didn't get the
+% others to work due to bugs, or because they just provide wrappers around other
+% packages in this list.
+%
+% In this subsection is no benchmark of |\ekvparse| and |\keyval_parse:NNn|
+% contained, as most other packages don't provide equivalent features to my
+% knowledge. |\ekvparse| is slightly faster than |\ekvset|, but keep in mind
+% that it does less. The same is true for |\keyval_parse:NNn| compared to
+% |\keys_set:nn| of \pkg{expl3} (where the difference is much bigger). Comparing
+% just the two, |\ekvparse| is a tad faster than |\keyval_parse:NNn| because of
+% the two tests (for empty key names and only a single equal sign) which are
+% omitted.
+%
+% \paragraph{\pkg{keyval}} is about \SIrange{30}{40}{\percent} faster and has a
+% comparable feature set just a slightly different way how it handles keys
+% without values.  That might be considered a drawback, as it limits the
+% versatility, but also as an advantage, as it might reduce doubled code. Keep
+% in mind that as soon as someone loads \pkg{xkeyval} the performance of
+% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
+%
+% Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
+% without breaking backwards compatibility for \emph{many} documents, namely it
+% strips braces from the argument before stripping spaces if the argument isn't
+% surrounded by spaces, also it might strip more than one set of braces. Hence
+% all of the following are equivalent in their outcome, though the last two
+% lines should result in something different than the first two:
+% \begin{lstlisting}[belowskip=0pt]
+% \setkeys{foo}{bar=baz}
+% \setkeys{foo}{bar= {baz}}
+% \setkeys{foo}{bar={ baz}}  % should be ` baz'
+% \setkeys{foo}{bar={{baz}}} % should be `{baz}'
+% \end{lstlisting}
+%
+% \paragraph{\pkg{xkeyval}} is roughly twenty times slower, but it provides more
+% functionality, e.g., it has choice keys, boolean keys, and so on. It contains
+% the same bug as \pkg{keyval} as it has to be compatible with it by design (it
+% replaces \pkg{keyval}'s frontend), but also adds even more cases in which
+% braces are stripped that shouldn't be stripped, worsening the situation.
+%
+% \paragraph{\pkg{ltxkeys}} is no longer compatible with the \LaTeX\ kernel
+% starting with the release 2020-10-01. It is over 380 times slower -- which is
+% funny, because it aims to be ``[\ldots] faster [\ldots] than these earlier
+% packages [referring to \pkg{keyval} and \pkg{xkeyval}].'' It needs more time
+% to parse zero~keys than five of the packages in this comparison need to parse
+% 100~keys.  Since it aims to have a bigger feature set than \pkg{xkeyval}, it
+% most definitely also has a bigger feature set than \expkv.  Also, it can't
+% parse |\long| input, so as soon as your values contain a |\par|, it'll throw
+% errors.  Furthermore, \pkg{ltxkeys} doesn't strip outer braces at all by
+% design, which, imho, is a weird design choice. In addition \pkg{ltxkeys} loads
+% \pkg{catoptions} which is known to introduce bugs (e.g., see
+% \url{https://tex.stackexchange.com/questions/461783}). Because it is no longer
+% compatible with the kernel, I stop benchmarking it (so the numbers listed here
+% and in \autoref{tab:comp} regarding \pkg{ltxkeys} were last updated on
+% 2020-10-05).
+%
+% \paragraph{\pkg{l3keys}} is around four and a half times slower, but has an,
+% imho, great interface to define keys. It strips \emph{all} outer spaces, even
+% if somehow multiple spaces ended up on either end. It offers more features,
+% but is pretty much bound to \pkg{expl3} code. Whether that's a drawback is up
+% to you.
+%
+% \paragraph{\pkg{pgfkeys}} is around \num{2.7} times slower for one key if one
+% uses the |/|\meta{path}|/.cd| syntax and almost \SI{20}{\percent} slower if
+% one uses |\pgfqkeys|, but has an \emph{enormous} feature set.
+% To get the best performance |\pgfqkeys| was used in the benchmark. This
+% reduces the overhead for setting the base directory of the benchmark keys by
+% about \SI{43}{\ops} (so both $p_0$ and $T_0$ would be about \SI{43}{\ops}
+% bigger if |\pgfkeys{|\meta{path}|/.cd,|\meta{keys}|}| was used instead).
+% It has the same or a very similar bug \pkg{keyval} has. The brace bug (and
+% also the category fragility) can be fixed by \pkg{pgfkeyx}, but this package
+% was last updated in 2012 and it slows down |\pgfkeys| by factor~\num{8}. Also
+% \pkg{pgfkeyx} is no longer compatible with versions of \pkg{pgfkeys} newer
+% than 2020-05-25.
+%
+% \paragraph{\pkg{kvsetkeys} with \pkg{kvdefinekeys}} is about \num{4.4} times
+% slower, but it works even if commas and equals have category codes different
+% from 12 (just as some other packages in this list). Else the features of the
+% keys are equal to those of \pkg{keyval}, the parser has more features, though.
+%
+% \paragraph{\pkg{options}} is \num{1.7} times slower for only a single value.
+% It has a much bigger feature set. Unfortunately it also suffers from the
+% premature unbracing bug \pkg{keyval} has.
+%
+% \paragraph{\pkg{simplekv}} is hard to compare because I don't speak French (so
+% I don't understand the documentation). There was an update released on
+% 2020-04-27 which greatly improved the package's performance and adds
+% functionality so that it can be used more like most of the other \kv\
+% packages. It has problems with stripping braces and spaces in a hard to
+% predict manner just like \pkg{keyval}. Also, while it tries to be robust
+% against category code changes of commas and equal signs, the used mechanism
+% fails if the \kv\ list already got tokenised. Regarding unknown keys it got a
+% very interesting behaviour. It doesn't throw an error, but stores the \val\ in
+% a new entry accessible with \cs[no-index]{useKV}. Also if you omit \val\ it
+% stores |true| for that \key. For up to three keys, \expkv\ is a bit faster,
+% for more keys \pkg{simplekv} takes the lead.
+%
+% \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
+% syntax, imho, and again a direct equivalent is hard to define. It has the
+% premature unbracing bug, too. Also somehow loading \pkg{yax} broke
+% \pkg{options} for me. The tested definition was:
+% \begin{lstlisting}[belowskip=0pt]
+% \usepackage{yax}
+% \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
+% \setparameterlist{yax}{ height = 6 }                       % benchmarked
+% \end{lstlisting}
+%
+% \begin{table}
+%   \def\fnsym{\textcolor{red!80!black}{*}}%
+%   \sisetup{round-precision=1, round-mode=places}%
+%   \begingroup
+%   \centering
+%   \newcommand*\yes{\textcolor{red!80!black}  {yes}}^^A
+%   \newcommand*\no {\textcolor{green!80!black}{no}}^^A
+%   \caption[Comparison of \kv\ packages]
+%     {^^A
+%       Comparison of \kv\ packages. The packages are ordered from
+%       fastest to slowest for one \kv\ pair. Benchmarking was done using
+%       \pkg{l3benchmark} and the scripts in the \file{Benchmarks} folder
+%       of the \href{https://github.com/Skillmon/tex_expkv}{git repository}.
+%       The columns $p_i$ are the polynomial coefficients of a linear fit to the
+%       run-time, $p_0$ can be interpreted as the overhead for initialisation
+%       and $p_1$ the cost per key. The $T_0$ column is the actual mean ops
+%       needed for an empty list argument, as the linear fit doesn't match that
+%       point well in general. The column ``BB'' lists whether the
+%       parsing is affected by some sort of brace bug, ``CF'' stands for
+%       category code fragile and lists whether the parsing breaks with active
+%       commas or equal signs.^^A
+%       \label{tab:comp}^^A
+%     }
+%   \begin{tabular}
+%       {>{\collectcell\pkg}l<{\endcollectcell}*3{S[table-format=4.1]}ccc}
+%     \toprule
+%     \rmfamily Package & {$p_1$} & {$p_0$} & {$T_0$}& BB & CF & Date \\
+%     \midrule
+%     keyval    &   13.742 &    1.486 &    7.254 & \yes & \yes & 2014-10-28 \\
+%     \expkv    &   19.701 &    2.169 &    6.592 & \no  & \no  & 2020-10-10 \\
+%     simplekv  &   18.334 &    6.971 &   17.710 & \yes & \yes & 2020-04-27 \\
+%     pgfkeys   &   24.274 &    1.725 &   10.650 & \yes & \yes & 2020-09-05 \\
+%     options   &   23.600 &   15.638 &   20.830 & \yes & \yes & 2015-03-01 \\
+%     kvsetkeys & {\fnsym} & {\fnsym} &   40.290 & \no  & \no  & 2019-12-15 \\
+%     l3keys    &   71.309 &   33.131 &   31.590 & \no  & \no  & 2020-09-24 \\
+%     xkeyval   &  253.563 &  202.246 &  168.300 & \yes & \yes & 2014-12-03 \\
+%     yax       &  421.853 &  157.003 &  114.700 & \yes & \yes & 2010-01-22 \\
+%     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
+%     \bottomrule
+%   \end{tabular}
+%   \par
+%   \endgroup
+%   \medskip
+%   \fnsym For \pkg{kvsetkeys} the linear model used for the other
+%   packages is a poor fit, \pkg{kvsetkeys} seems to have approximately
+%   quadratic run-time, the coefficients of the second degree polynomial fit are
+%   $p_2=\num{8.240}$, $p_1=\num{44.862}$, and $p_0=\num{60.793}$. Of course the
+%   other packages might not really have linear run-time, but at least from 1~to
+%   20~keys the fits don't seem too bad. If one extrapolates the fits for 100
+%   \kv\ pairs one finds that most of them match pretty well, the exception
+%   being \pkg{ltxkeys}, which behaves quadratic as well with
+%   $p_2=\num{23.500}$, $p_1=\num{2906.634}$, and $p_0=\num{6547.489}$.
+% \end{table}
 %
 % \subsection{License}
 %
