@@ -404,6 +404,10 @@ and the derived files           expkv.pdf
 %   be split at the first one and the others are considered part of the value.
 %   |\ekvset| should be nestable.
 % \end{function}
+% \example Parse |key=arg, key| in the set |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvset{foo}{key=arg, key}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvsetSneaked}
 %   \begin{syntax}
@@ -414,6 +418,10 @@ and the derived files           expkv.pdf
 %   \cs[no-index]{ekvsneak} has been called with \meta{sneak} as its argument as
 %   the first action.
 % \end{function}
+% \example Parse |key=arg, key| in the set |foo| with |\afterwards| sneaked out:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvsetSneaked{foo}{\afterwards}{key=arg, key}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvsetdef}
 %   \begin{syntax}
@@ -426,6 +434,10 @@ and the derived files           expkv.pdf
 %   \texttt
 %     {\string\long\string\def\meta{cs}\#1\{\string\ekvset\marg{set}\{\#1\}\}}
 % \end{function}
+% \example Define the macro |\foosetup| to parse keys in the set |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvsetdef\foosetup{foo}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvsetSneakeddef}
 %   \begin{syntax}
@@ -443,6 +455,11 @@ and the derived files           expkv.pdf
 %       \string\ekvsetSneaked\marg{set}\{\#1\}\{\#2\}\}^^A
 %     }
 % \end{function}
+% \example Define the macro |\foothings| to parse keys in the set |foo| and
+% accept a sneaked argument:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvsetSneakeddef\foothings{foo}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvsetdefSneaked}
 %   \begin{syntax}
@@ -457,6 +474,11 @@ and the derived files           expkv.pdf
 %       \string\ekvsetSneaked\marg{set}\marg{sneaked}\{\#1\}\}^^A
 %     }
 % \end{function}
+% \example Define the macro |\barthing| to parse keys in the set |bar| and
+% always execute |\afterwards| afterwards:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvsetdefSneaked\barthing{bar}{\afterwards}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvparse}
 %   \begin{syntax}
@@ -486,8 +508,7 @@ and the derived files           expkv.pdf
 %     you can put an \cs[no-index]{expanded} around it and will still be faster
 %     since you need only a single \cs[no-index]{expandafter} this way.^^A
 %   }
-%
-%   As a small example:
+% \example
 % \begin{lstlisting}
 % \ekvparse{\handlekey{S}}{\handlekeyval{S}}{foo = bar, key, baz={zzz}}
 % \end{lstlisting}
@@ -516,6 +537,7 @@ and the derived files           expkv.pdf
 % \begin{function}{\ekvVersion,\ekvDate}
 %   These two macros store the version and date of the package.
 % \end{function}
+%
 % \begin{function}{\ekvifdefined,\ekvifdefinedNoVal}
 %   \begin{syntax}
 %     \cs{ekvifdefined}\marg{set}\marg{key}\marg{true}\marg{false}
@@ -525,6 +547,11 @@ and the derived files           expkv.pdf
 %   either a hash table entry doesn't exist for that key or its meaning is
 %   |\relax|.
 % \end{function}
+% \example Check whether the key |special| is already defined in set |foo|, if
+% it isn't input a file that contains more key definitions:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvifdefined{foo}{special}{}{\input{foo.morekeys.tex}}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvifdefinedset}
 %   \begin{syntax}
@@ -533,6 +560,12 @@ and the derived files           expkv.pdf
 %   This macro tests whether \set\ is defined (which it is if at least one key
 %   was defined for it). If it is \meta{true} will be run, else \meta{false}.
 % \end{function}
+% \example Check whether the set |VeRyUnLiKeLy| is already defined, if so throw
+% an error, else do nothing:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvifdefinedset{VeRyUnLiKeLy}
+%   {\errmessage{VeRyUnLiKeLy already defined}}{}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak}
 %   \begin{syntax}
@@ -545,6 +578,12 @@ and the derived files           expkv.pdf
 %   \meta{after} before anything that has been smuggled and |\ekvbreakPostSneak|
 %   will put \meta{after} after the stuff that has been sneaked out.
 % \end{function}
+% \example Define a key |abort| that will stop key parsing inside the set |foo|
+% and execute |\foo@aborted|, or if it got a value |\foo@aborted@with|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvdefNoVal{foo}{abort}{\ekvbreak{\foo@aborted}}
+% \ekvdef{foo}{abort}{\ekvbreak{\foo@aborted@with{#1}}}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvsneak,\ekvsneakPre}
 %   \begin{syntax}
@@ -558,6 +597,11 @@ and the derived files           expkv.pdf
 %   list everything that has been |\ekvsneak|ed will be left in the input
 %   stream. A small usage example is shown in \autoref{sec:sneakex}.
 % \end{function}
+% \example Define a key |secret| in the set |foo| that will sneak out a macro
+% |\foo@secretly@sneaked|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvdefNoVal{foo}{secret}{\ekvsneak{\foo@secretly@sneaked}}
+% \end{lstlisting}
 %
 % \begin{function}{\ekvchangeset}
 %   \begin{syntax}
@@ -569,6 +613,13 @@ and the derived files           expkv.pdf
 %   reads and reinserts the remainder of the current |\ekvset| macro to do its
 %   job. It is comparable to using \texttt{\meta{key}/.cd} in \pkg{pgfkeys}.
 % \end{function}
+% \example Define a key |cd| in set |foo| that will change to another set as
+% specified in the value, if the set is undefined it'll stop the parsing and
+% throw an error as defined in the macro |\foo@cd@error|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvdef{foo}{cd}
+%   {\ekvifdefinedset{#1}{\ekvchangeset{#1}}{\ekvbreak{\foo@cd@error}}}
+% \end{lstlisting}
 %
 % \bigskip
 %
@@ -591,6 +642,10 @@ and the derived files           expkv.pdf
 %   macros outside of \expkv, but \emph{don't} change them! \expkv\ relies on
 %   their exact definitions internally.
 % \end{function}
+% \example Execute the callback of the key |key| in set |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \csname\ekv@name{foo}{key}\endcsname
+% \end{lstlisting}
 %
 % \subsection{Examples}
 %
