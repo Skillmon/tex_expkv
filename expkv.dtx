@@ -181,6 +181,7 @@ and the derived files           expkv.pdf
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
 \DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
 \DoNotIndex{\@,\unexpanded,\string,\expanded,\detokenize,\meaning,\lastnamedcs}
+\DoNotIndex{\romannumeral,\z@}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
 \DoNotIndex{\else}
@@ -434,9 +435,11 @@ and the derived files           expkv.pdf
 %   \texttt
 %     {\string\long\string\def\meta{cs}\#1\{\string\ekvset\marg{set}\{\#1\}\}}
 % \end{function}
-% \example Define the macro |\foosetup| to parse keys in the set |foo|:
+% \example Define the macro |\foosetup| to parse keys in the set |foo| and use
+% it to parse |key=arg, key|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvsetdef\foosetup{foo}
+% \foosetup{key=arg, key}
 % \end{lstlisting}
 %
 % \begin{function}{\ekvsetSneakeddef}
@@ -456,9 +459,11 @@ and the derived files           expkv.pdf
 %     }
 % \end{function}
 % \example Define the macro |\foothings| to parse keys in the set |foo| and
-% accept a sneaked argument:
+% accept a sneaked argument, then use it to parse |key=arg, key| and sneak
+% |\afterwards|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvsetSneakeddef\foothings{foo}
+% \foothings{\afterwards}{key=arg, key}
 % \end{lstlisting}
 %
 % \begin{function}{\ekvsetdefSneaked}
@@ -475,9 +480,10 @@ and the derived files           expkv.pdf
 %     }
 % \end{function}
 % \example Define the macro |\barthing| to parse keys in the set |bar| and
-% always execute |\afterwards| afterwards:
+% always execute |\afterwards| afterwards, then use it to parse |key=arg, key|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvsetdefSneaked\barthing{bar}{\afterwards}
+% \barthing{key=arg, key}
 % \end{lstlisting}
 %
 % \begin{function}{\ekvparse}
@@ -609,9 +615,8 @@ and the derived files           expkv.pdf
 %   \end{syntax}
 %   Replaces the current set with \meta{new-set}, so for the rest of the current
 %   |\ekvset| call, that call behaves as if it was called with
-%   \texttt{\cs[no-index]{ekvset}\marg{new-set}}. Just like |\ekvsneak| this
-%   reads and reinserts the remainder of the current |\ekvset| macro to do its
-%   job. It is comparable to using \texttt{\meta{key}/.cd} in \pkg{pgfkeys}.
+%   \texttt{\cs[no-index]{ekvset}\marg{new-set}}. It is comparable to using
+%   \texttt{\meta{key}/.cd} in \pkg{pgfkeys}.
 % \end{function}
 % \example Define a key |cd| in set |foo| that will change to another set as
 % specified in the value, if the set is undefined it'll stop the parsing and
@@ -625,8 +630,8 @@ and the derived files           expkv.pdf
 %
 % \begin{function}{\ekv@name,\ekv@name@set,\ekv@name@key}
 %   \begin{syntax}
-%     \cs{ekv@name}\marg{set}\marg{key}\\
-%     \cs{ekv@name@set}\marg{set}\\
+%     \cs{ekv@name}\marg{set}\marg{key}
+%     \cs{ekv@name@set}\marg{set}
 %     \cs{ekv@name@key}\marg{key}
 %   \end{syntax}
 %   The names of the macros that correspond to a key in a set are build with
@@ -642,9 +647,9 @@ and the derived files           expkv.pdf
 %   macros outside of \expkv, but \emph{don't} change them! \expkv\ relies on
 %   their exact definitions internally.
 % \end{function}
-% \example Execute the callback of the key |key| in set |foo|:
+% \example Execute the callback of the |NoVal| key |key| in set |foo|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
-% \csname\ekv@name{foo}{key}\endcsname
+% \csname\ekv@name{foo}{key}N\endcsname
 % \end{lstlisting}
 %
 % \subsection{Examples}
@@ -1935,12 +1940,12 @@ and the derived files           expkv.pdf
 %
 % \begin{macro}{\ekvchangeset}
 % Provide a macro that is able to switch out the current \set\ in |\ekvset|.
-% This operation is slow (by comparison, it should be slightly faster than
-% |\ekvsneak|), but allows for something similar to \pkg{pgfkeys}'s
-% \texttt{\meta{key}/.cd} mechanism. However this operation is more expensive
-% than |/.cd| as we can't just redefine some token to reflect this, but have to
-% switch out the set expandably, so this works similar to the |\ekvsneak| macros
-% reading and reinserting the remainder of the \kv\ list.
+% This operation allows something similar to \pkg{pgfkeys}'s
+% \texttt{\meta{key}/.cd} mechanism. However this operation can be more
+% expensive than |/.cd| as we can't just redefine some token to reflect this,
+% but have to switch out the set expandably, so this works similar to the
+% |\ekvsneak| macros reading and reinserting things, but it only has to read and
+% reinsert the remainder of the current key's replacement code.
 %    \begin{macrocode}
 \ekv@exparg{\def\ekvchangeset#1}%
   {%
