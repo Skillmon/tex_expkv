@@ -391,7 +391,9 @@ and the derived files           expkv.pdf
 %   this macro you can define \meta{code} that will be executed for a given
 %   \set\ when an unknown \key\ with a \val\ was encountered instead of throwing
 %   an error. You can refer to the given \val\ with |#1| and to the unknown
-%   \key's name with |#2| in \meta{code}.\footnotemark
+%   \key's name with |#2| in \meta{code}.\footnotemark{}
+%   |\ekvdefunknown| and |\ekvredirectunknown| are mutually exclusive,
+%   you can't use both.
 % \end{function}
 % \footnotetext{That order is correct, this way the code is faster.}
 % \example Also search |bar| for undefined keys of set |foo|:
@@ -411,6 +413,8 @@ and the derived files           expkv.pdf
 %   an error when encountering an unknown \key. With this you can instead let it
 %   execute \meta{code} if an unknown |NoVal| \key\ was encountered. You can
 %   refer to the given \key\ with |#1| in \meta{code}.
+%   |\ekvdefunknownNoVal| and |\ekvredirectunknownNoVal| are mutually exclusive,
+%   you can't use both.
 % \end{function}
 % \example Also search |bar| for undefined keys of set |foo|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
@@ -430,6 +434,8 @@ and the derived files           expkv.pdf
 %   thrown eventually. Note that the error messages are affected by the use of
 %   this macro, in particular, it isn't checked whether a |NoVal| key of the
 %   same name is defined in order to throw a |value forbidden| error.
+%   |\ekvdefunknown| and |\ekvredirectunknown| are mutually exclusive,
+%   you can't use both.
 % \end{function}
 % \example For every key not defined in the set |foo| also search the sets |bar|
 % and |baz|:
@@ -446,6 +452,8 @@ and the derived files           expkv.pdf
 %   are affected by the use of this macro, in particular, it isn't checked
 %   whether a normal key of the same name is defined in order to throw a
 %   |value forbidden| error.
+%   |\ekvdefunknownNoVal| and |\ekvredirectunknownNoVal| are mutually exclusive,
+%   you can't use both.
 % \end{function}
 % \example See above.
 %
