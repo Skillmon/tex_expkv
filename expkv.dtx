@@ -87,6 +87,7 @@ and the derived files           expkv.pdf
         \ekvdef,\ekvdefNoVal,^^A
         \ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,^^A
         \ekvdefunknown,\ekvdefunknownNoVal,^^A
+        \ekvredirectunknown,\ekvredirectunknownNoVal,^^A
         \ekvset,\ekvsetSneaked,^^A
         \ekvsetdef,\ekvsetSneakeddef,\ekvsetdefSneaked,^^A
         \ekvparse,^^A
@@ -397,6 +398,10 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \long\ekvdefunknown{foo}{\ekvset{bar}{#2={#1}}}
 % \end{lstlisting}
+% This example differs from using |\ekvredirectunknown{foo}{bar}| (see below) in
+% that also the unknown-key handler of the |bar| set will be triggered, error
+% messages for undefined keys will look different, and this is slower than using
+% |\ekvredirectunknown|.
 %
 % \begin{function}{\ekvdefunknownNoVal}
 %   \begin{syntax}
