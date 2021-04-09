@@ -1,0 +1,40 @@
+\input regression-test
+\makeatletter
+
+\RequirePackage{expkv}
+
+\START
+\ekvredirectunknown{foo}{bar, baz }
+\ekvredirectunknownNoVal{foo}{ bar ,baz}
+\OMIT
+\csname\ekv@name{foo}{key}\endcsname
+\csname\ekv@name{foo}{key}N\endcsname
+\TIMO
+\begingroup
+\ekvdef     {bar}{key}{Set `bar', key `key', value `#1'\NEWLINE}
+\ekvdefNoVal{bar}{key}{Set `bar', key `key'\NEWLINE}
+
+\TESTEXP{only in first set}
+  {\ekvset{foo}{key=val, key}}
+
+\global\ekvdef     {baz}{key}{Set `baz', key `key', value `#1'\NEWLINE}
+\global\ekvdefNoVal{baz}{key}{Set `baz', key `key'\NEWLINE}
+
+\TESTEXP{in both sets}
+  {\ekvset{foo}{key=val, key}}
+\endgroup
+
+\TESTEXP{only in second set}
+  {\ekvset{foo}{key=val, key}}
+
+\OMIT
+\csname\ekv@name{bar}{key}\endcsname
+\csname\ekv@name{bar}{key}N\endcsname
+\TIMO
+
+\TESTEXP{only in second set, relax in first}
+  {\ekvset{foo}{key=val, key}}
+
+\TESTEXP{unknown keys}
+  {\ekvset{foo}{abc=val, abc}}
+\END
