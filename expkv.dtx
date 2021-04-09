@@ -1099,11 +1099,12 @@ and the derived files           expkv.pdf
 % omitted.
 %
 % \paragraph{\pkg{keyval}} is about \SIrange{30}{40}{\percent} faster and has a
-% comparable feature set just a slightly different way how it handles keys
-% without values.  That might be considered a drawback, as it limits the
-% versatility, but also as an advantage, as it might reduce doubled code. Keep
-% in mind that as soon as someone loads \pkg{xkeyval} the performance of
-% \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
+% comparable feature set (actually a bit smaller since \expkv\ supports
+% unknown-key handlers and redirection to other sets) just a slightly different
+% way how it handles keys without values.  That might be considered a drawback,
+% as it limits the versatility, but also as an advantage, as it might reduce
+% doubled code. Keep in mind that as soon as someone loads \pkg{xkeyval} the
+% performance of \pkg{keyval} gets replaced by \pkg{xkeyval}'s.
 %
 % Also \pkg{keyval} has a bug, which unfortunately can't really be resolved
 % without breaking backwards compatibility for \emph{many} documents, namely it
