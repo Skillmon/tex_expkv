@@ -172,6 +172,31 @@ and the derived files           expkv.pdf
 \newcommand*\expkvd{\expkvpkg{def}}
 \newcommand*\expkvc{\expkvpkg{cs}}
 \newcommand*\expkvo{\expkvpkg{opt}}
+\ExplSyntaxOn
+\newcommand*\pkglogo[1]
+  {
+    \texorpdfstring
+      {
+        \mbox
+          {
+            \BeginAccSupp{ActualText=#1}
+            \rmfamily
+            \str_case:nn {#1}
+              {
+                {yax}
+                  {
+                    Y\kern-.1em
+                    \raise.15em\hbox{\scshape a}
+                    \kern-.1em \lower.15em\hbox{X}%
+                  }
+              }
+            \EndAccSupp{}
+          }
+      }
+      {#1}
+  }
+\newcommand*\yax{\pkglogo{yax}}
+\ExplSyntaxOff
 \newcommand\kv{\meta{key}=\meta{value}}
 \newcommand\key{\meta{key}}
 \newcommand\val{\meta{value}}
@@ -386,6 +411,38 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvdefunknownNoVal{foo}{\ekvset{bar}{#1}}
 % \end{lstlisting}
+%
+% \begin{function}{\ekvredirectunknown}
+%   \begin{syntax}
+%     \cs{ekvredirectunknown}\marg{set}\marg{set-list}
+%   \end{syntax}
+%   This is a short cut to set up a special |\ekvdefunknown| for \set\ that will
+%   check each set in the comma separated \meta{set-list} for the unknown \key.
+%   You can't use prefixes (so no |\long| or |\protected|) with this macro, the
+%   resulting unknown-key handler will always be |\long|. The first set in the
+%   \meta{set-list} has highest priority. Once the \key\ is found the remaining
+%   sets are discarded, if the \key\ isn't found in any set an error will be
+%   thrown eventually. Note that the error messages are affected by the use of
+%   this macro, in particular, it isn't checked whether a |NoVal| key of the
+%   same name is defined in order to throw a |value forbidden| error.
+% \end{function}
+% \example For every key not defined in the set |foo| also search the sets |bar|
+% and |baz|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvredirectunknown{foo}{bar, baz}
+% \end{lstlisting}
+%
+% \begin{function}{\ekvredirectunknownNoVal}
+%   \begin{syntax}
+%     \cs{ekvredirectunknownNoVal}\marg{set}\marg{set-list}
+%   \end{syntax}
+%   This behaves just like |\ekvredirectunknown| and does the same but for the
+%   |NoVal| keys. Again no prefixes are supported. Note that the error messages
+%   are affected by the use of this macro, in particular, it isn't checked
+%   whether a normal key of the same name is defined in order to throw a
+%   |value forbidden| error.
+% \end{function}
+% \example See above.
 %
 % \subsection{Parsing Keys}
 %
@@ -695,7 +752,7 @@ and the derived files           expkv.pdf
 %   \ourmacro{width=5pt}\par
 % \end{minipage}
 %
-% \paragraph{The same key using \protect\expkvd}
+% \paragraph{The same keys using \protect\expkvd}
 % Using \expkvd\ we can set up the equivalent key using a \kv\ interface, after
 % the following we could use |\ourmacro| in the same way as above. \expkvd\ will
 % allocate and initialise |\ourdim| and define the |width| key |\protected| for
@@ -710,6 +767,59 @@ and the derived files           expkv.pdf
 %     initial  width = 150pt
 %   }
 % \end{lstlisting}
+%
+% \subsubsection{A Macro to Draw Rules}
+%
+% Another small example could be a \kv\ driven |\rule| alternative, because I
+% keep forgetting the correct order of its arguments. First we define the keys
+% (and initialize the used macros to store the keys):
+% \begin{lstlisting}
+% \makeatletter
+% \newcommand*\myrule@ht{1ex}
+% \newcommand*\myrule@wd{0.1em}
+% \newcommand*\myrule@raise{\z@}
+% \protected\ekvdef{myrule}{ht}{\def\myrule@ht{#1}}
+% \protected\ekvdef{myrule}{wd}{\def\myrule@wd{#1}}
+% \protected\ekvdef{myrule}{raise}{\def\myrule@raise{#1}}
+% \end{lstlisting}
+% Then we define a macro to change the defaults outside of |\myrule| and
+% |\myrule| itself:
+% \begin{lstlisting}
+% \ekvsetdef\myruleset{myrule}
+% \newcommand*\myrule[1][]{\begingroup\myruleset{#1}\myrule@out\endgroup}
+% \end{lstlisting}
+% And finally the output:
+% \begin{lstlisting}
+% \newcommand*\myrule@out{\rule[\myrule@raise]\myrule@wd\myrule@ht}
+% \makeatother
+% \end{lstlisting}
+% And we can use it:\\
+% \begin{minipage}{7cm}
+% \begin{lstlisting}
+% a\myrule\par
+% a\myrule[ht=2ex,raise=-.5ex]\par
+% \myruleset{wd=5pt}
+% a\myrule
+% \end{lstlisting}
+% \end{minipage}^^A
+% \begin{minipage}{\dimexpr\linewidth-7cm\relax}
+%   \makeatletter
+%   \newcommand*\myrule@ht{1ex}
+%   \newcommand*\myrule@wd{0.1em}
+%   \newcommand*\myrule@raise{\z@}
+%   \protected\ekvdef{myrule}{ht}{\def\myrule@ht{#1}}
+%   \protected\ekvdef{myrule}{wd}{\def\myrule@wd{#1}}
+%   \protected\ekvdef{myrule}{raise}{\def\myrule@raise{#1}}
+%   \ekvsetdef\myruleset{myrule}
+%   \newcommand*\myrule[1][]{\begingroup\myruleset{#1}\myrule@out\endgroup}
+%   \newcommand*\myrule@out{\rule[\myrule@raise]\myrule@wd\myrule@ht}
+%   \makeatother
+%   a\myrule\par
+%   a\myrule[ht=2ex,raise=-.5ex]\par
+%   \myruleset{wd=5pt}
+%   a\myrule
+% \end{minipage}
+% 
 %
 % \subsubsection{An Expandable \kv\ Macro Using \cs[no-index]{ekvsneak}}
 % \label{sec:sneakex}
@@ -916,6 +1026,23 @@ and the derived files           expkv.pdf
 %                            value forbidden (`<key>', set `<set>').
 % \end{lstlisting}
 %
+% If you're using an undefined key in a set for which |\ekvredirectunknown| was
+% used, and the key isn't found in any of the other sets as well, you'll get:
+% \begin{lstlisting}
+% ! Undefined control sequence.
+% <argument> \! expkv Error:
+%                            no key `<key>' in sets {<set1>}{<set2>}...
+% \end{lstlisting}
+%
+% If you're using an undefined |NoVal| key in a set for which
+% |\ekvredirectunknownNoVal| was used, and the key isn't found in any of the
+% other sets as well, you'll get:
+% \begin{lstlisting}
+% ! Undefined control sequence.
+% <argument> \! expkv Error:
+%                            no NoVal key `<key>' in sets {<set1>}...
+% \end{lstlisting}
+%
 % If you're using a set for which you never executed one of the defining macros
 % from \autoref{sec:define} you'll get a low level \TeX\ error, as that isn't
 % actively tested by the parser (and hence will lead to undefined behaviour and
@@ -1049,10 +1176,11 @@ and the derived files           expkv.pdf
 % stores |true| for that \key. For up to three keys, \expkv\ is a bit faster,
 % for more keys \pkg{simplekv} takes the lead.
 %
-% \paragraph{\pkg{yax}} is over twenty times slower. It has a pretty strange
-% syntax, imho, and again a direct equivalent is hard to define. It has the
-% premature unbracing bug, too. Also somehow loading \pkg{yax} broke
-% \pkg{options} for me. The tested definition was:
+% \paragraph{\protect\yax} is over twenty times slower. It has a pretty
+% strange syntax for the \TeX-world, imho, and again a direct equivalent is hard
+% to define (don't understand me wrong, I don't say I don't like the syntax,
+% it's just atypical). It has the premature unbracing bug, too. Also somehow
+% loading \yax\ broke \pkg{options} for me. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{yax}
 % \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
@@ -1095,7 +1223,7 @@ and the derived files           expkv.pdf
 %     kvsetkeys & {\fnsym} & {\fnsym} &   40.290 & \no  & \no  & 2019-12-15 \\
 %     l3keys    &   71.309 &   33.131 &   31.590 & \no  & \no  & 2020-09-24 \\
 %     xkeyval   &  253.563 &  202.246 &  168.300 & \yes & \yes & 2014-12-03 \\
-%     yax       &  421.853 &  157.003 &  114.700 & \yes & \yes & 2010-01-22 \\
+%     \yax      &  421.853 &  157.003 &  114.700 & \yes & \yes & 2010-01-22 \\
 %     ltxkeys   & 3400.142 & 4737.958 & 5368.000 & \no  & \no  & 2012-11-17 \\
 %     \bottomrule
 %   \end{tabular}
@@ -1390,6 +1518,38 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}[internal]{\ekv@csv@loop,\ekv@csv@loop@do,\ekv@csv@loop@end}
+%   This is just a very simple loop over a list of comma separated values,
+%   leaving each element as the argument to a specified function inside of
+%   |\unravel|. It should be used as
+%   \texttt
+%     {^^A
+%       \cs[no-index]{ekv@csv@loop}\hskip0pt^^A
+%       \marg{function}\hskip0pt^^A
+%       \cs[no-index]{ekv@mark}\hskip0pt^^A
+%       \meta{csv-list}\hskip0pt^^A
+%       ,\cs[no-index]{ekv@stop},^^A
+%     }.
+%   We use some |\expandafter| chain to preexpand |\ekv@strip| here.
+%    \begin{macrocode}
+\ekv@exparg{\long\def\ekv@csv@loop#1#2,}%
+  {%
+    \expandafter
+    \ekv@gobble@from@mark@to@stop
+      \expandafter#\expandafter2\expandafter\ekv@csv@loop@end\expandafter
+    \ekv@stop
+    \ekv@strip{#2}{\ekv@csv@loop@do{#1}}%
+    \ekv@csv@loop{#1}\ekv@mark
+  }
+\long\def\ekv@csv@loop@do#1#2{\unexpanded{#1{#2}}}
+\long\expandafter\def\expandafter\ekv@csv@loop@end
+    \expandafter\ekv@stop
+    \ekv@strip{#1}#2%
+    \ekv@csv@loop#3\ekv@mark
+  {}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
 %    \begin{macrocode}
@@ -1528,8 +1688,145 @@ and the derived files           expkv.pdf
       \unexpanded\expandafter{\ekv@undefined@set{#1}\endcsname{#1}}%
     }%
     {\unexpanded\expandafter{\ekv@name{#3}{#4}}}%
-  }%
+  }
 \expandafter\ekvdef\ekvdefNoVal
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ekvredirectunknown,\ekvredirectunknownNoVal}
+% \begin{macro}[internal]
+%   {
+%     \ekv@defredirectunknown,\ekv@redirectunknown@aux,
+%     \ekv@redirectunknownNoVal@aux
+%   }
+%   The redirection macros prepare the unknown function by looping over the
+%   provided list of sets and leaving a |\ekv@redirect@kv| or |\ekv@redirect@k|
+%   for each set. Only the first of these internals will receive the \key\ and
+%   \val\ as arguments.
+%    \begin{macrocode}
+\protected\def\ekvredirectunknown
+  {%
+    \ekv@defredirectunknown
+      \ekv@redirect@kv
+      \ekv@err@redirect@kv@notfound
+      {\long\ekvdefunknown}%
+      \ekv@redirectunknown@aux
+  }
+\protected\def\ekvredirectunknownNoVal
+  {%
+    \ekv@defredirectunknown
+      \ekv@redirect@k
+      \ekv@err@redirect@k@notfound
+      \ekvdefunknownNoVal
+      \ekv@redirectunknownNoVal@aux
+  }
+\protected\def\ekv@defredirectunknown#1#2#3#4#5#6%
+  {%
+    \begingroup
+    \edef\ekv@tmp
+      {%
+        \ekv@csv@loop#1\ekv@mark#6,\ekv@stop,%
+        \unexpanded{#2}%
+        {\ekv@csv@loop{}\ekv@mark#5,#6,\ekv@stop,}%
+      }%
+    \ekv@expargtwice
+      {\endgroup#3{#5}}%
+      {\expandafter#4\ekv@tmp\ekv@stop}%
+  }
+\def\ekv@redirectunknown@aux#1{#1{##1}{##2}}
+\def\ekv@redirectunknownNoVal@aux#1{#1{##1}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}[internal]
+%   {
+%     \ekv@redirect@k,\ekv@redirect@k@a,\ekv@redirect@k@a@,
+%     \ekv@redirect@k@b,\ekv@redirect@k@c,\ekv@redirect@k@d,
+%     \ekv@redirect@kv,\ekv@redirect@kv@a,\ekv@redirect@kv@a@,
+%     \ekv@redirect@kv@b,\ekv@redirect@kv@c,\ekv@redirect@kv@d
+%   }
+%   The redirect code works by some simple loop over all the sets, which we
+%   already preprocessed in |\ekv@defredirectunknown|. For some optimisation we
+%   blow this up a bit code wise, essentially, all this does is |\ekvifdefined|
+%   or |\ekvifdefinedNoVal| in each set, if there is a match gobble the
+%   remainder of the specified sets and execute the key macro, else go on with
+%   the next set (to which the \key\ and \val\ are forwarded).
+%
+%   First we set up some code which is different depending on |\lastnamedcs|
+%   being available or not. All this is stored in a temporary macro to have
+%   pre-expanded |\ekv@name| constellations ready.
+%    \begin{macrocode}
+\def\ekv@redirect@k#1#2#3#4%
+  {%
+    \ekv@if@lastnamedcs
+      {%
+        \def\ekv@redirect@k##1##2##3%
+          {%
+            \ifcsname#1\endcsname\ekv@redirect@k@a\fi
+            ##3{##1}%
+          }%
+        \def\ekv@redirect@k@a\fi{\fi\expandafter\ekv@redirect@k@b\lastnamedcs}%
+        \long\def\ekv@redirect@kv##1##2##3##4%
+          {%
+            \ifcsname#2\endcsname\ekv@redirect@kv@a\fi\@gobble{##1}%
+            ##4{##1}{##2}%
+          }
+        \def\ekv@redirect@kv@a\fi\@gobble
+          {\fi\expandafter\ekv@redirect@kv@b\lastnamedcs}%
+      }
+      {%
+        \def\ekv@redirect@k##1##2##3%
+          {%
+            \ifcsname#1\endcsname\ekv@redirect@k@a\fi\ekv@redirect@k@a@
+              #1\endcsname
+            ##3{##1}%
+          }%
+        \def\ekv@redirect@k@a@#3\endcsname{}%
+        \def\ekv@redirect@k@a\fi\ekv@redirect@k@a@
+          {\fi\expandafter\ekv@redirect@k@b\csname}%
+        \long\def\ekv@redirect@kv##1##2##3##4%
+          {%
+            \ifcsname#2\endcsname\ekv@redirect@kv@a\fi\ekv@redirect@kv@a@
+              #2\endcsname{##1}%
+            ##4{##1}{##2}%
+          }
+        \long\def\ekv@redirect@kv@a@#4\endcsname##3{}%
+        \def\ekv@redirect@kv@a\fi\ekv@redirect@kv@a@
+          {\fi\expandafter\ekv@redirect@kv@b\csname}%
+      }
+  }
+%    \end{macrocode}
+%   The key name given to this loop will already be |\detokenize|d by |\ekvset|,
+%   so we can safely remove the |\detokenize| here for some performance gain.
+%    \begin{macrocode}
+\def\ekv@redirect@kv#1\detokenize#2#3\ekv@stop{\unexpanded{#1#2#3}}
+\edef\ekv@redirect@kv
+  {%
+    {\expandafter\ekv@redirect@kv\ekv@name{#2}{#1}N\ekv@stop}%
+    {\expandafter\ekv@redirect@kv\ekv@name{#3}{#2}\ekv@stop}%
+    {\expandafter\ekv@redirect@kv\ekv@name{#1}{#2}N\ekv@stop}%
+    {\expandafter\ekv@redirect@kv\ekv@name{#1}{#2}\ekv@stop}%
+  }
+%    \end{macrocode}
+%   Everything is ready to make the real definitions.
+%    \begin{macrocode}
+\expandafter\ekv@redirect@k\ekv@redirect@kv
+%    \end{macrocode}
+%   The remaining macros here are independent on |\lastnamedcs|, starting from
+%   the |@b| we know that there is a hash table entry, and get the macro as a
+%   parameter. We still have to test whether the macro is |\relax|, depending on
+%   the result of that test we have to either remove the remainder of the
+%   current test, or the remainder of the set list and invoke the macro.
+%    \begin{macrocode}
+\def\ekv@redirect@k@b#1%
+  {\ifx\relax#1\ekv@redirect@k@c\fi\ekv@redirect@k@d#1}
+\def\ekv@redirect@k@c\fi\ekv@redirect@k@d#1{\fi}
+\def\ekv@redirect@k@d#1#2\ekv@stop{#1}
+\def\ekv@redirect@kv@b#1%
+  {\ifx\relax#1\ekv@redirect@kv@c\fi\ekv@redirect@kv@d#1}
+\long\def\ekv@redirect@kv@c\fi\ekv@redirect@kv@d#1#2{\fi}
+\long\def\ekv@redirect@kv@d#1#2#3\ekv@stop{#1{#2}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2152,10 +2449,15 @@ and the derived files           expkv.pdf
 % use those instead of the full strings.
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
-\long\def\ekv@err@common@#1`#2' #3.#4#5{\ekv@err{#4 (`#5', set `#2')}}
+\ekv@exparg{\long\def\ekv@err@common@#1`#2' #3.#4#5}%
+  {\ekv@err{#4 (`#5', set `#2')}}
 \ekv@exparg{\long\def\ekv@err@unknown#1}{\ekv@err@common{unknown key}{#1}}
 \ekv@exparg{\long\def\ekv@err@noarg  #1}{\ekv@err@common{value forbidden}{#1}}
 \ekv@exparg{\long\def\ekv@err@reqval #1}{\ekv@err@common{value required}{#1}}
+\ekv@exparg{\long\def\ekv@err@redirect@kv@notfound#1#2#3\ekv@stop}%
+  {\ekv@err{no key `#2' in sets #3}}
+\ekv@exparg{\def\ekv@err@redirect@k@notfound#1#2\ekv@stop}%
+  {\ekv@err{no NoVal key `#1' in sets #2}}
 %    \end{macrocode}
 % \end{macro}
 %
