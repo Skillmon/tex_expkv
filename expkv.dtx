@@ -1325,8 +1325,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{1.7}
-\def\ekvDate{2021-04-09}
+\def\ekvVersion{1.7a}
+\def\ekvDate{2021-04-11}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1380,8 +1380,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbleto@stop,\ekv@fi@gobble,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
-%     \ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
+%     \ekv@gobbleto@stop,\ekv@fi@gobble,\ekv@fi@firstofone,\ekv@fi@firstoftwo,
+%     \ekv@fi@secondoftwo,\ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -1396,6 +1396,7 @@ and the derived files           expkv.pdf
 \long\def\@firstoftwo#1#2{#1}
 \long\def\@secondoftwo#1#2{#2}
 \long\def\ekv@fi@gobble\fi\@firstofone#1{\fi}
+\long\def\ekv@fi@firstofone\fi\@gobble#1{\fi#1}
 \long\def\ekv@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
 \long\def\ekv@gobbleto@stop#1\ekv@stop{}
