@@ -1380,8 +1380,8 @@ and the derived files           expkv.pdf
 % \begin{macro}[internal]
 %   {
 %     \@gobble,\@firstofone,\@firstoftwo,\@secondoftwo,
-%     \ekv@gobbleto@stop,\ekv@fi@gobble,\ekv@fi@firstofone,\ekv@fi@firstoftwo,
-%     \ekv@fi@secondoftwo,\ekv@gobble@mark,\ekv@gobble@from@mark@to@stop
+%     \ekv@fi@gobble,\ekv@fi@firstofone,\ekv@fi@firstoftwo,\ekv@fi@secondoftwo,
+%     \ekv@gobble@mark,\ekv@gobbleto@stop,\ekv@gobble@from@mark@to@stop
 %   }
 % Since branching tests are often more versatile than |\if...\else...\fi|
 % constructs, we define helpers that are branching pretty fast. Also here are
@@ -1399,8 +1399,8 @@ and the derived files           expkv.pdf
 \long\def\ekv@fi@firstofone\fi\@gobble#1{\fi#1}
 \long\def\ekv@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
 \long\def\ekv@fi@secondoftwo\fi\@firstoftwo#1#2{\fi#2}
-\long\def\ekv@gobbleto@stop#1\ekv@stop{}
 \def\ekv@gobble@mark\ekv@mark{}
+\long\def\ekv@gobbleto@stop#1\ekv@stop{}
 \long\def\ekv@gobble@from@mark@to@stop\ekv@mark#1\ekv@stop{}
 %    \end{macrocode}
 % \end{macro}
