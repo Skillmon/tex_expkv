@@ -474,7 +474,13 @@ and the derived files           expkv.pdf
 %   executed. If \kv\ contains more than a single unhidden equal sign, it will
 %   be split at the first one and the others are considered part of the value.
 %   |\ekvset| should be nestable.
+%
+%   |\ekvset| is currently \emph{not} alignment safe.\footnotemark\ As a result,
+%   key names and values that contain an |&| must be wrapped in braces when
+%   |\ekvset| is used inside an alignment (like \LaTeXe's |tabular| environment)
+%   or you have to create a wrapper that ensures an alignment safe context.
 % \end{function}
+% \footnotetext{This might change in the future, I've not decided yet.}
 % \example Parse |key=arg, key| in the set |foo|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvset{foo}{key=arg, key}
@@ -564,11 +570,15 @@ and the derived files           expkv.pdf
 %   only keys as an argument to \meta{code1}, and those which are a \kv\ pair
 %   to \meta{code2} as two arguments. It is fully expandable as well and returns
 %   each element of the parsed list in |\unexpanded|, which has no effect
-%   outside of an |\expanded| or |\edef| context\footnotemark.
-%   If you need control over the necessary steps of expansion you
-%   can use |\expanded| around it. You can use multiple tokens in \meta{code1}
-%   and \meta{code2} or just a single control sequence name. In both cases the
-%   found \key\ and \val\ are provided as a brace group following them.
+%   outside of an |\expanded| or |\edef| context.
+%   Also |\ekvparse| expands in exactly two steps of expansion.
+%   You can use multiple tokens in \meta{code1} and \meta{code2} or just a
+%   single control sequence name. In both cases the found \key\ and \val\ are
+%   provided as a brace group following them.
+%
+%   |\ekvparse| is alignment safe, meaning that you don't have to take any
+%   precautions if it is used inside an alignment context (like \LaTeXe's
+%   |tabular| environment) and any key or value can contain an |&|.
 %
 %   |\ekvbreak|, |\ekvsneak|, and |\ekvchangeset| and their relatives don't work
 %   in |\ekvparse|.  It is analogue to \pkg{expl3}'s |\keyval_parse:NNn|, but
@@ -576,14 +586,6 @@ and the derived files           expkv.pdf
 %   multiple equal signs per \kv\ pair and on empty \key\ names in a \kv\ pair,
 %   both of which |\ekvparse| doesn't deal with.
 % \end{function}
-% \footnotetext 
-%   {^^A
-%     This is a change in behaviour, previously (v0.3 and before) \cs{ekvparse}
-%     would expand in exactly two steps. This isn't always necessary, but makes
-%     the parsing considerably slower. If this is necessary for your application
-%     you can put an \cs[no-index]{expanded} around it and will still be faster
-%     since you need only a single \cs[no-index]{expandafter} this way.^^A
-%   }
 % \example
 % \begin{lstlisting}
 % \ekvparse{\handlekey{S}}{\handlekeyval{S}}{foo = bar, key, baz={zzz}}
@@ -1055,8 +1057,8 @@ and the derived files           expkv.pdf
 %
 % \subsubsection{Load Time}
 %
-% \file{expkv.tex} checks whether \eTeX\ is available. If it isn't, an error
-% will be thrown using |\errmessage|:
+% \file{expkv.tex} checks whether \eTeX\ and the |\expanded| primitive are
+% available. If it isn't, an error will be thrown using |\errmessage|:
 % \begin{lstlisting}
 % ! expkv Error: e-TeX required.
 % \end{lstlisting}
@@ -1381,11 +1383,16 @@ and the derived files           expkv.pdf
 \fi
 %    \end{macrocode}
 %
-% Check whether \eTeX\ is available -- \expkv\ requires \eTeX.
+% Check whether \eTeX\ and |\expanded| are available -- \expkv\ requires \eTeX.
 %    \begin{macrocode}
-\begingroup\expandafter\expandafter\expandafter\endgroup
-\expandafter\ifx\csname numexpr\endcsname\relax
-  \errmessage{expkv requires e-TeX}
+\begingroup
+  \edef\ekvtmpa{\string\expanded}
+  \edef\ekvtmpb{\meaning\expanded}
+  \expandafter
+\endgroup
+\ifx\ekvtmpa\ekvtmpb
+\else
+  \errmessage{expkv Error: e-TeX and \noexpand\expanded required}
   \expandafter\endinput
 \fi
 %    \end{macrocode}
@@ -2160,9 +2167,12 @@ and the derived files           expkv.pdf
 % macro, that has the same scope as |\keyval_parse:NNn| from \pkg{expl3}.
 % This is pretty analogue to the |\ekvset| implementation, we just put an
 % |\unexpanded| here and there instead of other macros to stop the |\expanded|
-% on our output.
+% on our output. The |\unexpanded\expanded{{...}}| ensures that the material is
+% in an alignment safe group at all time, and that it doesn't expand any further
+% in an |\edef| or |\expanded| context.
 %    \begin{macrocode}
-\long\def\ekvparse##1##2##3{\ekv@parse{##1}{##2}\ekv@mark##3#1\ekv@stop#1}
+\long\def\ekvparse##1##2##3%
+  {\unexpanded\expanded{{\ekv@parse{##1}{##2}\ekv@mark##3#1\ekv@stop#1}}}
 %    \end{macrocode}
 % \end{macro}
 %
