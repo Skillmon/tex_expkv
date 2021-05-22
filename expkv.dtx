@@ -696,6 +696,79 @@ and the derived files           expkv.pdf
 %   {\ekvifdefinedset{#1}{\ekvchangeset{#1}}{\ekvbreak{\foo@cd@error}}}
 % \end{lstlisting}
 %
+% \begin{function}{\ekverr}
+%   \begin{syntax}
+%     \cs{ekverr}\marg{package}\marg{message}
+%   \end{syntax}
+%   This macro will throw an error fully expandably.\footnotemark\ The error
+%   length is limited to a total length of 68~characters, and since ten
+%   characters will be added for the formatting (\verb*|! | and
+%   \verb*| Error: |) that leaves us with a total length for \meta{package} plus
+%   \meta{message} of 58~characters. If the message gets longer \TeX\ will only
+%   display the first 69~characters and append |\ETC.| to the end.
+%
+%   Neither \meta{package} nor \meta{message} expand any further. Also
+%   \meta{package} must not contain an explicit |\par| token or the token
+%   |\thanks@jfbu|. No such restriction applies to \meta{message}.
+%
+%   If |^^J| is set up as the |\newlinechar| (which is the case in \LaTeXe\ but
+%   not in plain \TeX\ by default) you can use that to introduce line breaks in
+%   your error message. However that doesn't limit the message length.
+% \end{function}
+% \footnotetext{The used mechanism was to the best of my knowledge first
+% implemented by Jean-François Burnol.}
+% After your own error message some further text will be placed. The
+% formatting of that text will look good if |^^J| is the |\newlinechar|, else
+% not so much. That text will read:
+% \begin{verbatim}
+% ! Paragraph ended before \<an-expandable-macro>
+% completed due to above exception.  If the error
+% summary is  not comprehensible  see the package
+% documentation.
+% I will try to recover now.  If you're in inter-
+% active mode hit <return>  at the ? prompt and I
+% continue hoping recovery was complete.
+% \end{verbatim}
+% Any clean up has to be done by you, |\ekverr| will expand to nothing after
+% throwing the error message.
+% \example Say we set up a small calculation which works with user input. In our
+% calculation we need a division, so have to watch out for division by zero. If
+% we detect such a case we throw an error and do the recovery by using the
+% biggest integer allowed in \TeX\ as the result.
+% \begin{lstlisting}
+% \newcommand*\mydivision[2]
+%   {%
+%     \number\numexpr
+%       \ifnum\numexpr#2=0 % space here on purpose
+%         \ekverr{my}{division by 0. Setting result to 2147483647.}%
+%         2147483647%
+%       \else
+%         (#1)/(#2)%
+%       \fi
+%     \relax
+%   }
+% Result of $(10+5)/(3-3)$: \mydivision{10+5}{3-3}
+% \end{lstlisting}
+% If that code gets executed the following will be the terminal output
+% \begin{verbatim}
+% Runaway argument?
+% ! my Error: division by 0. Setting result to 2147483647.
+% ! Paragraph ended before \<an-expandable-macro>
+% completed due to above exception.  If the error
+% summary is  not comprehensible  see the package
+% documentation.
+% I will try to recover now.  If you're in inter-
+% active mode hit <return>  at the ? prompt and I
+% continue hoping recovery was complete.
+% <to be read again>
+%                    \par
+% l.17 ... of $(10+5)/(3-3)$: \mydivision{10+5}{3-3}
+% 
+% ?
+% \end{verbatim}
+% and if we continued the \TeX\ run at the prompt the output would contain\\
+% \fbox{Result of $(10+5)/(3-3)$: 2147483647}.
+%
 % \bigskip
 %
 % \begin{function}{\ekv@name,\ekv@name@set,\ekv@name@key}
@@ -1010,50 +1083,45 @@ and the derived files           expkv.pdf
 % \subsubsection{Using Keys}
 %
 % This subsubsection contains the errors thrown during |\ekvset|. The errors are
-% thrown in an expandable manner by providing an undefined macro. In the
-% following messages \lstinline|<key>| gets replaced with the problematic key's
-% name, and \lstinline|<set>| with the corresponding set. If any errors during
-% \kv\ handling are encountered, the entry in the comma separated list will be
+% thrown in an expandable manner using |\ekverr|. In the following messages
+% \lstinline|<key>| gets replaced with the problematic key's name, and
+% \lstinline|<set>| with the corresponding set. If any errors during \kv\
+% handling are encountered, the entry in the comma separated list will be
 % omitted after the error is thrown and the next \kv\ pair will be parsed.
 %
 % If you're using an undefined key you'll get:
 % \begin{lstlisting}
-% ! Undefined control sequence.
-% <argument> \! expkv Error:
-%                            unknown key (`<key>', set `<set>').
+% Runaway argument?
+% ! expkv Error: unknown key `<key>' in set `<set>'
 % \end{lstlisting}
 %
 % If you're using a key for which only a normal version and no |NoVal| version
 % is defined, but don't provide a value, you'll get:
 % \begin{lstlisting}
-% ! Undefined control sequence.
-% <argument> \! expkv Error:
-%                            value required (`<key>', set `<set>').
+% Runaway argument?
+% ! expkv Error: missing value for `<key>' in set `<set>'
 % \end{lstlisting}
 %
 % If you're using a key for which only a |NoVal| version and no normal version
 % is defined, but provide a value, you'll get:
 % \begin{lstlisting}
-% ! Undefined control sequence.
-% <argument> \! expkv Error:
-%                            value forbidden (`<key>', set `<set>').
+% Runaway argument?
+% ! expkv Error: unwanted value for `<key>' in set `<set>'
 % \end{lstlisting}
 %
 % If you're using an undefined key in a set for which |\ekvredirectunknown| was
 % used, and the key isn't found in any of the other sets as well, you'll get:
 % \begin{lstlisting}
-% ! Undefined control sequence.
-% <argument> \! expkv Error:
-%                            no key `<key>' in sets {<set1>}{<set2>}...
+% Runaway argument?
+% ! expkv Error: no key `<key>' in sets {<set1>}{<set2>}...
 % \end{lstlisting}
 %
 % If you're using an undefined |NoVal| key in a set for which
 % |\ekvredirectunknownNoVal| was used, and the key isn't found in any of the
 % other sets as well, you'll get:
 % \begin{lstlisting}
-% ! Undefined control sequence.
-% <argument> \! expkv Error:
-%                            no NoVal key `<key>' in sets {<set1>}...
+% Runaway argument?
+% ! expkv Error: no NoVal key `<key>' in sets {<set1>}{<set2>}...
 % \end{lstlisting}
 %
 % If you're using a set for which you never executed one of the defining macros
@@ -2440,18 +2508,56 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]{\ekv@err,\ekv@err@}
+% \begin{macro}{\ekverr}
+% \begin{macro}[internal]{\ekv@err@collect,\ekv@err@cleanup}
 % Since |\ekvset| is fully expandable as long as the code of the keys is (which
 % is unlikely) we want to somehow throw expandable errors, in our case via
-% undefined control sequences.
+% a runaway argument (to my knowledge the first version of this method was
+% implemented by Jean-François Burnol, many thanks to him). The first step is to
+% ensure that the second argument (which might contain user input) doesn't
+% contain tokens we use as delimiters (in this case |\par|), this will be done
+% by the front facing macro |\ekverr|. But first we set some other things up.
+%
+% We use a temporary definition for |\ekverr| to get multiple consecutive
+% spaces. Then we set up the macro that will collect the error and the macro
+% that will throw the error. The latter will have an unreasonable long name.
+% This way we can convey more information. Though the information in the macro
+% name is static and has to be somewhat general to fit every occurence. The
+% important bit is that the long named macro has a delimited argument and is
+% short which will throw the error at the |\par| at the end of
+% |\ekv@err@collect|. This macro has the drawback that it will only print nicely
+% if the |\newlinechar| is |^^J|.
 %    \begin{macrocode}
-\def\ekv@err#1%
+\def\ekv@err@cleanup\par{}
+\def\ekv@err@collect#1%
   {%
-    \long\def\ekv@err##1{\expandafter\ekv@err@\@firstofone{#1##1.}\ekv@stop}%
+    \def\ekv@err@collect##1\par##2%
+      {%
+        \expandafter
+        \ekv@err@cleanup
+        #1! ##2 Error: ##1\par
+      }%
+    \def#1##1\thanks@jfbu{}%
   }
-\begingroup\expandafter\endgroup
-\expandafter\ekv@err\csname ! expkv Error:\endcsname
-\def\ekv@err@{\expandafter\ekv@gobbleto@stop}
+\def\ekverr{ }
+\expandafter\ekv@err@collect\csname <an-expandable-macro>^^J%
+  completed due to above exception. \ekverr If the error^^J%
+  summary is \ekverr not comprehensible \ekverr see the package^^J%
+  documentation.^^J%
+  I will try to recover now. \ekverr If you're in inter-^^J%
+  active mode hit <return> \ekverr at the ? prompt and I^^J%
+  continue hoping recovery\endcsname
+%    \end{macrocode}
+%    \begin{macrocode}
+\long\def\ekverr#1#2{\expandafter\ekv@err@collect\detokenize{#2}\par{#1}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@err}
+% We define a shorthand to throw errors in \expkv.
+%    \begin{macrocode}
+\ekv@exparg{\def\ekv@err#1}{\ekverr{expkv}{#1}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2465,10 +2571,10 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@err@common #1#2{\expandafter\ekv@err@common@\string#2{#1}}
 \ekv@exparg{\long\def\ekv@err@common@#1`#2' #3.#4#5}%
-  {\ekv@err{#4 (`#5', set `#2')}}
+  {\ekv@err{#4 `#5' in set `#2'}}
 \ekv@exparg{\long\def\ekv@err@unknown#1}{\ekv@err@common{unknown key}{#1}}
-\ekv@exparg{\long\def\ekv@err@noarg  #1}{\ekv@err@common{value forbidden}{#1}}
-\ekv@exparg{\long\def\ekv@err@reqval #1}{\ekv@err@common{value required}{#1}}
+\ekv@exparg{\long\def\ekv@err@noarg  #1}{\ekv@err@common{unwanted value for}{#1}}
+\ekv@exparg{\long\def\ekv@err@reqval #1}{\ekv@err@common{missing value for}{#1}}
 \ekv@exparg{\long\def\ekv@err@redirect@kv@notfound#1#2#3\ekv@stop}%
   {\ekv@err{no key `#2' in sets #3}}
 \ekv@exparg{\def\ekv@err@redirect@k@notfound#1#2\ekv@stop}%
