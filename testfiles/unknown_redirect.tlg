@@ -24,25 +24,3 @@ TEST 4: only in second set, relax in first
 Set `baz', key `key', value `val'
 Set `baz', key `key'
 ============================================================
-============================================================
-TEST 5: unknown keys
-============================================================
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                           no key `abc' in sets {foo}{bar}{baz}.
-l. ...  {\ekvset{foo}{abc=val, abc}}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                           no NoVal key `abc' in sets {foo}{bar}{baz}.
-l. ...  {\ekvset{foo}{abc=val, abc}}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-============================================================

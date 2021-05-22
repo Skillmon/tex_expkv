@@ -35,6 +35,4 @@
 \TESTEXP{only in second set, relax in first}
   {\ekvset{foo}{key=val, key}}
 
-\TESTEXP{unknown keys}
-  {\ekvset{foo}{abc=val, abc}}
 \END

@@ -1,47 +1,71 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
 ============================================================
-TEST 1: error-detection
+TEST 1: errors during ekvset
 ============================================================
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                value forbidden (`key2', set `errors').
+Runaway argument?
+! expkv Error: unwanted value for `key2' in set `errors'
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
 l. ...  }
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                value required (`key', set `errors').
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+Runaway argument?
+! expkv Error: missing value for `key' in set `errors'
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
 l. ...  }
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                unknown key (`key3', set `errors').
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+Runaway argument?
+! expkv Error: unknown key `key3' in set `errors'
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
 l. ...  }
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-! Undefined control sequence.
-<argument> \! expkv Error: 
-                unknown key (`key3', set `errors').
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+Runaway argument?
+! expkv Error: unknown key `key3' in set `errors'
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
 l. ...  }
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
 ============================================================
 ============================================================
-TEST 2: error-detection2
+TEST 2: errors during key definition
 ============================================================
 ! expkv Error: empty set name not allowed.
 <argument> ...ssage {expkv Error: empty set name not allowed}
@@ -58,4 +82,38 @@ l. ...  }
 <argument> ...ssage {expkv Error: empty set name not allowed}
 l. ...  }
 (That was another \errmessage.)
+============================================================
+============================================================
+TEST 3: unknown keys with redirect
+============================================================
+Runaway argument?
+! expkv Error: no key `abc' in sets {foo}{bar}{baz}
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
+l. ...  {\ekvset{foo}{abc=val, abc}}
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+Runaway argument?
+! expkv Error: no NoVal key `abc' in sets {foo}{bar}{baz}
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+\par 
+l. ...  {\ekvset{foo}{abc=val, abc}}
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
 ============================================================

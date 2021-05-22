@@ -6,15 +6,21 @@
 
 \ekvdef{errors}{key}{arg '#1'}
 \ekvdefNoVal{errors}{key2}{no arg}
-\TESTEXP{error-detection}
+\TESTEXP{errors during ekvset}
   {%
     \ekvset{errors}{key2=foo,key,key3=foo,key3}
   }
-\TEST{error-detection2}
+\TEST{errors during key definition}
   {%
     \ekvdef{}{key}{}
     \ekvdef{set}{}{}
     \ekvdef{}{}{}
   }
+
+\ekvredirectunknown{foo}{bar, baz }
+\ekvredirectunknownNoVal{foo}{ bar ,baz}
+
+\TESTEXP{unknown keys with redirect}
+  {\ekvset{foo}{abc=val, abc}}
 
 \END
