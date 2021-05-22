@@ -701,10 +701,10 @@ and the derived files           expkv.pdf
 %     \cs{ekverr}\marg{package}\marg{message}
 %   \end{syntax}
 %   This macro will throw an error fully expandably.\footnotemark\ The error
-%   length is limited to a total length of 68~characters, and since ten
+%   length is limited to a total length of 69~characters, and since ten
 %   characters will be added for the formatting (\verb*|! | and
 %   \verb*| Error: |) that leaves us with a total length for \meta{package} plus
-%   \meta{message} of 58~characters. If the message gets longer \TeX\ will only
+%   \meta{message} of 59~characters. If the message gets longer \TeX\ will only
 %   display the first 69~characters and append |\ETC.| to the end.
 %
 %   Neither \meta{package} nor \meta{message} expand any further. Also
@@ -713,7 +713,7 @@ and the derived files           expkv.pdf
 %
 %   If |^^J| is set up as the |\newlinechar| (which is the case in \LaTeXe\ but
 %   not in plain \TeX\ by default) you can use that to introduce line breaks in
-%   your error message. However that doesn't limit the message length.
+%   your error message. However that doesn't change the message length limit.
 % \end{function}
 % \footnotetext{The used mechanism was to the best of my knowledge first
 % implemented by Jean-François Burnol.}
