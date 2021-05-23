@@ -1,0 +1,40 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+\OMIT
+\def\test{\ekvoptarg\testA{none}}
+\def\testA#1#2{optional: #1; mandatory: #2\NEWLINE}
+\def\testTF{\ekvoptargTF\testA\testB}
+\def\testB#1{optional: none; mandatory: #1\NEWLINE}
+\TIMO
+
+\TESTEXP{optarg}
+  {%
+    \test{1}%
+    \test[1]{2}%
+    \testTF{1}%
+    \testTF[1]{2}%
+  }
+
+\OMIT
+\def\testA#1#2{\TYPE{optional: #1; mandatory: #2}}
+\def\testB#1{\TYPE{optional: none; mandatory: #1}}
+\TIMO
+
+\TEST{optarg alignment}
+  {%
+    \setbox0\vbox{\halign{#&\TYPE{\ERROR}#\cr
+      \test{a&b}\cr
+      \test[a&b]{c&d}\cr
+      \testTF{a&b}\cr
+      \testTF[a&b]{c&d}\cr
+      \relax\test{a&b}\cr
+      \relax\test[a&b]{c&d}\cr
+      \relax\testTF{a&b}\cr
+      \relax\testTF[a&b]{c&d}\cr
+    }}
+  }
+
+\END

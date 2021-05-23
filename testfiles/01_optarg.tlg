@@ -1,0 +1,22 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: optarg
+============================================================
+optional: none; mandatory: 1
+optional: 1; mandatory: 2
+optional: none; mandatory: 1
+optional: 1; mandatory: 2
+============================================================
+============================================================
+TEST 2: optarg alignment
+============================================================
+optional: none; mandatory: a&b
+optional: a&b; mandatory: c&d
+optional: none; mandatory: a&b
+optional: a&b; mandatory: c&d
+optional: none; mandatory: a&b
+optional: a&b; mandatory: c&d
+optional: none; mandatory: a&b
+optional: a&b; mandatory: c&d
+============================================================
