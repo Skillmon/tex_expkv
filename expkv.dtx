@@ -76,34 +76,111 @@ and the derived files           expkv.pdf
 \RequirePackage{microtype}
 \RequirePackage{accsupp}
 \RequirePackage{enumitem}
+\def\mylstwd{.55em}
+\lstdefinelanguage{expkv}[primitive]{TeX}
+  {
+    ,moretexcs=[4]^^A e-TeX
+      {
+        expanded,
+        numexpr,
+        protected,
+      }
+    ,moretexcs=[5]^^A plain/LaTeX
+      {
+        approx,
+        makeatletter,makeatother,
+        newcommand,newdimen,
+        RequirePackage,
+        rule,
+        texttt,
+        usepackage,
+      }
+    ,moretexcs=[6]^^A used packages
+      {
+        ^^A xfp
+        fpeval,
+        ^^A keyval
+        setkeys,
+        ^^A yax
+        defactiveparameter,storevalue,setparameterlist
+      }
+    ,moretexcs=[2]^^A expkv macros
+      {
+        ekvdef,ekvdefNoVal,^^A
+        ekvlet,ekvletNoVal,ekvletkv,ekvletkvNoVal,^^A
+        ekvdefunknown,ekvdefunknownNoVal,^^A
+        ekvredirectunknown,ekvredirectunknownNoVal,^^A
+        ekvset,ekvsetSneaked,^^A
+        ekvsetdef,ekvsetSneakeddef,ekvsetdefSneaked,^^A
+        ekvparse,^^A
+        ekvVersion,ekvDate,^^A
+        ekvifdefined,ekvifdefinedNoVal,ekvifdefinedset,^^A
+        ekvbreak,ekvbreakPreSneak,ekvbreakPostSneak,^^A
+        ekvsneak,ekvsneakPre,^^A
+        ekvchangeset,^^A
+        ekverr
+      }
+    ,moretexcs=[3]^^A expkv-pkg macros
+      {
+        ^^A expkv-cs
+        ekvcSecondaryKeys,ekvcSplitAndForward,
+        ^^A expkv-def
+        ekvdefinekeys
+      }
+  }
+\colorlet{codeparam}{cyan!65!black}
 \lstset
   {
+    ,language=expkv
     ,flexiblecolumns=false
-    ,basewidth=.53em
+    ,basewidth=\mylstwd
     ,gobble=2
     ,basicstyle=\fontfamily{jkp}\itshape
-    ,morekeywords=^^A
-      {^^A
-        \ekvdef,\ekvdefNoVal,^^A
-        \ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,^^A
-        \ekvdefunknown,\ekvdefunknownNoVal,^^A
-        \ekvredirectunknown,\ekvredirectunknownNoVal,^^A
-        \ekvset,\ekvsetSneaked,^^A
-        \ekvsetdef,\ekvsetSneakeddef,\ekvsetdefSneaked,^^A
-        \ekvparse,^^A
-        \ekvVersion,\ekvDate,^^A
-        \ekvifdefined,\ekvifdefinedNoVal,\ekvifdefinedset,^^A
-        \ekvbreak,\ekvbreakPreSneak,\ekvbreakPostSneak,^^A
-        \ekvsneak,\ekvsneakPre,^^A
-        \ekvchangeset
-      }
-    ,morecomment=[l]\%
+    ,texcsstyle=*[1]{\bfseries\color{expkvgrey}} ^^A primitives
+    ,texcsstyle=*[2]{\bfseries\color{expkvred}}  ^^A expkv
+    ,texcsstyle=*[3]{\color{expkvred}}           ^^A expkv-pkg
+    ,texcsstyle=*[4]{\bfseries\color{expkvgrey}} ^^A e-TeX
+    ,texcsstyle=*[5]{\bfseries\color{expkvgrey}} ^^A plain/LaTeX macros
+    ,texcsstyle=*[6]{}                           ^^A macros of other packages
     ,commentstyle=\color[gray]{0.4}
-    ,literate={\{}{{\CodeSymbol\{}}{1}
-              {\}}{{\CodeSymbol\}}}{1}
+    ,literate=
+              {\{} {{\CodeUpBf\{}}{1}
+              {\}} {{\CodeUpBf\}}}{1}
+              {$}  {{\CodeUpBf\$}}{1}
+              {[}  {{\CodeUp[}}{1}
+              {]}  {{\CodeUp]}}{1}
+              {(}  {{\CodeUp(}}{1}
+              {)}  {{\CodeUp)}}{1}
+              {*}  {{$*$}}{1}
+              {1}  {{\CodeUp{1}}}{1}
+              {2}  {{\CodeUp{2}}}{1}
+              {3}  {{\CodeUp{3}}}{1}
+              {4}  {{\CodeUp{4}}}{1}
+              {5}  {{\CodeUp{5}}}{1}
+              {6}  {{\CodeUp{6}}}{1}
+              {7}  {{\CodeUp{7}}}{1}
+              {8}  {{\CodeUp{8}}}{1}
+              {9}  {{\CodeUp{9}}}{1}
+              {0}  {{\CodeUp{0}}}{1}
+              {##} {{\CodeColored{codeparam}{1}{\#}}}{1}
+              {##1}{{\CodeColored{codeparam}{2}{\#1}}}{2}
+              {##2}{{\CodeColored{codeparam}{2}{\#2}}}{2}
+              {##3}{{\CodeColored{codeparam}{2}{\#3}}}{2}
+              {##4}{{\CodeColored{codeparam}{2}{\#4}}}{2}
+              {##5}{{\CodeColored{codeparam}{2}{\#5}}}{2}
+              {##6}{{\CodeColored{codeparam}{2}{\#6}}}{2}
+              {##7}{{\CodeColored{codeparam}{2}{\#7}}}{2}
+              {##8}{{\CodeColored{codeparam}{2}{\#8}}}{2}
+              {##9}{{\CodeColored{codeparam}{2}{\#9}}}{2}
+              {<key>}{{$\langle$}key{$\rangle$}}{5}
+              {<set>}{{$\langle$}set{$\rangle$}}{5}
+              {<set1>}{{$\langle$}set1{$\rangle$}}{6}
+              {<set2>}{{$\langle$}set2{$\rangle$}}{6}
     ^^A,literate=*{<key>}{\key}{4}{<set>}{\set}{4}
   }
-\newcommand*\CodeSymbol[1]{\textbf{#1}}
+\newcommand*\CodeColored[3]{\textcolor{#1}{\makebox[\dimexpr\mylstwd*#2]{#3}}}
+\newcommand*\CodeUpBf[1]{\makebox[\mylstwd]{\textup{\textbf{#1}}}}
+\newcommand*\CodeUp[1]{\makebox[\mylstwd]{\textup{#1}}}
 \RequirePackage{randtext}
 \let\metaORIG\meta
 \protected\def\meta #1{\texttt{\metaORIG{#1}}}
@@ -601,11 +678,11 @@ and the derived files           expkv.pdf
 %   another macro, you should use |\expanded| as only then the input stream will
 %   contain the output above:
 % \begin{lstlisting}
-% \expandafter\handle\expanded{\ekvparse\k\kv{foo = bar, key, baz={zzz}}}
+% \expandafter\parse\expanded{\ekvparse\k\kv{foo = bar, key, baz={zzz}}}
 % \end{lstlisting}
 %   would expand to
 % \begin{lstlisting}
-% \handle\kv{foo}{bar}\k{key}\kv{baz}{zzz}
+% \parse\kv{foo}{bar}\k{key}\kv{baz}{zzz}
 % \end{lstlisting}
 %
 % \subsection{Other Macros}
@@ -675,7 +752,7 @@ and the derived files           expkv.pdf
 %   list everything that has been |\ekvsneak|ed will be left in the input
 %   stream. A small usage example is shown in \autoref{sec:sneakex}.
 % \end{function}
-% \example Define a key |secret| in the set |foo| that will sneak out a macro
+% \example Define a key |secret| in the set |foo| that will sneak out
 % |\foo@secretly@sneaked|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvdefNoVal{foo}{secret}{\ekvsneak{\foo@secretly@sneaked}}
@@ -749,7 +826,7 @@ and the derived files           expkv.pdf
 %       \fi
 %     \relax
 %   }
-% Result of $(10+5)/(3-3)$: \mydivision{10+5}{3-3}
+% $(10+5)/(3-3)\approx\mydivision{10+5}{3-3}$
 % \end{lstlisting}
 % If that code gets executed the following will be the terminal output
 % \begin{verbatim}
@@ -764,12 +841,12 @@ and the derived files           expkv.pdf
 % continue hoping recovery was complete.
 % <to be read again>
 %                    \par
-% l.17 ... of $(10+5)/(3-3)$: \mydivision{10+5}{3-3}
-% 
+% l.15 $(10+5)/(3-3)\approx\mydivision{10+5}{3-3}
+%                                                $ 
 % ?
 % \end{verbatim}
 % and if we continued the \TeX\ run at the prompt the output would contain\\
-% \fbox{Result of $(10+5)/(3-3)$: 2147483647}.
+% \fbox{$(10+5)/(3-3)\approx2147483647$}.
 %
 % \bigskip
 %
@@ -819,7 +896,8 @@ and the derived files           expkv.pdf
 % \end{lstlisting}
 % Now we set up our macro to use this \kv\ interface
 % \begin{lstlisting}
-% \protected\def\ourmacro#1{\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
+% \protected\def\ourmacro#1%
+%   {\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
 % \end{lstlisting}
 % Finally we can use our macro like in the following\\
 % \begin{minipage}{6cm}
@@ -860,7 +938,7 @@ and the derived files           expkv.pdf
 %
 % Another small example could be a \kv\ driven |\rule| alternative, because I
 % keep forgetting the correct order of its arguments. First we define the keys
-% (and initialize the used macros to store the keys):
+% (and initialize the macros used to store the keys):
 % \begin{lstlisting}
 % \makeatletter
 % \newcommand*\myrule@ht{1ex}
@@ -869,12 +947,14 @@ and the derived files           expkv.pdf
 % \protected\ekvdef{myrule}{ht}{\def\myrule@ht{#1}}
 % \protected\ekvdef{myrule}{wd}{\def\myrule@wd{#1}}
 % \protected\ekvdef{myrule}{raise}{\def\myrule@raise{#1}}
+% \protected\ekvdef{myrule}{lower}{\def\myrule@raise{-#1}}
 % \end{lstlisting}
 % Then we define a macro to change the defaults outside of |\myrule| and
 % |\myrule| itself:
 % \begin{lstlisting}
 % \ekvsetdef\myruleset{myrule}
-% \newcommand*\myrule[1][]{\begingroup\myruleset{#1}\myrule@out\endgroup}
+% \newcommand*\myrule[1][]
+%   {\begingroup\myruleset{#1}\myrule@out\endgroup}
 % \end{lstlisting}
 % And finally the output:
 % \begin{lstlisting}
@@ -885,7 +965,7 @@ and the derived files           expkv.pdf
 % \begin{minipage}{7cm}
 % \begin{lstlisting}
 % a\myrule\par
-% a\myrule[ht=2ex,raise=-.5ex]\par
+% a\myrule[ht=2ex,lower=.5ex]\par
 % \myruleset{wd=5pt}
 % a\myrule
 % \end{lstlisting}
@@ -898,12 +978,13 @@ and the derived files           expkv.pdf
 %   \protected\ekvdef{myrule}{ht}{\def\myrule@ht{#1}}
 %   \protected\ekvdef{myrule}{wd}{\def\myrule@wd{#1}}
 %   \protected\ekvdef{myrule}{raise}{\def\myrule@raise{#1}}
+%   \protected\ekvdef{myrule}{lower}{\def\myrule@raise{-#1}}
 %   \ekvsetdef\myruleset{myrule}
 %   \newcommand*\myrule[1][]{\begingroup\myruleset{#1}\myrule@out\endgroup}
 %   \newcommand*\myrule@out{\rule[\myrule@raise]\myrule@wd\myrule@ht}
 %   \makeatother
 %   a\myrule\par
-%   a\myrule[ht=2ex,raise=-.5ex]\par
+%   a\myrule[ht=2ex,lower=.5ex]\par
 %   \myruleset{wd=5pt}
 %   a\myrule
 % \end{minipage}
@@ -997,7 +1078,7 @@ and the derived files           expkv.pdf
 % \makeatother
 % \end{lstlisting}
 % Let's test our macro:\\
-% \begin{minipage}{.7\linewidth}
+% \begin{minipage}{.75\linewidth}
 %   \begin{lstlisting}[gobble=4]
 %   \sine{}{60}\par
 %   \sine{round=10}{60}\par
@@ -1130,7 +1211,7 @@ and the derived files           expkv.pdf
 % from \autoref{sec:define} you'll get a low level \TeX\ error, as that isn't
 % actively tested by the parser (and hence will lead to undefined behaviour and
 % not be gracefully ignored). The error will look like
-% \begin{lstlisting}
+% \begin{lstlisting}[language={}]
 % ! Missing \endcsname inserted.
 % <to be read again>
 %                    \! expkv Error: Set `<set>' undefined.
@@ -1267,8 +1348,8 @@ and the derived files           expkv.pdf
 % loading \yax\ broke \pkg{options} for me. The tested definition was:
 % \begin{lstlisting}[belowskip=0pt]
 % \usepackage{yax}
-% \defactiveparameter yax {\storevalue\myheight yax:height } % key setup
-% \setparameterlist{yax}{ height = 6 }                       % benchmarked
+% \defactiveparameter yax {\storevalue\myheight yax:height } % setup
+% \setparameterlist{yax}{ height = 6 }                       % benchmark
 % \end{lstlisting}
 %
 % \begin{table}
