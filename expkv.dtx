@@ -76,6 +76,19 @@ and the derived files           expkv.pdf
 \RequirePackage{microtype}
 \RequirePackage{accsupp}
 \RequirePackage{enumitem}
+\RequirePackage{tcolorbox}
+\newtcolorbox{exresult}[2][]
+  {colback=expkvgrey!10!white,colframe=expkvgrey,fontupper=\small,width={#2},#1}
+\newtcbox\exres[1][]
+  {
+     colback=expkvgrey!10!white
+    ,colframe=expkvgrey
+    ,size=small
+    ,nobeforeafter
+    ,tcbox raise base
+    ,fontupper=\small
+    ,#1
+  }
 \def\mylstwd{.55em}
 \lstdefinelanguage{expkv}[primitive]{TeX}
   {
@@ -88,11 +101,16 @@ and the derived files           expkv.pdf
     ,moretexcs=[5]^^A plain/LaTeX
       {
         approx,
+        begin,
+        empty,
+        item,
+        LaTeX,
         makeatletter,makeatother,
         newcommand,newdimen,
         RequirePackage,
         rule,
-        texttt,
+        TeX,
+        textit,texttt,
         usepackage,
       }
     ,moretexcs=[6]^^A used packages
@@ -797,7 +815,7 @@ and the derived files           expkv.pdf
 % argument has to use nested braces like so: |[{arg]ument}]|.
 % \example Say we have a macro that should take an optional argument defaulting
 % to 1:
-% \begin{lstlisting}
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \newcommand\foo{\ekvoptarg\@foo{1}}
 % \newcommand\@foo[2]{Mandatory: #2\par Optional: #1}
 % \end{lstlisting}
@@ -814,7 +832,7 @@ and the derived files           expkv.pdf
 % same limitations as |\ekvoptarg|.
 % \example Say we have a macro that should behave differently depending on
 % whether there was an optional argument or not. This could be done with:
-% \begin{lstlisting}
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \newcommand\foo{\ekvoptargTF\foo@a\foo@b}
 % \newcommand\foo@a[2]{Mandatory: #2\par Optional: #1}
 % \newcommand\foo@b[1]{Mandatory: #1\par No optional.}
@@ -890,8 +908,9 @@ and the derived files           expkv.pdf
 %                                                $
 % ?
 % \end{verbatim}
-% and if we continued the \TeX\ run at the prompt the output would contain\\
-% \fbox{$(10+5)/(3-3)\approx2147483647$}.
+% and the output would contain
+% \exres{$(10+5)/(3-3)\approx2147483647$}
+% if we continued the \TeX\ run at the prompt.
 %
 % \bigskip
 %
@@ -945,14 +964,14 @@ and the derived files           expkv.pdf
 %   {\begingroup\ekvset{our}{#1}\the\ourdim\endgroup}
 % \end{lstlisting}
 % Finally we can use our macro like in the following\\
-% \begin{minipage}{6cm}
+% \begin{minipage}{.5\linewidth}
 % \begin{lstlisting}
 % \ourmacro{}\par
 % \ourmacro{width}\par
 % \ourmacro{width=5pt}\par
 % \end{lstlisting}
 % \end{minipage}^^A
-% \begin{minipage}{\dimexpr\linewidth-6cm\relax}
+% \begin{exresult}[nobeforeafter,box align=center]{.5\linewidth}
 %   \newdimen\ourdim\ourdim=150pt
 %   \protected\ekvdef{our}{width}{\ourdim=#1\relax}^^A
 %   \protected\ekvdefNoVal{our}{width}{\ourdim=.9\hsize}^^A
@@ -961,7 +980,7 @@ and the derived files           expkv.pdf
 %   \ourmacro{}\par
 %   \ourmacro{width}\par
 %   \ourmacro{width=5pt}\par
-% \end{minipage}
+% \end{exresult}
 %
 % \paragraph{The same keys using \protect\expkvd}
 % Using \expkvd\ we can set up the equivalent key using a \kv\ interface, after
@@ -1007,7 +1026,7 @@ and the derived files           expkv.pdf
 % \makeatother
 % \end{lstlisting}
 % And we can use it:\\
-% \begin{minipage}{7cm}
+% \begin{minipage}{.5\linewidth}
 % \begin{lstlisting}
 % a\myrule\par
 % a\myrule[ht=2ex,lower=.5ex]\par
@@ -1015,7 +1034,7 @@ and the derived files           expkv.pdf
 % a\myrule
 % \end{lstlisting}
 % \end{minipage}^^A
-% \begin{minipage}{\dimexpr\linewidth-7cm\relax}
+% \begin{exresult}[nobeforeafter,box align=center]{.5\linewidth}
 %   \makeatletter
 %   \newcommand*\myrule@ht{1ex}
 %   \newcommand*\myrule@wd{0.1em}
@@ -1032,7 +1051,7 @@ and the derived files           expkv.pdf
 %   a\myrule[ht=2ex,lower=.5ex]\par
 %   \myruleset{wd=5pt}
 %   a\myrule
-% \end{minipage}
+% \end{exresult}
 %
 %
 % \subsubsection{An Expandable \kv\ Macro Using \cs[no-index]{ekvsneak}}
@@ -1130,8 +1149,8 @@ and the derived files           expkv.pdf
 %   \sine[f=cos,radian]{pi}\par
 %   \edef\myval{\sine[f=tan]{1}}\texttt{\meaning\myval}
 %   \end{lstlisting}
-% \end{minipage}\hfill
-% \begin{minipage}{.2\linewidth}
+% \end{minipage}^^A
+% \begin{exresult}[nobeforeafter,box align=center]{.25\linewidth}
 %   \makeatletter
 %   \ekvdef{expex}{f}{\ekvsneakPre{\f{#1}}}^^A
 %   \ekvdef{expex}{round}{\ekvsneakPre{\rnd{#1}}}^^A
@@ -1150,7 +1169,7 @@ and the derived files           expkv.pdf
 %   \sine[round=10]{60}\par
 %   \sine[f=cos,radian]{pi}\par
 %   \edef\myval{\sine[f=tan]{1}}\texttt{\meaning\myval}
-% \end{minipage}
+% \end{exresult}
 %
 % \paragraph{The same macro using \protect\expkvc}
 % Using \expkvc\ we can set up something equivalent with a bit less code. The
