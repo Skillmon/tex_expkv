@@ -529,7 +529,7 @@ and the derived files           expkv.pdf
 %   sets are discarded, if the \key\ isn't found in any set an error will be
 %   thrown eventually. Note that the error messages are affected by the use of
 %   this macro, in particular, it isn't checked whether a |NoVal| key of the
-%   same name is defined in order to throw a |value forbidden| error.
+%   same name is defined in order to throw an |unwanted value| error.
 %   |\ekvdefunknown| and |\ekvredirectunknown| are mutually exclusive,
 %   you can't use both.
 % \end{function}
@@ -547,7 +547,7 @@ and the derived files           expkv.pdf
 %   |NoVal| keys. Again no prefixes are supported. Note that the error messages
 %   are affected by the use of this macro, in particular, it isn't checked
 %   whether a normal key of the same name is defined in order to throw a
-%   |value forbidden| error.
+%   |missing value| error.
 %   |\ekvdefunknownNoVal| and |\ekvredirectunknownNoVal| are mutually exclusive,
 %   you can't use both.
 % \end{function}
@@ -694,12 +694,17 @@ and the derived files           expkv.pdf
 %   the \key. There are no macros like these two contained in \expkv, you have
 %   to set them up yourself if you want to use |\ekvparse| (of course the names
 %   might differ). If you need the results of |\ekvparse| as the argument for
-%   another macro, you should use |\expanded| as only then the input stream will
-%   contain the output above:
+%   another macro, you should use |\expanded|, or expand |\ekvparse| twice, as
+%   only then the input stream will contain the output above:
 % \begin{lstlisting}
 % \expandafter\parse\expanded{\ekvparse\k\kv{foo = bar, key, baz={zzz}}}
 % \end{lstlisting}
-%   would expand to
+% or
+% \begin{lstlisting}
+% \expandafter\expandafter\expandafter
+% \parse\ekvparse\k\kv{foo = bar, key, baz={zzz}}
+% \end{lstlisting}
+%   would both expand to
 % \begin{lstlisting}
 % \parse\kv{foo}{bar}\k{key}\kv{baz}{zzz}
 % \end{lstlisting}
@@ -1209,7 +1214,7 @@ and the derived files           expkv.pdf
 % \file{expkv.tex} checks whether \eTeX\ and the |\expanded| primitive are
 % available. If it isn't, an error will be thrown using |\errmessage|:
 % \begin{lstlisting}
-% ! expkv Error: e-TeX required.
+% ! expkv Error: e-TeX and \expanded required.
 % \end{lstlisting}
 %
 % \subsubsection{Defining Keys}
