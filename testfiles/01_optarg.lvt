@@ -8,6 +8,8 @@
 \def\testA#1#2{optional: #1; mandatory: #2\NEWLINE}
 \def\testTF{\ekvoptargTF\testA\testB}
 \def\testB#1{optional: none; mandatory: #1\NEWLINE}
+\def\testgobble#1{}
+\def\exptwice#1{\unexpanded\expandafter\expandafter\expandafter{#1}}
 \TIMO
 
 \TESTEXP{optarg}
@@ -35,6 +37,26 @@
       \relax\testTF{a&b}\cr
       \relax\testTF[a&b]{c&d}\cr
     }}
+  }
+
+\TESTEXP{exactly two steps}
+  {%
+    \exptwice{\ekvoptarg{}{default}{mandatory}}\NEWLINE
+    \exptwice{\ekvoptarg{}{default}[optional]{mandatory}}\NEWLINE
+    \exptwice{\ekvoptargTF{yes}{no}{mandatory}}\NEWLINE
+    \exptwice{\ekvoptargTF{yes}{no}[optional]{mandatory}}
+  }
+
+\TESTEXP{argument grabbing only at second step}
+  {%
+    % these usages would err if the first expansion would try to grab any
+    % arguments. We gobble the result of the expansion so that this test doesn't
+    % rely on internal structure and names, but only tests this behaviour
+    % aspect.
+    \expandafter\testgobble\expandafter{%
+      \unexpanded\expandafter{\ekvoptarg}}%
+    \expandafter\testgobble\expandafter{%
+      \unexpanded\expandafter{\ekvoptargTF}}%
   }
 
 \END

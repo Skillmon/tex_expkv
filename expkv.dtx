@@ -808,11 +808,12 @@ and the derived files           expkv.pdf
 %   \meta{next}\marg{default}\marg{mandatory} (so the default will be used and
 %   the mandatory argument will be wrapped in braces).
 % \end{function}
-% |\ekvoptarg| expands in exactly two steps and is alignment safe. It has its
-% limitations however. It can't tell the difference between |[| and |{[}|, so it
-% doesn't work if the mandatory argument is a single bracket. Also if the
-% optional argument should contain a nested closing bracket, the optional
-% argument has to use nested braces like so: |[{arg]ument}]|.
+% |\ekvoptarg| expands in exactly two steps, grabs all the arguments only at the
+% second expansion step, and is alignment safe. It has its limitations however.
+% It can't tell the difference between |[| and |{[}|, so it doesn't work if the
+% mandatory argument is a single bracket. Also if the optional argument should
+% contain a nested closing bracket, the optional argument has to use nested
+% braces like so: |[{arg]ument}]|.
 % \example Say we have a macro that should take an optional argument defaulting
 % to 1:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
@@ -828,8 +829,9 @@ and the derived files           expkv.pdf
 %   \meta{true}\marg{optional}\meta{mandatory} or \meta{false}\marg{mandatory}
 %   instead of placing a default value.
 % \end{function}
-% |\ekvoptargTF| expands in exactly two steps and is alignment safe. It has the
-% same limitations as |\ekvoptarg|.
+% |\ekvoptargTF| expands in exactly two steps, grabs all the arguments only at
+% the second expansion step, and is alignment safe. It has the same limitations
+% as |\ekvoptarg|.
 % \example Say we have a macro that should behave differently depending on
 % whether there was an optional argument or not. This could be done with:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
@@ -1547,8 +1549,8 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvVersion,\ekvDate}
 % We're on our first input, so lets store the version and date in a macro.
 %    \begin{macrocode}
-\def\ekvVersion{1.8}
-\def\ekvDate{2021-05-24}
+\def\ekvVersion{1.8a}
+\def\ekvDate{2021-06-03}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2689,30 +2691,28 @@ and the derived files           expkv.pdf
 \def\ekvoptarg#1#2{%
 \endgroup
 %    \end{macrocode}
-% The real definition starts an expansion context after grabbing the arguments.
-% |#1| will be the next step, |#2| the default value, and |#3| might be an
-% opening bracket, or the mandatory argument. We check for the opening bracket,
-% if it is found grab the optional argument, else leave |#1{#2}| in the input
-% stream after ending the expansion context.
+% The real definition starts an expansion context and afterwards grabs the
+% arguments. |#1| will be the next step, |#2| the default value, and |#3| might
+% be an opening bracket, or the mandatory argument. We check for the opening
+% bracket, if it is found grab the optional argument, else leave |#1{#2}| in the
+% input stream after ending the expansion context.
 %    \begin{macrocode}
-\long\def\ekvoptarg##1##2##3%
+\def\ekvoptarg{\romannumeral#1\ekv@optarg@a}
+\long\def\ekv@optarg@a##1##2##3%
   {%
-    \romannumeral
-    #1%
-    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optarg\ekv@mark[\ekv@mark
+    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optarg@b\ekv@mark[\ekv@mark
     #2%
     \@firstofone{\ekv@zero##1}{##2}{##3}%
-  }
+  }%
 %    \end{macrocode}
 % The other variant of this will do roughly the same. Here, |#1| will be the
 % next step if an optional argument is found, |#2| the next step else, and |#3|
 % might be the opening bracket or mandatory argument.
 %    \begin{macrocode}
-\long\def\ekvoptargTF##1##2##3%
+\def\ekvoptargTF{\romannumeral#1\ekv@optargTF@a}
+\long\def\ekv@optargTF@a##1##2##3%
   {%
-    \romannumeral
-    #1%
-    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optargTF{##1}\ekv@mark[\ekv@mark
+    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optargTF@b{##1}\ekv@mark[\ekv@mark
     #2%
     \@firstofone{\ekv@zero##2}{##3}%
   }
@@ -2720,9 +2720,10 @@ and the derived files           expkv.pdf
 % The two macros to grab the optional argument have to remove the remainder of
 % the test and the wrong next step as well as grabbing the argument.
 %    \begin{macrocode}
-\long\def\ekv@optarg\ekv@mark[\ekv@mark\ifnum`##1\fi\@firstofone##2##3##4##5]%
+\long\def\ekv@optarg@b\ekv@mark[\ekv@mark\ifnum`##1\fi\@firstofone##2##3##4##5]%
   {#2##2{##5}}
-\long\def\ekv@optargTF##1\ekv@mark[\ekv@mark\ifnum`##2\fi\@firstofone##3##4##5]%
+\long\def\ekv@optargTF@b
+    ##1\ekv@mark[\ekv@mark\ifnum`##2\fi\@firstofone##3##4##5]%
   {#2\ekv@zero##1{##5}}
 }
 %    \end{macrocode}
