@@ -43,6 +43,7 @@ This work consists of the file  expkv.dtx
 and the derived files           expkv.pdf
                                 expkv.sty
                                 expkv.tex
+                                t-expkv.tex
 
 \endpreamble
 % stop docstrip adding \endinput
@@ -50,6 +51,7 @@ and the derived files           expkv.pdf
 \endpostamble
 \generate{\file{expkv.sty}{\from{expkv.dtx}{pkg}}}
 \generate{\file{expkv.tex}{\from{expkv.dtx}{tex}}}
+\generate{\file{t-expkv.tex}{\from{expkv.dtx}{ctx}}}
 \ifx\fmtname\nameofplainTeX
   \expandafter\endbatchfile
 \else
@@ -98,7 +100,7 @@ and the derived files           expkv.pdf
         numexpr,
         protected,
       }
-    ,moretexcs=[5]^^A plain/LaTeX
+    ,moretexcs=[5]^^A plain/LaTeX/ConTeXt
       {
         approx,
         begin,
@@ -112,6 +114,7 @@ and the derived files           expkv.pdf
         TeX,
         textit,texttt,
         usepackage,
+        usemodule,
       }
     ,moretexcs=[6]^^A used packages
       {
@@ -302,13 +305,21 @@ and the derived files           expkv.pdf
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
 \DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
-\DoNotIndex{\@,\unexpanded,\string,\expanded,\detokenize,\meaning,\lastnamedcs}
-\DoNotIndex{\romannumeral,\z@}
+\DoNotIndex{\^,\@,\unexpanded,\string,\expanded,\detokenize,\meaning}
+\DoNotIndex{\lastnamedcs,\romannumeral,\z@,\module}
+\DoNotIndex{\noexpand,\normalexpanded,\normalunexpanded}
+\DoNotIndex{\par,\protect}
+\DoNotIndex{\unprotect}
+\DoNotIndex{\writestatus}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
+\DoNotIndex{\iffalse}
+\DoNotIndex{\ifnum}
 \DoNotIndex{\else}
 \DoNotIndex{\fi}
-\@gobble\fi ^^A ignoring \ifx and \ifcsname, but only one \fi
+\@gobble\fi ^^A ignoring \ifx etc., but only one \fi
+\@gobble\fi ^^A ignoring \ifx etc., but only one \fi
+\@gobble\fi ^^A ignoring \ifx etc., but only one \fi
 \@ifdefinable\gobbledocstriptag{\def\gobbledocstriptag#1>{}}
 \newcommand*\pmso[1] ^^A poor man's strike out
   {^^A
@@ -365,15 +376,17 @@ and the derived files           expkv.pdf
 % example \pkg{babel} turns characters active for some languages, for instance
 % the equal sign is turned active for Turkish.
 %
-% \expkv\ is usable as generic code or as a \LaTeX\ package. To use it, just
-% use one of:
+% \expkv\ is usable as generic code, as a \LaTeX\ package or as a \ConTeXt\
+% module. To use it, just use one of:
 % \begin{lstlisting}
-% \usepackage{expkv} % LaTeX
 % \input expkv       % plainTeX
+% \usepackage{expkv} % LaTeX
+% \usemodule[expkv]  % ConTeXt
 % \end{lstlisting}
-% The \LaTeX\ package doesn't do more than \file{expkv.tex}, except calling
-% |\ProvidesPackage| and setting things up such that \file{expkv.tex} will use
-% |\ProvidesFile|.
+% Both the \LaTeX\ package and the \ConTeXt\ module don't do more than
+% \file{expkv.tex}, except calling |\ProvidesPackage| and setting things up such
+% that \file{expkv.tex} will use |\ProvidesFile|, or setting the |\module|
+% metadata.
 %
 % In the \expkv\ family are other packages contained which provide additional
 % functionality. Those packages currently are:
@@ -1523,6 +1536,28 @@ and the derived files           expkv.pdf
 % \gobbledocstriptag
 %</pkg>
 %^^A=<<
+%^^A the ConTeXt module >>=
+% \subsection{The \ConTeXt\ module}
+% \gobbledocstriptag
+%<*ctx>
+%    \begin{macrocode}
+%D \module
+%D   [file=t-expkv,
+%D    version=1.8a,
+%D    title=expkv,
+%D    subtitle=an expandable key=val implementation,
+%D    author=Jonathan P. Spratte,
+%D    date=2021-06-03,
+%D    copyright=Jonathan P. Spratte,
+%D    license=LPPL1.3c+]
+\writestatus{loading}{expkv -- an expandable key=val implementation}
+\unprotect
+\input expkv.tex
+\protect\endinput
+%    \end{macrocode}
+% \gobbledocstriptag
+%</ctx>
+%^^A=<<
 %^^A main file >>=
 % \subsection{The Generic Code}
 % The rest of this implementation will be the generic code.
@@ -1545,9 +1580,22 @@ and the derived files           expkv.pdf
   \expandafter
 \endgroup
 \ifx\ekvtmpa\ekvtmpb
+  \expandafter\let\csname ekv@expanded\endcsname\expanded
+  \expandafter\let\csname ekv@unexpanded\endcsname\unexpanded
 \else
-  \errmessage{expkv Error: e-TeX and \noexpand\expanded required}
-  \expandafter\endinput
+  \begingroup
+    \edef\ekvtmpa{\string\expanded}
+    \edef\ekvtmpb{\meaning\normalexpanded}
+    \expandafter
+  \endgroup
+  \ifx\ekvtmpa\ekvtmpb
+    \expandafter\let\csname ekv@expanded\endcsname\normalexpanded
+    \expandafter\let\csname ekv@unexpanded\endcsname\normalunexpanded
+  \else
+    \errmessage
+      {expkv Error: e-TeX and the \noexpand\expanded primitive required}%
+    \expandafter\endinput
+  \fi
 \fi
 %    \end{macrocode}
 %
@@ -1785,7 +1833,7 @@ and the derived files           expkv.pdf
     \ekv@strip{#2}{\ekv@csv@loop@do{#1}}%
     \ekv@csv@loop{#1}\ekv@mark
   }
-\long\def\ekv@csv@loop@do#1#2{\unexpanded{#1{#2}}}
+\long\def\ekv@csv@loop@do#1#2{\ekv@unexpanded{#1{#2}}}
 \long\expandafter\def\expandafter\ekv@csv@loop@end
     \expandafter\ekv@stop
     \ekv@strip{#1}#2%
@@ -1801,8 +1849,8 @@ and the derived files           expkv.pdf
 \def\ekv@name@key#1{#1)}
 \edef\ekv@name
   {%
-    \unexpanded\expandafter{\ekv@name@set{#1}}%
-    \unexpanded\expandafter{\ekv@name@key{\detokenize{#2}}}%
+    \ekv@unexpanded\expandafter{\ekv@name@set{#1}}%
+    \ekv@unexpanded\expandafter{\ekv@name@key{\detokenize{#2}}}%
   }
 \ekv@exparg{\def\ekv@name#1#2}{\ekv@name}
 %    \end{macrocode}
@@ -1831,15 +1879,15 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \edef\ekv@checkvalid
   {%
-    \unexpanded\expandafter{\ekv@ifempty{#1}}%
-    \unexpanded
+    \ekv@unexpanded\expandafter{\ekv@ifempty{#1}}%
+    \ekv@unexpanded
       {{%
         \def\ekv@tmp{}%
         \errmessage{expkv Error: empty set name not allowed}%
       }}%
       {%
-        \unexpanded\expandafter{\ekv@ifempty{#2}}%
-        \unexpanded
+        \ekv@unexpanded\expandafter{\ekv@ifempty{#2}}%
+        \ekv@unexpanded
           {%
             {%
               \def\ekv@tmp{}%
@@ -1848,7 +1896,7 @@ and the derived files           expkv.pdf
             \@secondoftwo
           }%
       }%
-    \unexpanded{\@gobble}%
+    \ekv@unexpanded{\@gobble}%
   }
 \ekv@exparg{\protected\def\ekv@checkvalid#1#2}{\ekv@checkvalid}%
 %    \end{macrocode}
@@ -1925,13 +1973,13 @@ and the derived files           expkv.pdf
   }
 \edef\ekvdefNoVal
   {%
-    {\unexpanded\expandafter{\ekv@checkvalid{#1}{#2}}}%
-    {\unexpanded\expandafter{\ekv@name{#1}{#2}}}%
+    {\ekv@unexpanded\expandafter{\ekv@checkvalid{#1}{#2}}}%
+    {\ekv@unexpanded\expandafter{\ekv@name{#1}{#2}}}%
     {%
-      \unexpanded{\expandafter\ekv@defsetmacro\csname}%
-      \unexpanded\expandafter{\ekv@undefined@set{#1}\endcsname{#1}}%
+      \ekv@unexpanded{\expandafter\ekv@defsetmacro\csname}%
+      \ekv@unexpanded\expandafter{\ekv@undefined@set{#1}\endcsname{#1}}%
     }%
-    {\unexpanded\expandafter{\ekv@name{#3}{#4}}}%
+    {\ekv@unexpanded\expandafter{\ekv@name{#3}{#4}}}%
   }
 \expandafter\ekvdef\ekvdefNoVal
 %    \end{macrocode}
@@ -1970,7 +2018,7 @@ and the derived files           expkv.pdf
     \edef\ekv@tmp
       {%
         \ekv@csv@loop#1\ekv@mark#6,\ekv@stop,%
-        \unexpanded{#2}%
+        \ekv@unexpanded{#2}%
         {\ekv@csv@loop{}\ekv@mark#5,#6,\ekv@stop,}%
       }%
     \ekv@expargtwice
@@ -2044,7 +2092,7 @@ and the derived files           expkv.pdf
 %   The key name given to this loop will already be |\detokenize|d by |\ekvset|,
 %   so we can safely remove the |\detokenize| here for some performance gain.
 %    \begin{macrocode}
-\def\ekv@redirect@kv#1\detokenize#2#3\ekv@stop{\unexpanded{#1#2#3}}
+\def\ekv@redirect@kv#1\detokenize#2#3\ekv@stop{\ekv@unexpanded{#1#2#3}}
 \edef\ekv@redirect@kv
   {%
     {\expandafter\ekv@redirect@kv\ekv@name{#2}{#1}N\ekv@stop}%
@@ -2081,12 +2129,12 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \edef\ekv@defsetmacro
   {%
-    \unexpanded{\ifx#1\relax\edef#1##1}%
+    \ekv@unexpanded{\ifx#1\relax\edef#1##1}%
       {%
-        \unexpanded\expandafter{\ekv@name@set{#2}}%
-        \unexpanded\expandafter{\ekv@name@key{##1}}%
+        \ekv@unexpanded\expandafter{\ekv@name@set{#2}}%
+        \ekv@unexpanded\expandafter{\ekv@name@key{##1}}%
       }%
-    \unexpanded{\fi}%
+    \ekv@unexpanded{\fi}%
   }
 \ekv@exparg{\protected\def\ekv@defsetmacro#1#2}{\ekv@defsetmacro}
 %    \end{macrocode}
@@ -2264,12 +2312,12 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \edef\ekv@set@noeq
   {%
-    \unexpanded
+    \ekv@unexpanded
       {%
         \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@set@was@blank
           \ekv@ifempty@A\ekv@ifempty@B
       }%
-    \unexpanded\expandafter
+    \ekv@unexpanded\expandafter
       {\ekv@strip{##1}{\expandafter\ekv@set@key\detokenize}\ekv@mark}%
   }
 \ekv@exparg
@@ -2321,12 +2369,15 @@ and the derived files           expkv.pdf
 % macro, that has the same scope as |\keyval_parse:NNn| from \pkg{expl3}.
 % This is pretty analogue to the |\ekvset| implementation, we just put an
 % |\unexpanded| here and there instead of other macros to stop the |\expanded|
-% on our output. The |\unexpanded\expanded{{...}}| ensures that the material is
-% in an alignment safe group at all time, and that it doesn't expand any further
-% in an |\edef| or |\expanded| context.
+% on our output. The |\unexpanded\expanded{{...}}| ensures that the material
+% is in an alignment safe group at all time, and that it doesn't expand any
+% further in an |\edef| or |\expanded| context.
 %    \begin{macrocode}
 \long\def\ekvparse##1##2##3%
-  {\unexpanded\expanded{{\ekv@parse{##1}{##2}\ekv@mark##3#1\ekv@stop#1}}}
+  {%
+    \ekv@unexpanded\ekv@expanded
+      {{\ekv@parse{##1}{##2}\ekv@mark##3#1\ekv@stop#1}}%
+  }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2408,12 +2459,12 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \edef\ekv@parse@noeq
   {%
-    \unexpanded
+    \ekv@unexpanded
       {%
         \ekv@ifblank@##1\ekv@nil\ekv@ifempty@B\ekv@parse@was@blank
           \ekv@ifempty@A\ekv@ifempty@B
       }%
-      \unexpanded\expandafter{\ekv@strip{##1}\ekv@parse@key}%
+      \ekv@unexpanded\expandafter{\ekv@strip{##1}\ekv@parse@key}%
   }
 \ekv@exparg
   {%
@@ -2444,7 +2495,7 @@ and the derived files           expkv.pdf
   {\ekv@strip{##2}\ekv@parse@pair@{##1}}
 \long\def\ekv@parse@pair@##1##2##3##4%
   {%
-    \unexpanded{##4{##2}{##1}}%
+    \ekv@unexpanded{##4{##2}{##1}}%
     \ekv@parse@other{##3}{##4}%
   }
 %    \end{macrocode}
@@ -2454,7 +2505,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \long\def\ekv@parse@key##1##2%
   {%
-    \unexpanded{##2{##1}}%
+    \ekv@unexpanded{##2{##1}}%
     \ekv@parse@other{##2}%
   }
 %    \end{macrocode}
@@ -2475,8 +2526,8 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \edef\ekvsetSneaked
   {%
-    \unexpanded{\ekvsneak{#2}}%
-    \unexpanded\expandafter{\ekvset{#1}{#3}}%
+    \ekv@unexpanded{\ekvsneak{#2}}%
+    \ekv@unexpanded\expandafter{\ekvset{#1}{#3}}%
   }
 \ekv@expargtwice{\long\def\ekvsetSneaked#1#2#3}{\ekvsetSneaked}
 %    \end{macrocode}
@@ -2804,7 +2855,8 @@ and the derived files           expkv.pdf
 \ekv@exparg{\long\def\ekv@err@common@#1`#2' #3.#4#5}%
   {\ekv@err{#4 `#5' in set `#2'}}
 \ekv@exparg{\long\def\ekv@err@unknown#1}{\ekv@err@common{unknown key}{#1}}
-\ekv@exparg{\long\def\ekv@err@noarg  #1}{\ekv@err@common{unwanted value for}{#1}}
+\ekv@exparg{\long\def\ekv@err@noarg  #1}
+  {\ekv@err@common{unwanted value for}{#1}}
 \ekv@exparg{\long\def\ekv@err@reqval #1}{\ekv@err@common{missing value for}{#1}}
 \ekv@exparg{\long\def\ekv@err@redirect@kv@notfound#1#2#3\ekv@stop}%
   {\ekv@err{no key `#2' in sets #3}}
