@@ -1,0 +1,23 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+
+\TESTEXP{correct expansions}
+  {%
+    \ekvcsvloop{}{\empty,\foo,\bar,d}\NEWLINE
+    \ekvcsvloop\empty{a,b,c,d}%
+  }
+
+\TESTEXP{space stripping}
+  {%
+    \ekvcsvloop{|}{a , b, c ,{a },{ b},{ c }, {a }, { b}, { c } }|
+  }
+
+\TESTEXP{ignore blank entries}
+  {%
+    \ekvcsvloop{|}{,,a,b,c,,}|
+  }
+
+\END
