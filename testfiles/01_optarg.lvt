@@ -59,4 +59,19 @@
       \unexpanded\expandafter{\ekvoptargTF}}%
   }
 
+\OMIT
+\def\EMPTY{}
+\def\test{\ekvoptarg\TEST{\empty}}
+\def\testTF{\ekvoptargTF\TEST{\TEST\empty}}
+\def\TEST#1#2{\unexpanded{#1} and \unexpanded{#2}\NEWLINE}
+\TIMO
+
+\TESTEXP{no accidental expansion of arguments}
+  {%
+    \test{\empty}%
+    \test[\EMPTY]{\empty}%
+    \testTF{\empty}%
+    \testTF[\EMPTY]{\empty}%
+  }
+
 \END
