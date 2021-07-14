@@ -845,6 +845,43 @@ and the derived files           expkv.pdf
 % \newcommand\foo@b[1]{Mandatory: #1\par No optional.}
 % \end{lstlisting}
 %
+% \begin{function}{\ekvcsvloop}
+%   \begin{syntax}
+%     \cs{ekvcsvloop}\marg{code}\marg{csv-list}
+%   \end{syntax}
+%   This loops over the comma separated items in \meta{csv-list} and, after
+%   stripping spaces from either end of \meta{item} and removing at most one set
+%   of outer braces, leaves
+%   \texttt
+%     {^^A
+%       \cs[no-index]{unexpanded}\hskip0pt
+%       \{\hskip0pt
+%         \meta{code}\hskip0pt
+%         \marg{item}\hskip0pt
+%       \}^^A
+%     }
+%   for each list item in the input stream. Blank elements are ignored (if you
+%   need a blank element it should be given as |{}|). It supports both active
+%   commas and commas of category other. You could consider it as a watered down
+%   version of |\ekvparse|. However it is not alignment safe, which you could
+%   achieve by nesting it in |\expanded| (since the braces around the argument
+%   of |\expanded| will hide |&|s from \TeX's alignment parsing).
+% \end{function}
+% \example The following splits a comma separated list and prints it in a
+% typewriter font with parentheses around each element.\\
+% \begin{minipage}{.75\linewidth}
+% \begin{lstlisting}
+% \newcommand*\myprocessor[1]{\texttt{(#1)}}
+% \ekvcsvloop\myprocessor{abc,def,ghi}\par
+% \ekvcsvloop\myprocessor{1,,2,,3,,4}\par
+% \end{lstlisting}
+% \end{minipage}^^A
+% \begin{exresult}[nobeforeafter,box align=center]{.25\linewidth}
+%   \newcommand*\myprocessor[1]{\texttt{(#1)}}
+%   \ekvcsvloop\myprocessor{abc,def,ghi}\par
+%   \ekvcsvloop\myprocessor{1,,2,,3,,4}\par
+% \end{exresult}
+%
 % \begin{function}{\ekverr}
 %   \begin{syntax}
 %     \cs{ekverr}\marg{package}\marg{message}
@@ -1762,35 +1799,73 @@ and the derived files           expkv.pdf
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[internal]{\ekv@csv@loop,\ekv@csv@loop@do,\ekv@csv@loop@end}
-%   This is just a very simple loop over a list of comma separated values,
-%   leaving each element as the argument to a specified function inside of
-%   |\unexpanded|. It should be used as
-%   \texttt
-%     {^^A
-%       \cs[no-index]{ekv@csv@loop}\hskip0pt^^A
-%       \marg{function}\hskip0pt^^A
-%       \cs[no-index]{ekv@mark}\hskip0pt^^A
-%       \meta{csv-list}\hskip0pt^^A
-%       ,\cs[no-index]{ekv@stop},^^A
-%     }.
-%   We use some |\expandafter| chain to preexpand |\ekv@strip| here.
+% \begin{macro}{\ekvcsvloop}
+% \begin{macro}[internal]{\ekv@csv@loop@active,\ekv@csv@loop@active@end}
+%   An |\ekvcsvloop| will just loop over a csv list in a simple manner. First we
+%   split at active commas (gives better performance this way), next we have to
+%   check whether we're at the end of the list (checking for |\ekv@stop|). If
+%   not we go on splitting at commas of category other.
 %    \begin{macrocode}
-\ekv@exparg{\long\def\ekv@csv@loop#1#2,}%
+\begingroup
+\def\ekvcsvloop#1{%
+\endgroup
+\long\def\ekvcsvloop##1##2%
+  {\ekv@csv@loop@active{##1}\ekv@mark##2#1\ekv@stop#1}
+%    \end{macrocode}
+%   This does the same as |\ekv@csv@loop| but for active commas.
+%    \begin{macrocode}
+\long\def\ekv@csv@loop@active##1##2#1%
   {%
-    \expandafter
-    \ekv@gobble@from@mark@to@stop
-      \expandafter#\expandafter2\expandafter\ekv@csv@loop@end\expandafter
+    \ekv@gobble@from@mark@to@stop##2\ekv@csv@loop@active@end\ekv@stop
+    \ekv@csv@loop{##1}##2,\ekv@stop,%
+  }%
+\long\def\ekv@csv@loop@active@end
     \ekv@stop
-    \ekv@strip{#2}{\ekv@csv@loop@do{#1}}%
-    \ekv@csv@loop{#1}\ekv@mark
+    \ekv@csv@loop##1\ekv@mark\ekv@stop,\ekv@stop,%
+  {}%
+}
+%    \end{macrocode}
+%   Do the definitions with the weird catcode.
+%    \begin{macrocode}
+\catcode`\,=13
+\ekvcsvloop,
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekv@csv@loop,\ekv@csv@loop@do,\ekv@csv@loop@end}
+%   We use temporary macros and an |\expandafter| chain to preexpand
+%   |\ekv@strip| here. After splitting at other commas we check again for end
+%   the end of the sublist, check for blank elements which should be ignored,
+%   and else strip spaces and execute the user code (protecting it from further
+%   expanding with |\unexpanded|).
+%    \begin{macrocode}
+\def\ekv@csv@loop#1%
+  {%
+    \long\def\ekv@csv@loop##1##2,%
+      {%
+        \ekv@gobble@from@mark@to@stop##2\ekv@csv@loop@end\ekv@stop
+        \ekv@ifblank@##2\ekv@nil\ekv@ifempty@B\ekv@csv@loop@blank
+          \ekv@ifempty@A\ekv@ifempty@B
+        #1\ekv@csv@loop@do{##1}%
+      }%
   }
-\long\def\ekv@csv@loop@do#1#2{\unexpanded{#1{#2}}}
-\long\expandafter\def\expandafter\ekv@csv@loop@end
-    \expandafter\ekv@stop
-    \ekv@strip{#1}#2%
-    \ekv@csv@loop#3\ekv@mark
-  {}
+\expandafter\ekv@csv@loop\expandafter{\ekv@strip{#2}}
+\long\def\ekv@csv@loop@do#1#2{\unexpanded{#2{#1}}\ekv@csv@loop{#2}\ekv@mark}
+\def\ekv@csv@loop@end#1%
+  {%
+    \long\def\ekv@csv@loop@end
+        \ekv@stop
+        \ekv@ifblank@\ekv@mark\ekv@stop\ekv@nil\ekv@ifempty@B\ekv@csv@loop@blank
+        \ekv@ifempty@A\ekv@ifempty@B
+        #1\ekv@csv@loop@do##1%
+      {\ekv@csv@loop@active{##1}\ekv@mark}%
+  }
+\expandafter\ekv@csv@loop@end\expandafter{\ekv@strip{\ekv@mark\ekv@stop}}
+\long\expandafter\def\expandafter\ekv@csv@loop@blank
+    \expandafter\ekv@ifempty@A\expandafter\ekv@ifempty@B
+    \ekv@strip{\ekv@mark#1}\ekv@csv@loop@do#2%
+  {\ekv@csv@loop{#2}\ekv@mark}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1969,9 +2044,9 @@ and the derived files           expkv.pdf
     \begingroup
     \edef\ekv@tmp
       {%
-        \ekv@csv@loop#1\ekv@mark#6,\ekv@stop,%
+        \ekvcsvloop#1{#6}%
         \unexpanded{#2}%
-        {\ekv@csv@loop{}\ekv@mark#5,#6,\ekv@stop,}%
+        {\ekvcsvloop{}{#5,#6}}%
       }%
     \ekv@expargtwice
       {\endgroup#3{#5}}%
