@@ -2690,7 +2690,10 @@ and the derived files           expkv.pdf
 % possibilities (they don't care for nested bracket levels).
 %
 % We start with a temporary definition to pre-expand |\ekv@alignsafe| (will be
-% |#1|) and |\ekv@endalignsafe| (will be |#2|).
+% |#1|) and |\ekv@endalignsafe| (will be |#2|). As |\ekv@alignsafe| starts with
+% a |\romannumeral| we use that to also control the number of steps needed
+% instead of adding another |\romannumeral|. For this we have to remove the
+% space token from the end of |\ekv@alignsafe|'s definition.
 %    \begin{macrocode}
 \begingroup
 \def\ekvoptarg#1#2{%
@@ -2702,24 +2705,24 @@ and the derived files           expkv.pdf
 % bracket, if it is found grab the optional argument, else leave |#1{#2}| in the
 % input stream after ending the expansion context.
 %    \begin{macrocode}
-\def\ekvoptarg{\romannumeral#1\ekv@optarg@a}
+\def\ekvoptarg{#1\ekv@optarg@a}
 \long\def\ekv@optarg@a##1##2##3%
   {%
     \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optarg@b\ekv@mark[\ekv@mark
     #2%
-    \@firstofone{\ekv@zero##1}{##2}{##3}%
+    \@firstofone{ ##1}{##2}{##3}%
   }%
 %    \end{macrocode}
 % The other variant of this will do roughly the same. Here, |#1| will be the
 % next step if an optional argument is found, |#2| the next step else, and |#3|
 % might be the opening bracket or mandatory argument.
 %    \begin{macrocode}
-\def\ekvoptargTF{\romannumeral#1\ekv@optargTF@a}
+\def\ekvoptargTF{#1\ekv@optargTF@a}
 \long\def\ekv@optargTF@a##1##2##3%
   {%
     \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optargTF@b{##1}\ekv@mark[\ekv@mark
     #2%
-    \@firstofone{\ekv@zero##2}{##3}%
+    \@firstofone{ ##2}{##3}%
   }
 %    \end{macrocode}
 % The two macros to grab the optional argument have to remove the remainder of
@@ -2729,12 +2732,19 @@ and the derived files           expkv.pdf
   {#2##2{##5}}
 \long\def\ekv@optargTF@b
     ##1\ekv@mark[\ekv@mark\ifnum`##2\fi\@firstofone##3##4##5]%
-  {#2\ekv@zero##1{##5}}
+  {#2 ##1{##5}}
 }
 %    \end{macrocode}
-% Do the definitions and add the test macro.
+% Do the definitions and add the test macro. We use |\ekv@strip| to remove the
+% trailing space from the definition of |\ekv@alignsafe|.
 %    \begin{macrocode}
-\ekv@exparg{\expandafter\ekvoptarg\expandafter{\ekv@alignsafe}}\ekv@endalignsafe
+\ekv@exparg
+  {%
+    \expandafter\ekv@strip\expandafter
+      {\expandafter\ekv@mark\ekv@alignsafe}%
+      \ekvoptarg
+  }%
+  \ekv@endalignsafe
 \long\def\ekv@optarg@if#1\ekv@mark[\ekv@mark{}
 %    \end{macrocode}
 % \end{macro}
