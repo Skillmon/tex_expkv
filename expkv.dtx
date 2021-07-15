@@ -421,7 +421,7 @@ and the derived files           expkv.pdf
 % \end{function}
 % \example Define |text| in |foo| to store the value inside |\foo@text|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
-% \protected\long\ekvdef{foo}{text}{\def\foo@width{#1}}
+% \protected\long\ekvdef{foo}{text}{\def\foo@text{#1}}
 % \end{lstlisting}
 %
 % \begin{function}{\ekvdefNoVal}
@@ -440,7 +440,8 @@ and the derived files           expkv.pdf
 %     \cs{ekvlet}\marg{set}\marg{key}\meta{cs}
 %   \end{syntax}
 %   Let the value taking \key\ in \set\ to \meta{cs}, there are no checks on
-%   \meta{cs} enforced.
+%   \meta{cs} enforced, but the code should expect the value as a single braced
+%   argument directly following it.
 % \end{function}
 % \example Let |cmd| in |foo| do the same as |\foo@cmd|:
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
@@ -811,7 +812,8 @@ and the derived files           expkv.pdf
 %   argument will be wrapped in braces, the mandatory argument will be
 %   untouched). If there was no optional argument the result will be
 %   \meta{next}\marg{default}\marg{mandatory} (so the default will be used and
-%   the mandatory argument will be wrapped in braces).
+%   the mandatory argument will be wrapped in braces after being read once -- if
+%   it was already wrapped it is effectively unchanged).
 % \end{function}
 % |\ekvoptarg| expands in exactly two steps, grabs all the arguments only at the
 % second expansion step, and is alignment safe. It has its limitations however.
