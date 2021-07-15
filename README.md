@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 # expkv -- an expandable key=val implementation
 
-Version 2021-06-03 v1.8a
+Version 2021-07-15 v1.9
 
 Released under the LaTeX Project Public License v1.3c or later
 See http://www.latex-project.org/lppl.txt
