@@ -1,0 +1,44 @@
+% this file is just a thin wrapper around expkv redefining some stuff so that
+% one can step through expkv-code using the unravel package.
+\ProvidesPackage{expkv-unravel}
+
+\RequirePackage{unravel}
+\RequirePackage{expkv}
+
+\@ifdefinable\ekv@unravel@maybe@end{\let\ekv@unravel@maybe@end\@empty}
+\DeclareOption{off}{\let\ekv@unravel@maybe@end\endinput}
+\ProcessOptions\relax
+
+\ekv@unravel@maybe@end
+
+\ExplSyntaxOn
+\def\ekv@alignsafe{\group_align_safe_begin:}
+\def\ekv@endalignsafe{\group_align_safe_end:}
+\ExplSyntaxOff
+
+\begingroup
+\def\ekvoptarg#1#2{%
+\endgroup
+\def\ekvoptarg{\romannumeral#1\ekv@optarg@a}
+\long\def\ekv@optarg@a##1##2##3%
+  {%
+    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optarg@b\ekv@mark[\ekv@mark
+    #2%
+    \@firstofone{\ekv@zero##1}{##2}{##3}%
+  }%
+\def\ekvoptargTF{\romannumeral#1\ekv@optargTF@a}
+\long\def\ekv@optargTF@a##1##2##3%
+  {%
+    \ekv@optarg@if\ekv@mark##3\ekv@mark\ekv@optargTF@b{##1}\ekv@mark[\ekv@mark
+    #2%
+    \@firstofone{\ekv@zero##2}{##3}%
+  }
+\long\def\ekv@optarg@b\ekv@mark[\ekv@mark##1\@firstofone##2##3##4##5]%
+  {#2##2{##5}}
+\long\def\ekv@optargTF@b
+    ##1\ekv@mark[\ekv@mark##2\@firstofone##3##4##5]%
+  {#2\ekv@zero##1{##5}}
+}
+\ekv@exparg{\expandafter\ekvoptarg\expandafter{\ekv@alignsafe}}\ekv@endalignsafe
+
+\endinput

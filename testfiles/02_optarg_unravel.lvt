@@ -1,0 +1,77 @@
+\input regression-test
+
+\RequirePackage{expkv-unravel}
+
+\START
+\OMIT
+\def\test{\ekvoptarg\testA{none}}
+\def\testA#1#2{optional: #1; mandatory: #2\NEWLINE}
+\def\testTF{\ekvoptargTF\testA\testB}
+\def\testB#1{optional: none; mandatory: #1\NEWLINE}
+\def\testgobble#1{}
+\def\exptwice#1{\unexpanded\expandafter\expandafter\expandafter{#1}}
+\TIMO
+
+\TESTEXP{optarg}
+  {%
+    \test{1}%
+    \test[1]{2}%
+    \testTF{1}%
+    \testTF[1]{2}%
+  }
+
+\OMIT
+\def\testA#1#2{\TYPE{optional: #1; mandatory: #2}}
+\def\testB#1{\TYPE{optional: none; mandatory: #1}}
+\TIMO
+
+\TEST{optarg alignment}
+  {%
+    \setbox0\vbox{\halign{#&\TYPE{\ERROR}#\cr
+      \test{a&b}\cr
+      \test[a&b]{c&d}\cr
+      \testTF{a&b}\cr
+      \testTF[a&b]{c&d}\cr
+      \relax\test{a&b}\cr
+      \relax\test[a&b]{c&d}\cr
+      \relax\testTF{a&b}\cr
+      \relax\testTF[a&b]{c&d}\cr
+    }}
+  }
+
+\TESTEXP{exactly two steps}
+  {%
+    \exptwice{\ekvoptarg{}{default}{mandatory}}\NEWLINE
+    \exptwice{\ekvoptarg{}{default}[optional]{mandatory}}\NEWLINE
+    \exptwice{\ekvoptargTF{yes}{no}{mandatory}}\NEWLINE
+    \exptwice{\ekvoptargTF{yes}{no}[optional]{mandatory}}
+  }
+
+\TESTEXP{argument grabbing only at second step}
+  {%
+    % these usages would err if the first expansion would try to grab any
+    % arguments. We gobble the result of the expansion so that this test doesn't
+    % rely on internal structure and names, but only tests this behaviour
+    % aspect.
+    \expandafter\testgobble\expandafter{%
+      \unexpanded\expandafter{\ekvoptarg}}%
+    \expandafter\testgobble\expandafter{%
+      \unexpanded\expandafter{\ekvoptargTF}}%
+  }
+
+\OMIT
+\def\EMPTY{}
+\def\test{\ekvoptarg\TEST{\empty}}
+\def\testTF{\ekvoptargTF\TEST{\TEST\empty}}
+\def\TEST#1#2{\unexpanded{#1} and \unexpanded{#2}\NEWLINE}
+\TIMO
+
+\TESTEXP{no accidental expansion of arguments}
+  {%
+    \test{\empty}%
+    \test[\EMPTY]{\empty}%
+    \testTF{\empty}%
+    \testTF[\EMPTY]{\empty}%
+  }
+
+\END
