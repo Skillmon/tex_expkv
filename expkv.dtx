@@ -1929,14 +1929,14 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
 %    \begin{macrocode}
-\def\ekv@name@set#1{ekv#1(}
-\def\ekv@name@key#1{#1)}
+\long\def\ekv@name@set#1{ekv#1(}
+\long\def\ekv@name@key#1{#1)}
 \edef\ekv@name
   {%
     \ekv@unexpanded\expandafter{\ekv@name@set{#1}}%
     \ekv@unexpanded\expandafter{\ekv@name@key{\detokenize{#2}}}%
   }
-\ekv@exparg{\def\ekv@name#1#2}{\ekv@name}
+\long\ekv@exparg{\def\ekv@name#1#2}{\ekv@name}
 %    \end{macrocode}
 % \end{macro}
 %
