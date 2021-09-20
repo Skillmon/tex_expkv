@@ -1955,9 +1955,9 @@ and the derived files           expkv.pdf
       {#1{\expandafter\def\csname#2\endcsname####1{##3}#3}}%
     \protected\long\def\ekvdefNoVal##1##2##3%
       {#1{\expandafter\def\csname#2N\endcsname{##3}#3}}%
-    \protected\def\ekvlet##1##2##3%
+    \protected\long\def\ekvlet##1##2##3%
       {#1{\expandafter\let\csname#2\endcsname##3#3}}%
-    \protected\def\ekvletNoVal##1##2##3%
+    \protected\long\def\ekvletNoVal##1##2##3%
       {#1{\expandafter\let\csname#2N\endcsname##3#3}}%
     \ekv@expargtwice{\protected\long\def\ekvdefunknown##1##2}%
       {%
@@ -1981,7 +1981,7 @@ and the derived files           expkv.pdf
           }%
           {\ekv@zero\ekv@checkvalid{##1}.}%
       }%
-    \protected\def\ekvletkv##1##2##3##4%
+    \protected\long\def\ekvletkv##1##2##3##4%
       {%
         #1%
           {%
@@ -1990,7 +1990,7 @@ and the derived files           expkv.pdf
             #3%
           }%
       }%
-    \protected\def\ekvletkvNoVal##1##2##3##4%
+    \protected\long\def\ekvletkvNoVal##1##2##3##4%
       {%
         #1%
           {%
