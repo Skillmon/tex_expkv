@@ -302,11 +302,12 @@ and the derived files           expkv.pdf
 \newcommand\val{\meta{value}}
 \newcommand\set{\meta{set}}
 \hypersetup{linkcolor=red!80!black,urlcolor=purple!80!black}
+\DoNotIndex{\directlua}
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
 \DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
 \DoNotIndex{\^,\@,\unexpanded,\string,\expanded,\detokenize,\meaning}
-\DoNotIndex{\lastnamedcs,\romannumeral,\z@,\module}
+\DoNotIndex{\lastnamedcs,\romannumeral,\z@}
 \DoNotIndex{\noexpand,\normalexpanded,\normalunexpanded}
 \DoNotIndex{\par,\protect}
 \DoNotIndex{\unprotect}
@@ -385,8 +386,10 @@ and the derived files           expkv.pdf
 % \end{lstlisting}
 % Both the \LaTeX\ package and the \ConTeXt\ module don't do more than
 % \file{expkv.tex}, except calling |\ProvidesPackage| and setting things up such
-% that \file{expkv.tex} will use |\ProvidesFile|, or setting the |\module|
-% metadata.
+% that \file{expkv.tex} will use |\ProvidesFile|, or printing some status
+% information. The \ConTeXt\ support is not thoroughly tested, though (since I
+% don't use \ConTeXt\ myself I don't know if there are additional pitfalls I
+% wasn't aware of).
 %
 % In the \expkv\ family are other packages contained which provide additional
 % functionality. Those packages currently are:
@@ -893,6 +896,11 @@ and the derived files           expkv.pdf
 % \end{verbatim}
 % Any clean up has to be done by you, |\ekverr| will expand to nothing after
 % throwing the error message.
+%
+% In \ConTeXt\ this macro works differently. While still being fully expandable,
+% it doesn't have the character count limitation and doesn't impose restrictions
+% on \meta{package}. It will not display the additional text and adding line
+% breaks is not possible.
 % \example Say we set up a small calculation which works with user input. In our
 % calculation we need a division, so have to watch out for division by zero. If
 % we detect such a case we throw an error and do the recovery by using the
@@ -1538,12 +1546,18 @@ and the derived files           expkv.pdf
 %^^A=<<
 %^^A the ConTeXt module >>=
 % \subsection{The \ConTeXt\ module}
+% This is pretty straight forward, we just have to change the error throwing
+% mechanism for \ConTeXt\ (the approach taken for plain and \LaTeX\ breaks in
+% \ConTeXt, effectively breaking \ConTeXt, dropping you in an interactive \TeX\
+% session with almost no means of escape).
 % \gobbledocstriptag
 %<*ctx>
 %    \begin{macrocode}
 \writestatus{loading}{ConTeXt User Module / expkv}
 \unprotect
 \input expkv.tex
+\long\def\ekv@err@collect#1\par#2%
+  {\directlua{tex.error[[\detokenize{#2} Error: #1]]}}
 \writestatus{loading}
   {ConTeXt User Module / expkv / Version \ekvVersion\space loaded}
 \protect\endinput
