@@ -426,7 +426,7 @@ and the derived files           expkv.pdf
 % prefixes allowed for |\let| can prefix those with ``|let|'' in their name,
 % accordingly. Neither \set\ nor \key\ are allowed to be empty for new keys.
 % \set\ will be used as is inside of |\csname ...\endcsname| and \key\ will get
-% |\detokenize|d.
+% |\detokenize|d. Also \set\ should not contain an explicit |\par| token.
 %
 % \begin{function}{\ekvdef}
 %   \begin{syntax}
@@ -1929,7 +1929,7 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekv@name,\ekv@name@set,\ekv@name@key}
 % The keys will all follow the same naming scheme, so we define it here.
 %    \begin{macrocode}
-\long\def\ekv@name@set#1{ekv#1(}
+\def\ekv@name@set#1{ekv#1(}
 \long\def\ekv@name@key#1{#1)}
 \edef\ekv@name
   {%
@@ -1989,9 +1989,9 @@ and the derived files           expkv.pdf
 % \begin{macro}{\ekvifdefined,\ekvifdefinedNoVal}
 % And provide user-level macros to test whether a key is defined.
 %    \begin{macrocode}
-\ekv@expargtwice{\def\ekvifdefined#1#2}%
+\ekv@expargtwice{\long\def\ekvifdefined#1#2}%
   {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}}}
-\ekv@expargtwice{\def\ekvifdefinedNoVal#1#2}%
+\ekv@expargtwice{\long\def\ekvifdefinedNoVal#1#2}%
   {\expandafter\ekv@ifdefined\expandafter{\ekv@name{#1}{#2}N}}
 %    \end{macrocode}
 % \end{macro}

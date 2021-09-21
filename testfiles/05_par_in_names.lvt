@@ -1,0 +1,47 @@
+\input regression-test
+
+\RequirePackage{expkv}
+
+\START
+
+\OMIT
+\newcommand\DOT{\TYPE{.}}
+\TIMO
+
+\TESTEXP{par in tests}
+  {%
+    \ekvifdefined{foo}{\par}{!}{.}%
+    \ekvifdefinedNoVal{foo}{\par}{!}{.}%
+  }
+
+\TEST{par in def}
+  {%
+    \ekvdef{foo}{\par}{}\DOT
+    \ekvdefNoVal{foo}{\par}{}\DOT
+  }
+
+\TEST{par in let}
+  {%
+    \ekvlet{foo}{\par}\par\DOT
+    \ekvletNoVal{foo}{\par}\par\DOT
+    \ekvletkv{bar}{\par}{foo}{\par}\DOT
+    \ekvletkvNoVal{bar}{\par}{foo}{\par}\DOT
+  }
+
+\TEST{par in unknown}
+  {%
+    \long\ekvdefunknown{foo}{.}%
+    \ekvdefunknownNoVal{foo}{.}%
+    \TYPE{\ekvset{foo}{\par,\par=\par}}%
+  }
+
+\TEST{par in forward}
+  {%
+    \ekvredirectunknown{foo}{bar}%
+    \ekvredirectunknownNoVal{foo}{bar}%
+    \TYPE{\ekvset{foo}{\par,\par=\par}}%
+    \long\ekvdef{bar}{\par}{.}%
+    \ekvdefNoVal{bar}{\par}{.}%
+    \TYPE{\ekvset{foo}{\par,\par=\par}}%
+  }
+\END

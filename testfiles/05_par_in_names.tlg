@@ -1,0 +1,61 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: par in tests
+============================================================
+..
+============================================================
+============================================================
+TEST 2: par in def
+============================================================
+.
+.
+============================================================
+============================================================
+TEST 3: par in let
+============================================================
+.
+.
+.
+.
+============================================================
+============================================================
+TEST 4: par in unknown
+============================================================
+..
+============================================================
+============================================================
+TEST 5: par in forward
+============================================================
+Runaway argument?
+! expkv Error: no NoVal key `\par ' in sets {foo}{bar}
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+                   \par 
+l. ...  }
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+Runaway argument?
+! expkv Error: no key `\par ' in sets {foo}{bar}
+! Paragraph ended before \<an-expandable-macro>
+completed due to above exception.  If the error
+summary is  not comprehensible  see the package
+documentation.
+I will try to recover now.  If you're in inter-
+active mode hit <return>  at the ? prompt and I
+continue hoping recovery was complete.
+<to be read again> 
+                   \par 
+l. ...  }
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+..
+============================================================
