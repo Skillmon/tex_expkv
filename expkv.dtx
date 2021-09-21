@@ -2147,7 +2147,7 @@ and the derived files           expkv.pdf
           {%
             \ifcsname#2\endcsname\ekv@redirect@kv@a\fi\@gobble{##1}%
             ##4{##1}{##2}%
-          }
+          }%
         \def\ekv@redirect@kv@a\fi\@gobble
           {\fi\expandafter\ekv@redirect@kv@b\lastnamedcs}%
       }
@@ -2166,11 +2166,11 @@ and the derived files           expkv.pdf
             \ifcsname#2\endcsname\ekv@redirect@kv@a\fi\ekv@redirect@kv@a@
               #2\endcsname{##1}%
             ##4{##1}{##2}%
-          }
+          }%
         \long\def\ekv@redirect@kv@a@#4\endcsname##3{}%
         \def\ekv@redirect@kv@a\fi\ekv@redirect@kv@a@
           {\fi\expandafter\ekv@redirect@kv@b\csname}%
-      }
+      }%
   }
 %    \end{macrocode}
 %   The key name given to this loop will already be |\detokenize|d by |\ekvset|,
