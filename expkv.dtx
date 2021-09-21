@@ -1786,7 +1786,7 @@ and the derived files           expkv.pdf
 %    \begin{macrocode}
 \ekv@if@lastnamedcs
   {%
-    \def\ekv@ifdefined#1{\ifcsname#1\endcsname\ekv@ifdef@\fi\@secondoftwo}
+    \long\def\ekv@ifdefined#1{\ifcsname#1\endcsname\ekv@ifdef@\fi\@secondoftwo}
     \def\ekv@ifdef@\fi\@secondoftwo
       {%
         \fi
@@ -1797,7 +1797,7 @@ and the derived files           expkv.pdf
       }
   }
   {%
-    \def\ekv@ifdefined#1%
+    \long\def\ekv@ifdefined#1%
       {%
         \ifcsname#1\endcsname\ekv@ifdef@\fi\ekv@ifdef@false#1\endcsname\relax
           \ekv@fi@secondoftwo
