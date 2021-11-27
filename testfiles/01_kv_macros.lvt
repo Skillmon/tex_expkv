@@ -68,6 +68,8 @@
 \TESTEXP{single k=v}
   {%
     \ekvset{single k=v}{}\NEWLINE
+    \ekvset{single k=v}{ }\NEWLINE
+    \ekvset{single k=v}{, ,}\NEWLINE
     \ekvset{single k=v}{a}\NEWLINE
     \ekvset{single k=v}{a=b}\NEWLINE
     \ekvset{single k=v}{a~b}\NEWLINE
@@ -76,6 +78,8 @@
     \ekvset{single k=v}{a~b=c}\NEWLINE
     \ekvset{single k=v}{a~b~c}\NEWLINE
     \ekvparse\onlykey\keyandvalue{}\NEWLINE
+    \ekvparse\onlykey\keyandvalue{ }\NEWLINE
+    \ekvparse\onlykey\keyandvalue{, ,}\NEWLINE
     \ekvparse\onlykey\keyandvalue{a}\NEWLINE
     \ekvparse\onlykey\keyandvalue{a=b}\NEWLINE
     \ekvparse\onlykey\keyandvalue{a~b}\NEWLINE
