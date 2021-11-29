@@ -3,10 +3,39 @@
 \RequirePackage{expkv}
 
 \START
-\long\ekvdefunknown{test}{Undefined key was `#2', its value was `#1'\NEWLINE}
-\ekvdefunknownNoVal{test}{Undefined key was `#1', no value was given\NEWLINE}
-\TESTEXP{unknown kv}
+\TEST{define handlers}
+  {%
+    \long\ekvdefunknown{test}{Undefined key was `#2', its value was `#1'\NEWLINE}%
+    \ekvdefunknownNoVal{test}{Undefined key was `#1', no value was given\NEWLINE}%
+  }
+
+\OMIT
+\long\ekvdefunknown{test}{Undefined key was `#2', its value was `#1'\NEWLINE}%
+\ekvdefunknownNoVal{test}{Undefined key was `#1', no value was given\NEWLINE}%
+\TIMO
+
+\TESTEXP{unknown kv def}
   {%
     \ekvset{test}{key, key=A, key={{A}},key={abc\par def}}%
+  }
+
+\TEST{let handlers}
+  {%
+    \long\def\testtmp#1#2{Undefined key was `#2', its value was `#1'\NEWLINE}%
+    \ekvletunknown{TEST}\testtmp
+    \long\def\testtmp#1{Undefined key was `#1', no value was given\NEWLINE}%
+    \ekvletunknownNoVal{TEST}\testtmp
+  }
+
+\OMIT
+\long\def\testtmp#1#2{Undefined key was `#2', its value was `#1'\NEWLINE}%
+\ekvletunknown{TEST}\testtmp
+\long\def\testtmp#1{Undefined key was `#1', no value was given\NEWLINE}%
+\ekvletunknownNoVal{TEST}\testtmp
+\TIMO
+
+\TESTEXP{unknown kv let}
+  {%
+    \ekvset{TEST}{key, key=A, key={{A}},key={abc\par def}}%
   }
 \END

@@ -99,6 +99,7 @@ and the derived files           expkv.pdf
         expanded,
         numexpr,
         protected,
+        unexpanded,
       }
     ,moretexcs=[5]^^A plain/LaTeX/ConTeXt
       {
@@ -115,6 +116,7 @@ and the derived files           expkv.pdf
         textit,texttt,
         usepackage,
         usemodule,
+        @gobble,@gobbletwo,
       }
     ,moretexcs=[6]^^A used packages
       {
@@ -130,6 +132,7 @@ and the derived files           expkv.pdf
         ekvdef,ekvdefNoVal,^^A
         ekvlet,ekvletNoVal,ekvletkv,ekvletkvNoVal,^^A
         ekvdefunknown,ekvdefunknownNoVal,^^A
+        ekvletunknown,ekvletunknownNoVal,^^A
         ekvredirectunknown,ekvredirectunknownNoVal,^^A
         ekvset,ekvsetSneaked,^^A
         ekvsetdef,ekvsetSneakeddef,ekvsetdefSneaked,^^A
@@ -141,7 +144,8 @@ and the derived files           expkv.pdf
         ekvchangeset,^^A
         ekvoptarg,ekvoptargTF,^^A
         ekvcsvloop,^^A
-        ekverr
+        ekverr,^^A
+        ekv@name,^^A
       }
     ,moretexcs=[3]^^A expkv-pkg macros
       {
@@ -534,6 +538,47 @@ and the derived files           expkv.pdf
 % \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
 % \ekvdefunknownNoVal{foo}{\ekvset{bar}{#1}}
 % \end{lstlisting}
+%
+% \begin{function}{\ekvletunknown}
+%   \begin{syntax}
+%     \cs{ekvletunknown}\marg{set}\meta{cs}
+%   \end{syntax}
+%   This has the same effect as \cs[no-index]{ekvdefunknown} (so suppresses
+%   errors) but instead of defining a new macro the unknown handler is let to
+%   \meta{cs} which should take two arguments (the first being the \val\ the
+%   second the \key).
+% \end{function}
+% \example Silently ignore unknown keys which were given a value in the set
+% |foo|:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvletunknown{foo}\@gobbletwo
+% \end{lstlisting}
+%
+% \begin{function}{\ekvletunknownNoVal}
+%   \begin{syntax}
+%     \cs{ekvletunknownNoVal}\marg{set}\meta{cs}
+%   \end{syntax}
+%   This will let the unknown handler used when only a \key\ without a \val\ was
+%   used to \meta{cs}. \meta{cs} should be a macro taking one argument which
+%   will be the \key\ name.
+% \end{function}
+% \example Treat every unknown \key\ in the set |foo| without a value as if
+% |bar=|\key\ was used.
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \expanded
+%   {%
+%     \unexpanded{\ekvletunknownNoVal{foo}}%
+%     \unexpanded\expandafter{\csname\ekv@name{foo}{bar}\endcsname}%
+%   }
+% \end{lstlisting}
+% If you want to redefine the |bar| key at some point the above won't work
+% (it'll keep the definition |bar| had when this was used), so you could as well
+% use the slightly slower:
+% \begin{lstlisting}[aboveskip=0pt,belowskip=0pt]
+% \ekvdefunknownNoVal{foo}{\csname\ekv@name{foo}{bar}\endcsname{#1}}
+% \end{lstlisting}
+% In both cases the \key\ would be |\detokenize|d at this point, so macros
+% wouldn't work idiomatically.
 %
 % \begin{function}{\ekvredirectunknown}
 %   \begin{syntax}
@@ -2000,50 +2045,50 @@ and the derived files           expkv.pdf
 % \begin{macro}
 %   {
 %     \ekvdef,\ekvdefNoVal,\ekvlet,\ekvletNoVal,\ekvletkv,\ekvletkvNoVal,
-%     \ekvdefunknown,\ekvdefunknownNoVal
+%     \ekvdefunknown,\ekvdefunknownNoVal,\ekvletunknown,\ekvletunknownNoVal
 %   }
 % Set up the key defining macros |\ekvdef| etc. We use temporary macros to set
 % these up with a few expansions already done.
 %    \begin{macrocode}
-\def\ekvdef#1#2#3#4%
+\def\ekvdef#1#2#3#4#5#6%
   {%
     \protected\long\def\ekvdef##1##2##3%
-      {#1{\expandafter\def\csname#2\endcsname####1{##3}#3}}%
+      {#1{\expandafter\def\csname#2\endcsname####1{##3}#4}}%
     \protected\long\def\ekvdefNoVal##1##2##3%
-      {#1{\expandafter\def\csname#2N\endcsname{##3}#3}}%
+      {#1{\expandafter\def\csname#2N\endcsname{##3}#4}}%
     \protected\long\def\ekvlet##1##2##3%
-      {#1{\expandafter\let\csname#2\endcsname##3#3}}%
+      {#1{\expandafter\let\csname#2\endcsname##3#4}}%
     \protected\long\def\ekvletNoVal##1##2##3%
-      {#1{\expandafter\let\csname#2N\endcsname##3#3}}%
-    \ekv@expargtwice{\protected\long\def\ekvdefunknown##1##2}%
+      {#1{\expandafter\let\csname#2N\endcsname##3#4}}%
+    \ekv@expargtwice{\protected\long\def\ekv@defunknown##1##2##3##4}%
       {%
         \romannumeral
         \expandafter\ekv@exparg@\expandafter
           {%
             \expandafter\expandafter\expandafter
-            \def\expandafter\csname\ekv@name{##1}{}u\endcsname####1####2{##2}%
-            #3%
+            \def\expandafter\csname\ekv@name{##3}{}u##1\endcsname##2{##4}%
+            #6%
           }%
-          {\ekv@zero\ekv@checkvalid{##1}.}%
+          {\ekv@zero\ekv@checkvalid{##3}.}%
       }%
-    \ekv@expargtwice{\protected\long\def\ekvdefunknownNoVal##1##2}%
+    \ekv@expargtwice{\protected\long\def\ekv@letunknown##1##2##3}%
       {%
         \romannumeral
         \expandafter\ekv@exparg@\expandafter
           {%
             \expandafter\expandafter\expandafter
-            \def\expandafter\csname\ekv@name{##1}{}uN\endcsname####1{##2}%
-            #3%
+            \let\expandafter\csname\ekv@name{##2}{}u##1\endcsname##3%
+            #5%
           }%
-          {\ekv@zero\ekv@checkvalid{##1}.}%
+          {\ekv@zero\ekv@checkvalid{##2}.}%
       }%
     \protected\long\def\ekvletkv##1##2##3##4%
       {%
         #1%
           {%
             \expandafter\let\csname#2\expandafter\endcsname
-            \csname#4\endcsname
-            #3%
+            \csname#3\endcsname
+            #4%
           }%
       }%
     \protected\long\def\ekvletkvNoVal##1##2##3##4%
@@ -2051,8 +2096,8 @@ and the derived files           expkv.pdf
         #1%
           {%
             \expandafter\let\csname#2N\expandafter\endcsname
-            \csname#4N\endcsname
-            #3%
+            \csname#3N\endcsname
+            #4%
           }%
       }%
   }
@@ -2060,13 +2105,31 @@ and the derived files           expkv.pdf
   {%
     {\ekv@unexpanded\expandafter{\ekv@checkvalid{#1}{#2}}}%
     {\ekv@unexpanded\expandafter{\ekv@name{#1}{#2}}}%
+    {\ekv@unexpanded\expandafter{\ekv@name{#3}{#4}}}%
     {%
       \ekv@unexpanded{\expandafter\ekv@defsetmacro\csname}%
       \ekv@unexpanded\expandafter{\ekv@undefined@set{#1}\endcsname{#1}}%
     }%
-    {\ekv@unexpanded\expandafter{\ekv@name{#3}{#4}}}%
+    {%
+      \ekv@unexpanded{\expandafter\ekv@defsetmacro\csname}%
+      \ekv@unexpanded\expandafter{\ekv@undefined@set{#2}\endcsname{#2}}%
+    }%
+    {%
+      \ekv@unexpanded{\expandafter\ekv@defsetmacro\csname}%
+      \ekv@unexpanded\expandafter{\ekv@undefined@set{#3}\endcsname{#3}}%
+    }%
   }
 \expandafter\ekvdef\ekvdefNoVal
+\ekv@exparg{\protected\long\def\ekvdefunknown#1#2}%
+  {\ekv@defunknown{}{##1##2}{#1}{#2}}
+\ekv@exparg{\protected\long\def\ekvdefunknownNoVal#1#2}%
+  {\ekv@defunknown{N}{##1}{#1}{#2}}
+\ekv@exparg{\protected\long\def\ekvletunknown#1#2}%
+  {\ekv@letunknown{}{#1}{#2}}
+\ekv@exparg{\protected\long\def\ekvletunknownNoVal#1#2}%
+  {\ekv@letunknown{N}{#1}{#2}}
+\let\ekv@defunknown\ekv@undefined
+\let\ekv@letunknown\ekv@undefined
 %    \end{macrocode}
 % \end{macro}
 %
