@@ -10,17 +10,16 @@ function update_tag(file, content, tagname, tagdate)
     tagname = pkgversion
     tagdate = pkgdate
   end
+  -- update copyright notices
+  _, _, tagyear = string.find(tagdate, "(%d%d%d%d)")
+  content = string.gsub(content,
+    "(Copyright%s*%(C%)%s*%d%d%d%d%-)%d%d%d%d",
+    "%1" .. tagyear)
   if string.match(file, "%.md") then
     return string.gsub(content,
       "%d%d%d%d%-%d%d%-%d%d v%d%.%d%w?",
       tagdate .. " v" .. tagname)
   elseif string.match(file, "expkv.dtx") then
-    content = string.gsub(content,
-      "date=%d%d%d%d%-%d%d%-%d%d",
-      "date=" .. tagdate)
-    content = string.gsub(content,
-      "version=%d.%d%w?",
-      "version=" .. tagname)
     content = string.gsub(content,
       "\\def\\ekvDate{%d%d%d%d%-%d%d%-%d%d}",
       "\\def\\ekvDate{" .. tagdate .. "}")
