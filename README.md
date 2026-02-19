@@ -1,3 +1,5 @@
+# Archived. New home is at https://gitlab.com/islandoftex/texmf/expkv-bundle
+
 -------------------------------------------------------------------------------
 # expkv -- an expandable key=val implementation
 
